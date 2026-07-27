@@ -1,8 +1,9 @@
 # Cresa — Visual Identity
 
-> STATUS: **Colors, typography (Arial), and the primary (color) logo are complete** —
-> official EPS + web SVG/PNG/PDF in `references/assets/`, plus full usage rules. Only
-> the **reversed/white** logo variant is still outstanding.
+> STATUS: **Complete.** Colors, typography (Arial), and both logo variants (standard
+> color + reversed/white) are in place — official EPS plus web SVG/PNG/PDF in
+> `references/assets/`, with full usage rules. Optional future adds: stacked/icon-only
+> lockups and the Cresa Core™ lockup, if/when needed.
 
 ## Color palette
 
@@ -102,10 +103,17 @@ All elements work together seamlessly, so **always use the correct, approved art
 > The SVG/PNG/PDF are derived from the official EPS. The EPS is the source of truth;
 > for any high-stakes print use, prefer the EPS (or request the native AI file).
 
-*Still needed (request from brand team):*
-- [ ] **Reversed / white** version (official) — for dark/Midnight backgrounds. *(Do not fabricate; use official artwork.)*
-- [ ] Monochrome / single-color version (if used).
-- [ ] Stacked/vertical and icon-only (squares) lockups, if they exist.
+*Reversed logo — wide/horizontal, white wordmark + Goldenrod squares (for dark/Midnight backgrounds):*
+- `Cresa_Logo_White_wide.eps` — **official source vector**.
+- `Cresa_Logo_White_wide.svg` — web/artifacts; Goldenrod normalized to `#FFB600`, wordmark `#FFFFFF`; validated on Midnight.
+- `Cresa_Logo_White_wide.png` — transparent, 2003×346; wordmark white, squares Goldenrod.
+- `Cresa_Logo_White_wide.pdf` — vector PDF.
+
+**Which logo when:** light background → `..._Primary_wide.*`; dark/Midnight/photo → `..._White_wide.*`. Never place the color (Midnight) wordmark on a dark field.
+
+*Optional future adds (if they exist):*
+- [ ] Monochrome / single-color version.
+- [ ] Stacked/vertical and icon-only (squares) lockups.
 - [ ] **Cresa Core™** lockup, incl. "Powered by CresaAI | Built on OpenAI".
 
 ## Typography
@@ -127,5 +135,5 @@ body { font-family: var(--cresa-font); }
 
 ## What to ask the user for next
 
-Only outstanding asset: the **official reversed / white logo** (for dark backgrounds).
-Colors, typography (Arial), and the primary color logo are all covered.
+Nothing essential outstanding — colors, typography (Arial), and both logo variants are
+in place. Nice-to-haves only: stacked/icon-only lockups and a Cresa Core™ lockup.
