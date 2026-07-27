@@ -75,8 +75,9 @@ Cresa + **Knight Frank's Occupier Solutions** division = the leading global plat
 
 ## Leadership (verify currency before publishing)
 
-- **Tod Lickerman** — Chief Executive Officer (joined 2021).
-- **Greg Schementi** — President (joined 2022).
+- **Ray Anderson** — Chief Executive Officer (appointed **February 3, 2026**). Succeeded Tod Lickerman. Background: ~20 years consulting for major occupier clients; former senior partner in **EY-Parthenon's** Value Creation group (global enterprise transformation and M&A); previously led the Business Performance Improvement Group at **Huron Consulting**. Bio: https://www.cresa.com/Global/Corporate-Associate-Bios/ray-anderson
+- **Tod Lickerman** — former CEO (2021–2026); **remains on Cresa's Board of Directors**.
+- *President:* Greg Schementi (joined 2022) has **departed**; confirm the current President before citing.
 
 ## History / timeline (highlights)
 
@@ -92,6 +93,7 @@ Cresa + **Knight Frank's Occupier Solutions** division = the leading global plat
 - **2022** — Greg Schementi joins as President; acquires **esrp** (Dallas); new **Chicago HQ** opens.
 - **2023** — Acquires **Vicus Partners** (NY) and **Axiom Advisory Group** (Detroit).
 - **2024** — Acquires **PPM** (doubles Project Management team; adds Transition & Relocation Management), **Fritsche Anderson** (Houston), **NorthStar Owners Representation** (Philadelphia); entity converts to **Cresa, LLC**.
+- **2026** — **Ray Anderson appointed CEO** (Feb 3), succeeding Tod Lickerman (who remains on the Board).
 
 Entity name history (only if specifically asked): Cresa Partners, LLC → re-formed 2012 → **Cresa Global, Inc.** (2017) → **Cresa, LLC** (2024). The founding alliance was originally "Cresa Alliance" (1993); "Cresa Partners LLC" established 1998.
 
