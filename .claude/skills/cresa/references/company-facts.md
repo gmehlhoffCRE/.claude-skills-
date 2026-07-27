@@ -76,8 +76,9 @@ Cresa + **Knight Frank's Occupier Solutions** division = the leading global plat
 ## Leadership (verify currency before publishing)
 
 - **Ray Anderson** — Chief Executive Officer (appointed **February 3, 2026**). Succeeded Tod Lickerman. Background: ~20 years consulting for major occupier clients; former senior partner in **EY-Parthenon's** Value Creation group (global enterprise transformation and M&A); previously led the Business Performance Improvement Group at **Huron Consulting**. Bio: https://www.cresa.com/Global/Corporate-Associate-Bios/ray-anderson
+- **Julie Northcutt-Dunn** — **President, Markets** (newly created role, June 2026). Leads Cresa's 55+ North American offices, focused on strategic planning, operational performance, recruiting/retention, and organic growth. Joined from **Colliers** (Executive Managing Director, Chicago & South-Central Division); prior leadership at **CBRE** and **Fifth Third Bank**. Based in Chicago HQ. Bio: https://www.cresa.com/Global/Corporate-Associate-Bios/julie-dunn
 - **Tod Lickerman** — former CEO (2021–2026); **remains on Cresa's Board of Directors**.
-- *President:* Greg Schementi (joined 2022) has **departed**; confirm the current President before citing.
+- *Note:* Greg Schementi (President, 2022–) has departed; Julie Northcutt-Dunn's **President, Markets** role is the current markets-leadership seat (title differs — use "President, Markets," not "President").
 
 ## History / timeline (highlights)
 
