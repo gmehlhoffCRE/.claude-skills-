@@ -27,6 +27,21 @@ Single source of truth for numbers, dates, and facts. When copy elsewhere disagr
 > Outdated figures to avoid (they appear in older boilerplate): "50 offices," "1,000+
 > employees," "over 20 offices merged." Use the current numbers above.
 
+## Standard company descriptor (approved boilerplate)
+
+Use verbatim (or lightly trimmed) as the closing "about Cresa" paragraph on press
+releases, proposals, and one-pagers. Refresh the headcount/office numbers from the stats
+table if they change:
+
+> With 1,350 employees and 55+ offices across North America, and supported by its global
+> alliance with Knight Frank, Cresa is the world's leading commercial real estate advisory
+> firm that exclusively represents tenants and specializes in the delivery of fully
+> integrated real estate solutions. We think beyond space to find and foster the best
+> environment for every business. Delivered across every industry and supported by
+> world-class technology, Cresa's services include Transaction Management, Project &
+> Development Services, Workplace Solutions, Location Advisory, Portfolio Solutions, Lease
+> Administration, Capital Strategies and Strategic Consulting.
+
 ## Positioning & taglines
 
 - **The world's largest occupier-only commercial real estate firm.** Exclusively represents occupiers; **never** landlords or developers.
