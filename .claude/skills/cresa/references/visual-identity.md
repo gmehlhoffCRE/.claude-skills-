@@ -1,8 +1,9 @@
 # Cresa — Visual Identity
 
-> STATUS: **Color palette complete.** Logo and typography still pending (the source
-> PDFs were read as text, which strips logos and fonts). Don't guess fonts or logo
-> files — ask the user or use the brand guidelines. Color values below are official.
+> STATUS: **Color palette complete. Primary (color) logo delivered** — official EPS +
+> web SVG/PNG/PDF in `references/assets/`, plus full usage rules. Still pending: the
+> **reversed/white** logo variant and **typography** (fonts). Don't guess fonts — ask
+> the user or use the brand guidelines.
 
 ## Color palette
 
@@ -66,16 +67,47 @@ palette, never compete with it. A little goes a long way.
 Suggested chart series order (primary first, then grouped accents):
 `#001E5A` (Midnight) → `#243E8C` (Stadium Blue) → `#0056DA` (Bright Blue) → `#FFB600` (Goldenrod) → `#FF8200` (Warm Orange) → `#595959` (Dark Gray).
 
-## Logo — TODO (awaiting assets)
+## Logo
 
-- [ ] Primary logo (SVG + high-res PNG)
-- [ ] Reversed / white version (for dark/Midnight backgrounds)
-- [ ] Monochrome / single-color version
-- [ ] Clear-space and minimum-size rules
-- [ ] Misuse rules (don't stretch, recolor, add effects)
-- [ ] Cresa Core™ lockup, incl. "Powered by CresaAI | Built on OpenAI"
+**Usage rules are complete; the artwork FILES are still outstanding** (need the actual
+SVG/PNG assets — see checklist at the end of this section).
 
-Store files under `references/assets/` when provided.
+**Meaning & integrity.** The logo tells Cresa's story — every detail is intentional.
+Each **yellow (Goldenrod) square** represents Cresa's values, benefits, and services.
+All elements work together seamlessly, so **always use the correct, approved artwork.**
+
+**Never:**
+- Separate the logotype from the mark.
+- Change the colors, sizes, or construction of any element.
+- Stretch, distort, recolor, or add effects.
+- Put a **shadow** behind the logo.
+
+**Clearspace.** Keep clear space around the logo equal to **2× the height or width of the
+"C"** in the logotype. This keeps the logo from competing for attention.
+
+**Color variations (for legibility on any background):**
+- **Light backgrounds →** use the **standard** logo.
+- **Dark backgrounds →** use the **white** logotype.
+- **Over an image →** place it on an area with enough calm space and contrast. If the
+  layout doesn't give the right balance, **adjust the background, not the logo** — never
+  add a shadow or alter the mark.
+
+**Artwork files (in `references/assets/`):**
+
+*Primary logo — wide/horizontal, standard (color):*
+- `Cresa_Logo_Primary_wide.eps` — **official source vector** (Adobe Illustrator; authoritative for print).
+- `Cresa_Logo_Primary_wide.svg` — vector for **web/artifacts**; fills normalized to brand hex (`#001E5A` / `#FFB600`); validated in Chromium.
+- `Cresa_Logo_Primary_wide.png` — transparent, 2003×346, brand hex; for slides/docs/raster.
+- `Cresa_Logo_Primary_wide.pdf` — vector PDF (from the EPS).
+
+> The SVG/PNG/PDF are derived from the official EPS. The EPS is the source of truth;
+> for any high-stakes print use, prefer the EPS (or request the native AI file).
+
+*Still needed (request from brand team):*
+- [ ] **Reversed / white** version (official) — for dark/Midnight backgrounds. *(Do not fabricate; use official artwork.)*
+- [ ] Monochrome / single-color version (if used).
+- [ ] Stacked/vertical and icon-only (squares) lockups, if they exist.
+- [ ] **Cresa Core™** lockup, incl. "Powered by CresaAI | Built on OpenAI".
 
 ## Typography — TODO (awaiting assets)
 
