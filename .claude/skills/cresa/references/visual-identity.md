@@ -1,9 +1,8 @@
 # Cresa — Visual Identity
 
-> STATUS: **Color palette complete. Primary (color) logo delivered** — official EPS +
-> web SVG/PNG/PDF in `references/assets/`, plus full usage rules. Still pending: the
-> **reversed/white** logo variant and **typography** (fonts). Don't guess fonts — ask
-> the user or use the brand guidelines.
+> STATUS: **Colors, typography (Arial), and the primary (color) logo are complete** —
+> official EPS + web SVG/PNG/PDF in `references/assets/`, plus full usage rules. Only
+> the **reversed/white** logo variant is still outstanding.
 
 ## Color palette
 
@@ -109,14 +108,24 @@ All elements work together seamlessly, so **always use the correct, approved art
 - [ ] Stacked/vertical and icon-only (squares) lockups, if they exist.
 - [ ] **Cresa Core™** lockup, incl. "Powered by CresaAI | Built on OpenAI".
 
-## Typography — TODO (awaiting assets)
+## Typography
 
-- [ ] Headline / display typeface (weights)
-- [ ] Body typeface (weights)
-- [ ] Web-safe / fallback stack
-- [ ] Type scale and usage (H1/H2/body/caption)
+**Cresa's typeface is Arial** — used for both headlines and body copy. Arial is a
+web-safe, universally available sans-serif, which keeps documents consistent across
+Office, email, web, and print without font installs.
+
+- **Headlines / display:** Arial (Bold for emphasis).
+- **Body:** Arial (Regular); Bold and Italic for emphasis as needed.
+- **Fallback stack (web/CSS):** `Arial, Helvetica, "Helvetica Neue", sans-serif`
+- **Usage:** favor weight and size for hierarchy over multiple fonts; pair with the
+  color system (Midnight for headings/anchors, Goldenrod for purposeful emphasis).
+
+```css
+:root { --cresa-font: Arial, Helvetica, "Helvetica Neue", sans-serif; }
+body { font-family: var(--cresa-font); }
+```
 
 ## What to ask the user for next
 
-The **official brand guidelines PDF** (or native template files) — for the **logo files,
-fonts, and type scale**. Colors are now covered.
+Only outstanding asset: the **official reversed / white logo** (for dark backgrounds).
+Colors, typography (Arial), and the primary color logo are all covered.
