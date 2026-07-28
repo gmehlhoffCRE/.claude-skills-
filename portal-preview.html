@@ -4690,7 +4690,7 @@ a:hover{ color:var(--link); }
 .compare-table{ border:1px solid var(--rule); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
 .compare-table th,.compare-table td{
   border:0; border-bottom:1px solid var(--rule-2); border-right:1px solid var(--rule-2);
-  padding:12px 14px; vertical-align:middle; text-align:center;
+  padding:18px 16px; vertical-align:middle; text-align:center;
   font-size:12px; color:var(--ink-2); font-weight:400; background:#fff;
 }
 .compare-table th:last-child,.compare-table td:last-child{ border-right:0; }
@@ -4743,7 +4743,7 @@ a:hover{ color:var(--link); }
 .detail-title-actions{ display:flex; gap:10px; flex:none; padding-top:8px; }
 .detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
-.detail-cols{ display:grid; grid-template-columns:210px minmax(0,1fr) 340px; gap:44px; align-items:start; }
+.detail-cols{ display:grid; grid-template-columns:230px minmax(0,1fr) 460px; gap:40px; align-items:start; }
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
@@ -4782,12 +4782,16 @@ a:hover{ color:var(--link); }
 .detail-right{ display:flex; flex-direction:column; gap:16px; }
 .suite-card{ border:1px solid var(--rule); border-radius:14px; background:#fff; padding:20px; box-shadow:var(--shadow-1); }
 .suite-card-top{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-.suite-name{ font-size:17px; font-weight:700; color:var(--navy); }
-.suite-sf{ font-size:13px; color:var(--ink-3); font-weight:700; white-space:nowrap; }
-.suite-price{ font-size:30px; font-weight:700; color:var(--navy); letter-spacing:-1px; margin:10px 0 6px; line-height:1; }
-.suite-price .per{ font-size:14px; color:var(--ink-4); font-weight:400; letter-spacing:0; margin-left:5px; }
-.suite-sub{ font-size:12.5px; color:var(--ink-4); line-height:1.5; }
-.suite-avail{ font-size:11.5px; color:var(--ink-3); margin-top:8px; }
+.suite-name{ font-size:14px; font-weight:700; color:var(--navy); }
+.suite-sf{ font-size:14px; color:var(--ink-3); font-weight:700; white-space:nowrap; }
+.suite-monthly{ font-size:32px; font-weight:700; color:var(--navy); letter-spacing:-1px; line-height:1; margin:12px 0 2px; }
+.suite-monthly .per{ font-size:13px; color:var(--ink-4); font-weight:600; letter-spacing:0; margin-left:6px; }
+.suite-rentrow{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid var(--rule-2); }
+.suite-rentrow .srr-val{ font-size:15px; font-weight:700; color:var(--ink); letter-spacing:-.2px; }
+.suite-rentrow .srr-lbl{ font-size:9.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); margin-top:4px; }
+.suite-availrow{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--rule-2); }
+.suite-availrow .srr-lbl{ font-size:9.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); }
+.suite-availrow .sa-val{ font-size:14px; font-weight:600; color:var(--ink-2); margin-top:3px; }
 .suite-plan{ display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--link); cursor:pointer; }
 .suite-plan:hover{ text-decoration:underline; }
 
@@ -5066,6 +5070,8 @@ function adaptRecord(sid, rec) {
     year_built:  p.yearBuilt,
     year_renovated: p.renovated,
     parking:     [p.parkingType, p.parkingRatio].filter(Boolean).join(' · '),
+    parking_reserved:   p.parkingReserved,    // optional — populated by generator when available
+    parking_unreserved: p.parkingUnreserved,  // optional — populated by generator when available
     landlord:    p.landlord,
     percent_leased: p.percentLeased,
     land_area:   p.landArea,
@@ -6012,18 +6018,23 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               leased: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round"><path d="M12 20s-7-4.5-7-10a4 4 0 017-2.6A4 4 0 0119 10c0 5.5-7 10-7 10z"/></svg>,
               height: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 3v18M7 8l5-5 5 5M7 16l5 5 5-5"/></svg>,
               gen: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M12 5v14M5 12h14"/></svg>,
+              owner: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5"/></svg>,
+              pct: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5L5 19M6.5 6.5h.01M17.5 17.5h.01"/></svg>,
             };
             const specs = [
               building.stories && { i: I.stories, v: building.stories, l: 'Stories' },
               building.total_sf && { i: I.bldg, v: building.total_sf + ' SF', l: 'Total building' },
               built && { i: I.cal, v: built, l: 'Built / renovated' },
-              building.parking && { i: I.park, v: building.parking, l: 'Parking' },
-              building.percent_leased && { i: I.leased, v: building.percent_leased, l: 'Leased' },
+              building.landlord && { i: I.owner, v: building.landlord, l: 'Landlord' },
+              building.percent_leased && { i: I.pct, v: building.percent_leased, l: 'Percent leased' },
+              building.parking && { i: I.park, v: building.parking, l: 'Parking ratio' },
+              building.parking_reserved && { i: I.park, v: building.parking_reserved, l: 'Reserved parking' },
+              building.parking_unreserved && { i: I.park, v: building.parking_unreserved, l: 'Unreserved parking' },
               building.clear_height && { i: I.height, v: building.clear_height, l: 'Clear height' },
               building.loading && { i: I.gen, v: building.loading, l: 'Loading' },
               building.power && { i: I.gen, v: building.power, l: 'Power' },
               building.crane && { i: I.gen, v: building.crane, l: 'Crane' },
-            ].filter(Boolean).slice(0, 6);
+            ].filter(Boolean);
             return (
               <div className="spec-list">
                 {specs.map((s, i) => (
@@ -6071,21 +6082,33 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
         {/* ── RIGHT: suite cards ── */}
         <div className="detail-right">
           {building.spaces.map((s, i) => {
-            const sub = [
-              s.total && s.total !== s.rate ? `All-in ${s.total}` : null,
-              s.opex && `Est. OpEx ${s.opex}`,
-              s.lease,
-            ].filter(Boolean).join(' · ');
-            const availLine = [s.available && `Available ${s.available}`, s.term].filter(Boolean).join(' · ');
+            // Total monthly cost — computed from Total Rent/SF (or asking) × SF ÷ 12.
+            // NOTE: this is the one spot the portal does display-time math on the
+            // record strings; it degrades to the raw rent string when the rate is
+            // not a clean $/SF number (e.g. "Negotiable").
+            const money = (v) => { const m = String(v || '').replace(/[$,]/g, '').match(/\d[\d.]*/); return m ? parseFloat(m[0]) : NaN; };
+            const perSf = (() => { const t = money(s.total); return isNaN(t) ? money(s.rate) : t; })();
+            const sfN = money(s.sf);
+            const monthly = (!isNaN(perSf) && !isNaN(sfN))
+              ? '$' + Math.round(perSf * sfN / 12).toLocaleString('en-US')
+              : (s.total || s.rate || '—');
+            const monthlyIsCost = /^\$[\d,]/.test(monthly);
             return (
               <div className="suite-card" key={s.key || i}>
                 <div className="suite-card-top">
                   <span className="suite-name">{s.suite || `Suite ${i + 1}`}</span>
                   <span className="suite-sf">{s.sf ? s.sf + ' SF' : '—'}</span>
                 </div>
-                <div className="suite-price">{s.rate || s.total || '—'}{/^\s*\$/.test(s.rate || '') && <span className="per">asking</span>}</div>
-                {sub && <div className="suite-sub">{sub}</div>}
-                {availLine && <div className="suite-avail">{availLine}</div>}
+                <div className="suite-monthly">{monthly}{monthlyIsCost && <span className="per">/mo est.</span>}</div>
+                <div className="suite-rentrow">
+                  <div><div className="srr-val">{s.rate || '—'}</div><div className="srr-lbl">Base Rent/SF</div></div>
+                  <div><div className="srr-val">{s.opex || '—'}</div><div className="srr-lbl">Est. OpEx/SF</div></div>
+                  <div><div className="srr-val">{s.total || '—'}</div><div className="srr-lbl">Total Rent/SF</div></div>
+                </div>
+                <div className="suite-availrow">
+                  <div><div className="srr-lbl">Availability</div><div className="sa-val">{s.available || '—'}</div></div>
+                  <div><div className="srr-lbl">Term</div><div className="sa-val">{s.term || '—'}</div></div>
+                </div>
                 {s.floorplan && (
                   <span className="suite-plan" onClick={() => setLightbox({ label: `${s.suite || 'Space ' + (i + 1)} floor plan · ${building.name}`, url: s.floorplan, sub: [s.suite, s.sf && `${s.sf} SF`, s.rate].filter(Boolean).join(' · ') })}>Open floor plan →</span>
                 )}
