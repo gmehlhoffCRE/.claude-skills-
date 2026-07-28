@@ -4690,7 +4690,7 @@ a:hover{ color:var(--link); }
 .compare-table{ border:1px solid var(--rule); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
 .compare-table th,.compare-table td{
   border:0; border-bottom:1px solid var(--rule-2); border-right:1px solid var(--rule-2);
-  padding:12px 14px; vertical-align:top; text-align:left;
+  padding:12px 14px; vertical-align:middle; text-align:center;
   font-size:12px; color:var(--ink-2); font-weight:400; background:#fff;
 }
 .compare-table th:last-child,.compare-table td:last-child{ border-right:0; }
@@ -4701,12 +4701,13 @@ a:hover{ color:var(--link); }
 .compare-table .compare-row-label{
   position:sticky; left:0; z-index:2; width:200px; min-width:200px;
   background:var(--paper-2) !important; color:var(--ink-4) !important;
+  text-align:left !important;
   font-size:10.5px !important; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
 }
 .compare-table tbody tr:first-child .compare-row-label,
 .compare-table tbody tr:nth-child(odd) .compare-row-label{ background:var(--paper-2) !important; color:var(--ink-4) !important; }
 .compare-table thead th{ background:#fff; }
-.compare-photo{ width:100%; height:64px; border-radius:7px; overflow:hidden; background:var(--paper-3); }
+.compare-photo{ width:100%; height:132px; border-radius:8px; overflow:hidden; background:var(--paper-3); }
 .compare-photo .real-photo{ object-fit:cover; width:100%; height:100%; }
 .compare-name{ font-size:12.5px; font-weight:700; color:var(--navy); }
 .compare-addr{ font-size:11px; color:var(--ink-4); margin-top:2px; }
@@ -6356,46 +6357,27 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
                   <Photo src={b.photos[0]} w={480} label={`#${i+1}`} />
                 </div>
                 <div className="compare-name" style={{cursor:'pointer', marginTop:8}} onClick={() => onOpen(b.id)}>{b.name}</div>
-                <div className="compare-addr">{statusLabel(b)}</div>
+                <div className="compare-addr">{b.address}</div>
               </th>
             ))}
           </tr>
         </thead>
         <tbody>
-          {rows.map(r => {
-            const g = groupOf(r.key);
-            const showGroup = g !== lastGroup;
-            lastGroup = g;
-            return (
-              <React.Fragment key={r.key}>
-                {showGroup && (
-                  <tr className="grouprow">
-                    <td className="compare-row-label" style={{background:'var(--paper-2)'}}>{g}</td>
-                    {buildings.map(b => <td key={b.id}></td>)}
-                  </tr>
-                )}
-                <tr>
-                  <td className="compare-row-label">{r.label}</td>
-                  {buildings.map(b => <td key={b.id}>{cellVal(b.id, r.key)}</td>)}
-                </tr>
-              </React.Fragment>
-            );
-          })}
+          {rows.map(r => (
+            <tr key={r.key}>
+              <td className="compare-row-label">{r.label}</td>
+              {buildings.map(b => <td key={b.id}>{cellVal(b.id, r.key)}</td>)}
+            </tr>
+          ))}
           {interactive && (
-            <>
-              <tr className="grouprow">
-                <td className="compare-row-label" style={{background:'var(--paper-2)'}}>Your Vote</td>
-                {buildings.map(b => <td key={b.id}></td>)}
-              </tr>
-              <tr>
-                <td className="compare-row-label">Shortlist / Pass</td>
-                {buildings.map(b => (
-                  <td key={b.id}>
-                    <VoteGroup vote={statuses[b.id]?.vote} onVote={(v) => onVote(b.id, v)}/>
-                  </td>
-                ))}
-              </tr>
-            </>
+            <tr>
+              <td className="compare-row-label">Shortlist / Pass</td>
+              {buildings.map(b => (
+                <td key={b.id}>
+                  <VoteGroup vote={statuses[b.id]?.vote} onVote={(v) => onVote(b.id, v)}/>
+                </td>
+              ))}
+            </tr>
           )}
         </tbody>
       </table>
