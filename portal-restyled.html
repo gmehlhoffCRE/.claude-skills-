@@ -4966,8 +4966,11 @@ window.__onGoogleMapsLoaded = function() {
       Parsing is allowed only for sorting and map bounds — never for display.
    ============================================================================ */
 
-// ?preview → design review with a baked-in sample record; Firebase never touched.
-const IS_PREVIEW = new URLSearchParams(location.search).has('preview');
+// ?preview (or #preview) → design review with a baked-in sample record;
+// Firebase never touched. The hash form survives link-mangling / hosting that
+// strips the query string (same reasoning the token gate accepts #s= below).
+const IS_PREVIEW = new URLSearchParams(location.search).has('preview')
+  || /(^|[#&?])preview($|[=&])/.test(location.hash);
 
 const firebaseConfig = {
   apiKey: "AIzaSyDC0QkDpMYehmlYvpn5u0Jl2qZmkP2Hu8w",
