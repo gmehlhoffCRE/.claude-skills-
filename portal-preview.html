@@ -4400,7 +4400,7 @@ a:hover{ color:var(--link); }
 .topbar{ display:block; }
 .topbar::before{ content:none; }
 .topbar-inner{
-  max-width:1560px; margin:0 auto; height:58px; padding:0 36px;
+  max-width:var(--shell-max); margin:0 auto; height:58px; padding:0 36px;
   display:flex; align-items:center; justify-content:space-between; box-sizing:border-box;
 }
 .brand{ gap:14px; }
@@ -4440,7 +4440,7 @@ a:hover{ color:var(--link); }
 
 /* ───────── Page header block ───────── */
 .survey-header{
-  max-width:1560px; margin:0 auto; width:100%; box-sizing:border-box;
+  max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box;
   padding:30px 36px 20px; border-bottom:0; background:transparent;
 }
 .survey-header .eyebrow{
@@ -4478,7 +4478,7 @@ a:hover{ color:var(--link); }
 .split{
   display:flex; flex-direction:row; align-items:stretch;
   flex:1; min-height:0;
-  max-width:1560px; margin:0 auto; width:100%; box-sizing:border-box;
+  max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box;
   border-top:1px solid var(--rule); gap:0;
 }
 .split.no-map{ display:block; overflow-y:auto; }
@@ -4603,7 +4603,7 @@ a:hover{ color:var(--link); }
 .map-pin:hover .map-pin-body{ transform:scale(1.2); }
 
 /* ───────── Detail ───────── */
-.detail{ max-width:1560px; margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px; }
+.detail{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px; }
 .route-fixed{ overflow-y:auto; }
 .detail-grid{ display:block; gap:0; margin-top:0; }
 .detail-main{ overflow:visible; padding:0 0 30px; }
@@ -4686,7 +4686,7 @@ a:hover{ color:var(--link); }
 .detail-main .legacy-hide{ display:none !important; }
 
 /* ───────── Compare — data matrix ───────── */
-.compare-wrap{ max-width:1560px; margin:0 auto; width:100%; box-sizing:border-box; padding:24px 36px 40px; overflow-x:auto; }
+.compare-wrap{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:24px 36px 40px; overflow-x:auto; }
 .compare-table{ border:1px solid var(--rule); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
 .compare-table th,.compare-table td{
   border:0; border-bottom:1px solid var(--rule-2); border-right:1px solid var(--rule-2);
@@ -4733,7 +4733,7 @@ a:hover{ color:var(--link); }
 
 
 /* ══════════ V2 DETAIL — "Airy Broadsheet" ══════════ */
-.detail-v2{ max-width:1560px; margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px 40px; }
+.detail-v2{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px 40px; }
 .detail-titlebar{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:26px 0 20px; }
 .detail-pills{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
 .dpill{ font-size:12px; font-weight:700; padding:6px 14px; border-radius:16px; background:var(--paper-2); color:var(--ink-2); white-space:nowrap; }
@@ -4804,7 +4804,7 @@ a:hover{ color:var(--link); }
 
 
 /* ══════════ COMMUTE (design 3a — table-first matrix) ══════════ */
-.commute-wrap{ display:flex; flex-direction:column; flex:1; min-height:0; max-width:1560px; margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px; }
+.commute-wrap{ display:flex; flex-direction:column; flex:1; min-height:0; max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px; }
 .commute-head{ display:flex; justify-content:space-between; align-items:center; padding:4px 0 16px; gap:16px; flex-wrap:wrap; }
 .commute-head .eyebrow{ font-size:10.5px; font-weight:700; letter-spacing:2.2px; color:var(--bright-blue); text-transform:uppercase; }
 .commute-controls{ display:flex; gap:10px; align-items:center; }
@@ -4844,6 +4844,18 @@ a:hover{ color:var(--link); }
 
 /* Shared easing token for consistent, considered motion */
 :root { --ease: cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* Wider default content shell — the app was capped at 1560px, which left the
+   map-view list column too narrow and clipped card text. One knob drives every
+   centered container (topbar, survey header, split, detail, compare, commute). */
+:root { --shell-max: 1880px; }
+
+/* Anti-clip on the map-view property cards: let stat labels/values wrap
+   gracefully instead of being hard-cut by overflow:hidden + nowrap. With the
+   wider shell they rarely need to, but nothing gets chopped either way. */
+.split-list .pc-stats > div { overflow: visible; }
+.split-list .pc-stat-val,
+.split-list .pc-stat-label { white-space: normal; }
 
 /* A11y contrast: the lightest UI gray was ~3:1 on white for 9–11px labels.
    Nudge it darker (Cresa endorses "sufficient on-screen contrast"). This is a
@@ -4970,9 +4982,8 @@ window.__onGoogleMapsLoaded = function() {
 // ?preview (or #preview) → design review with a baked-in sample record;
 // Firebase never touched. The hash form survives link-mangling / hosting that
 // strips the query string (same reasoning the token gate accepts #s= below).
-// REVIEW-ONLY BUILD — preview is forced ON so this file opens straight to the
-// baked-in sample survey with no link token needed. Firebase is never touched.
-// Do NOT deploy this copy; use portal-restyled.html for the real, gated portal.
+// REVIEW-ONLY BUILD — preview forced ON; opens straight to the sample survey,
+// no token needed. Firebase is never touched. Do NOT deploy this copy.
 const IS_PREVIEW = true;
 void (new URLSearchParams(location.search).has('preview')
   || /(^|[#&?])preview($|[=&])/.test(location.hash));
