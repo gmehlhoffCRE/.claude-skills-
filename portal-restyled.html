@@ -4834,6 +4834,85 @@ a:hover{ color:var(--link); }
 .commute-legend i{ display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:middle; }
 .commute-src{ margin-left:auto; }
 
+/* ══════════════════════════════════════════════════════════════════════
+   POLISH LAYER — appended last so it wins the cascade.
+   Brand-safe: NO changes to Cresa Midnight (#001E5A) or Goldenrod (#FFB600).
+   Only motion, focus, elevation, placeholder texture, and a small
+   accessibility contrast nudge on the neutral UI grays.
+   ══════════════════════════════════════════════════════════════════════ */
+
+/* Shared easing token for consistent, considered motion */
+:root { --ease: cubic-bezier(0.4, 0, 0.2, 1); }
+
+/* A11y contrast: the lightest UI gray was ~3:1 on white for 9–11px labels.
+   Nudge it darker (Cresa endorses "sufficient on-screen contrast"). This is a
+   neutral UI gray, not a brand palette color. */
+:root { --ink-4: #6E7891; }
+
+/* Richer, Midnight-tinted layered elevation (shadows aren't brand palette;
+   tint kept on Cresa Midnight rgb 0,30,90 for consistency) */
+:root {
+  --shadow-1: 0 1px 2px rgba(0,30,90,.06), 0 1px 3px rgba(0,30,90,.05);
+  --shadow-2: 0 4px 14px -4px rgba(0,30,90,.12), 0 2px 6px -2px rgba(0,30,90,.08);
+  --shadow-3: 0 18px 48px -12px rgba(0,30,90,.24);
+}
+
+/* Motion — subtle hover lift + real easing on interactive surfaces */
+.property-card, .survey-card, .tour-card, .library-card, .doc-tile {
+  transition: border-color .18s var(--ease), box-shadow .18s var(--ease),
+              transform .18s var(--ease), background .18s var(--ease);
+}
+.property-card:hover, .survey-card:hover, .tour-card:hover,
+.library-card:hover, .doc-tile:hover { transform: translateY(-2px); }
+.property-card:active, .survey-card:active { transform: translateY(0); }
+
+.btn {
+  transition: background .15s var(--ease), border-color .15s var(--ease),
+              color .15s var(--ease), transform .12s var(--ease), box-shadow .15s var(--ease);
+}
+.btn:not(.ghost):hover { transform: translateY(-1px); box-shadow: var(--shadow-1); }
+.btn:active { transform: translateY(0); box-shadow: none; }
+
+/* Staggered entrance for the broker dashboard grid (plays on mount /
+   filter change; scoped to the home grid to avoid re-render replays) */
+@keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+.survey-grid > * { animation: cardIn .4s var(--ease) both; }
+.survey-grid > *:nth-child(2){ animation-delay:.04s }
+.survey-grid > *:nth-child(3){ animation-delay:.08s }
+.survey-grid > *:nth-child(4){ animation-delay:.12s }
+.survey-grid > *:nth-child(5){ animation-delay:.16s }
+.survey-grid > *:nth-child(6){ animation-delay:.20s }
+.survey-grid > *:nth-child(n+7){ animation-delay:.24s }
+
+/* Focus-visible — crisp Midnight ring for keyboard users (brand navy = --accent) */
+:where(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 5px;
+}
+.comment-input:focus-visible, .home-search input:focus-visible { outline: none; }
+
+/* Placeholder imagery — soft diagonal gradient reads intentional vs. the
+   wireframe stripes (uses neutral paper grays only) */
+.placeholder {
+  background: linear-gradient(135deg, var(--paper-2) 0%, var(--paper-3) 100%);
+}
+
+/* Sticky compare header gets a hairline elevation when the table scrolls */
+.compare-table thead th { position: sticky; top: 0; z-index: 2; }
+.compare-row-label { box-shadow: 1px 0 0 var(--rule); }
+
+/* Respect reduced-motion preferences */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: .001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: .001ms !important;
+  }
+  .property-card:hover, .survey-card:hover, .tour-card:hover,
+  .library-card:hover, .doc-tile:hover, .btn:hover { transform: none; }
+}
+
 </style>
 <script>
 // === Google Maps API key ====================================================
