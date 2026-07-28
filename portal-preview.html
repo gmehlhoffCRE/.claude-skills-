@@ -4915,6 +4915,15 @@ a:hover{ color:var(--link); }
 .compare-table thead th { position: sticky; top: 0; z-index: 2; }
 .compare-row-label { box-shadow: 1px 0 0 var(--rule); }
 
+/* Compare view — larger, consistent table typography. Data cells, the left
+   axis labels, and the Shortlist/Pass row all share the same UI font (Inter)
+   so nothing reads as a different typeface. */
+.compare-table th, .compare-table td { font-size: 14px; }
+.compare-table .compare-row-label { font-family: var(--sans) !important; font-size: 12px !important; }
+.compare-table .vote-btn { font-family: var(--sans); font-size: 13px; }
+.compare-name { font-size: 15px; }
+.compare-addr { font-size: 12px; }
+
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after {
@@ -5759,9 +5768,20 @@ function PropertyCard({ building, idx, status, selected, matrixView, interactive
   const prem = mvPremises(matrixView, building.id);
   const premLines = prem && prem.length ? prem : building.spaces.map(s => s.sf).filter(Boolean);
   const rent = mvByLabel(matrixView, building.id, /RENT/i) || (building.spaces[0] && building.spaces[0].rate) || '';
-  const lease = (building.spaces[0] && building.spaces[0].lease) || '';
   const avail = (building.spaces[0] && building.spaces[0].available) || '';
-  const sfText = premLines.length ? premLines[0] : '—';
+  // Available SF shown as a min–max range across suites (like the rent range),
+  // not per-suite lines. Strings stay strings: parse only to pick the min/max
+  // suite, then display those original SF strings verbatim.
+  const sfList = (building.spaces || []).map(s => s.sf).filter(Boolean);
+  const sfNum = (s) => { const m = String(s || '').replace(/,/g, '').match(/\d[\d.]*/); return m ? parseFloat(m[0]) : NaN; };
+  const sfRange = (() => {
+    if (!sfList.length) return premLines.length ? premLines[0] : '—';
+    let lo = sfList[0], hi = sfList[0], loN = sfNum(lo), hiN = loN;
+    for (const s of sfList) { const n = sfNum(s); if (isNaN(n)) continue;
+      if (isNaN(loN) || n < loN) { loN = n; lo = s; }
+      if (isNaN(hiN) || n > hiN) { hiN = n; hi = s; } }
+    return lo === hi ? lo : lo + ' – ' + hi;
+  })();
   const shortlisted = status?.vote === 'up';
   const passed = status?.vote === 'down';
 
@@ -5782,23 +5802,16 @@ function PropertyCard({ building, idx, status, selected, matrixView, interactive
         <div className="pc-addr">{[building.address, building.submarket].filter(Boolean).join(' · ')}</div>
         <div className="pc-stats">
           <div>
-            <div className="pc-stat-val pc-stat-stack">
-              {premLines.slice(0, 2).map((l, i) => <div key={i}>{l}</div>)}
-              {premLines.length === 0 && '—'}
-            </div>
-            <div className="pc-stat-label">Square Feet</div>
+            <div className="pc-stat-val">{sfRange}</div>
+            <div className="pc-stat-label">SF</div>
           </div>
           <div>
             <div className="pc-stat-val">{rent || '—'}</div>
-            <div className="pc-stat-label">Asking Rent</div>
+            <div className="pc-stat-label">Total Asking Rent</div>
           </div>
           <div>
             <div className="pc-stat-val">{avail || '—'}</div>
-            <div className="pc-stat-label">Available</div>
-          </div>
-          <div>
-            <div className="pc-stat-val">{lease || '—'}</div>
-            <div className="pc-stat-label">Lease Type</div>
+            <div className="pc-stat-label">Availability</div>
           </div>
         </div>
       </div>
