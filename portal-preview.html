@@ -4744,13 +4744,14 @@ a:hover{ color:var(--link); }
 .detail-summary{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:14px; font-size:13.5px; color:var(--ink-3); font-weight:500; letter-spacing:-.1px; }
 .detail-summary strong{ color:var(--navy); font-weight:700; }
 .detail-summary .sep{ color:var(--ink-4); }
-.detail-titlebar{ align-items:flex-end; }
-.detail-title-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:12px; flex:none; padding-top:0; }
+.detail-titlebar{ align-items:stretch; }
+.detail-title-actions{ display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:12px; flex:none; padding-top:0; }
 .detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
-.return-map-btn{ display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:9px; border:1px solid rgba(0,30,90,.18); background:var(--accent-tint); color:var(--navy); font-family:var(--sans); font-size:12.5px; font-weight:700; letter-spacing:-.1px; cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), color .15s, border-color .15s, transform .1s; }
+/* "Map" button pairs with the submarket pill — same height, font size & weight */
+.return-map-btn{ display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:16px; border:1px solid rgba(0,30,90,.18); background:var(--accent-tint); color:var(--navy); font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:-.1px; cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), color .15s, border-color .15s, transform .1s; }
+.return-map-btn svg{ width:13px; height:13px; }
 .return-map-btn:hover{ background:var(--navy); border-color:var(--navy); color:#fff; }
 .return-map-btn:active{ transform:translateY(1px); }
-.return-map-btn svg{ width:15px; height:15px; }
 .hdr-pager{ align-items:center; }
 .hdr-counter{ padding:0 12px; font-size:12.5px; font-weight:600; color:var(--ink-2); white-space:nowrap; }
 .detail-title-actions .hdr-pill{ display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; }
@@ -6114,8 +6115,8 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
         </div>
         <div className="detail-title-actions">
           <button className="return-map-btn" onClick={onBack}>
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3zM9 3v15M15 6v15"/></svg>
-            Return to map
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3zM9 3v15M15 6v15"/></svg>
+            Map
           </button>
           <div className="hdr-pager">
             <button className="hdr-pill" onClick={() => onNav(-1)} aria-label="Previous building"><Icon.ChevronLeft width="15" height="15"/></button>
