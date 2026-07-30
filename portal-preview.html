@@ -4742,6 +4742,9 @@ a:hover{ color:var(--link); }
 .detail-v2 .detail-addr{ font-size:15px; color:var(--ink-3); margin-top:12px; }
 .detail-title-actions{ display:flex; gap:10px; flex:none; padding-top:8px; }
 .detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
+/* Vote group sits under the address (moved from the top-right) */
+.detail-vote{ margin-top:18px; }
+.detail-vote .vote-group{ box-shadow:var(--shadow-1); }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
 .detail-cols{ display:grid; grid-template-columns:220px minmax(0,1fr) 540px; gap:36px; align-items:start; }
 
@@ -5479,10 +5482,10 @@ function VoteGroup({ vote, onVote, size = 'sm' }) {
       <button
         className={'vote-btn down' + (vote === 'down' ? ' active' : '')}
         onClick={() => onVote(vote === 'down' ? null : 'down')}
-        aria-label="Discard"
+        aria-label="Remove"
       >
         <Icon.ThumbDown />
-        {size !== 'xs' && <span>Discard</span>}
+        {size !== 'xs' && <span>Remove</span>}
       </button>
     </div>
   );
@@ -5985,25 +5988,23 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
         <div>
           <div className="detail-pills">
             {building.submarket && <span className="dpill">{building.submarket}</span>}
-            {building.class && <span className="dpill">Class {building.class}</span>}
             {status.vote === 'up' && <span className="dpill gold">★ Shortlisted</span>}
-            {status.vote === 'down' && <span className="dpill">Passed</span>}
+            {status.vote === 'down' && <span className="dpill">Removed</span>}
           </div>
           <h1 className="detail-name-lg">{building.name}</h1>
           <div className="detail-addr">{[building.address, building.city].filter(Boolean).join(', ')}</div>
+          {interactive && (
+            <div className="detail-vote">
+              <VoteGroup vote={status.vote} onVote={(v) => onVote(building.id, v)} />
+            </div>
+          )}
         </div>
-        {interactive && (
-          <div className="detail-title-actions">
-            <span className={'act-btn short' + (status.vote === 'up' ? ' on' : '')}
-                  onClick={() => onVote(building.id, status.vote === 'up' ? null : 'up')}>
-              {status.vote === 'up' ? '★ Shortlisted' : '☆ Shortlist'}
-            </span>
-            <span className={'act-btn pass' + (status.vote === 'down' ? ' on' : '')}
-                  onClick={() => onVote(building.id, status.vote === 'down' ? null : 'down')}>
-              {status.vote === 'down' ? 'Passed ✓' : 'Pass'}
-            </span>
+        <div className="detail-title-actions">
+          <div className="hdr-pager">
+            <button className="hdr-pill" onClick={() => onNav(-1)}>← Prev</button>
+            <button className="hdr-pill" onClick={() => onNav(1)}>Next →</button>
           </div>
-        )}
+        </div>
       </div>
 
       <div className="detail-rule" />
@@ -6025,6 +6026,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               pct: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5L5 19M6.5 6.5h.01M17.5 17.5h.01"/></svg>,
             };
             const specs = [
+              building.class && { i: I.bldg, v: 'Class ' + building.class, l: 'Building class' },
               building.stories && { i: I.stories, v: building.stories, l: 'Stories' },
               building.total_sf && { i: I.bldg, v: building.total_sf + ' SF', l: 'Total building' },
               built && { i: I.cal, v: built, l: 'Built / renovated' },
@@ -6587,12 +6589,6 @@ function App() {
               <button className={'topbar-tab' + (route.name === 'survey-list' && activeTab === 'activity' ? ' active' : '')} onClick={() => { setActiveTab('activity'); setRoute({ name: 'survey-list' }); }}>
                 Activity
               </button>
-            </div>
-          )}
-          {route.name === 'detail' && (
-            <div className="hdr-pager">
-              <button className="hdr-pill" onClick={() => handleNavDetail(-1)}>← Prev</button>
-              <button className="hdr-pill" onClick={() => handleNavDetail(1)}>Next →</button>
             </div>
           )}
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
