@@ -4747,10 +4747,13 @@ a:hover{ color:var(--link); }
 .detail-vote .vote-group{ box-shadow:var(--shadow-1); }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
 .detail-cols{ display:grid; grid-template-columns:250px minmax(0,1fr) 660px; gap:36px; align-items:start; }
-/* With many suites, the left (map + specs) and center (hero) columns pin in
-   place while the taller suite column scrolls past — hero/specs stay in view
-   without a cramped inner scrollbar. */
-.detail-left, .detail-center{ position:sticky; top:16px; align-self:start; }
+/* Suites scroll within their own panel (capped to ~one screen) so a long
+   list doesn't push the Comments section far down the page. */
+.detail-right{ max-height:calc(100vh - 240px); overflow-y:auto; padding-right:8px; }
+.detail-right::-webkit-scrollbar{ width:8px; }
+.detail-right::-webkit-scrollbar-track{ background:transparent; }
+.detail-right::-webkit-scrollbar-thumb{ background:var(--rule); border-radius:999px; }
+.detail-right::-webkit-scrollbar-thumb:hover{ background:var(--ink-4); }
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
@@ -4814,7 +4817,7 @@ a:hover{ color:var(--link); }
 /* extra sections (docs + comments) below the 3-col block */
 .detail-extra{ margin-top:44px; display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:start; }
 .detail-extra .section{ margin-bottom:0; }
-@media (max-width:1100px){ .detail-cols{ grid-template-columns:1fr; } .detail-extra{ grid-template-columns:1fr; } .detail-left, .detail-center{ position:static; } }
+@media (max-width:1100px){ .detail-cols{ grid-template-columns:1fr; } .detail-extra{ grid-template-columns:1fr; } .detail-right{ max-height:none; overflow:visible; padding-right:0; } }
 
 
 /* ══════════ COMMUTE (design 3a — table-first matrix) ══════════ */
