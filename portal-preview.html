@@ -6124,8 +6124,6 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                 building.total_sf && { i: I.bldg, v: building.total_sf + ' SF', l: 'Total building' },
                 built && { i: I.cal, v: built, l: 'Built / renovated' },
                 building.clear_height && { i: I.height, v: building.clear_height, l: 'Clear height' },
-              ].filter(Boolean) },
-              { label: 'Parking', items: [
                 building.parking && { i: I.park, v: building.parking, l: 'Parking ratio' },
                 (building.parking_reserved || building.parking_unreserved) && {
                   i: I.park,
@@ -6135,8 +6133,6 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                   ].filter(Boolean).join(' / '),
                   l: 'Parking $/Space/Mo',
                 },
-              ].filter(Boolean) },
-              { label: 'Ownership', items: [
                 building.landlord && { i: I.owner, v: building.landlord, l: 'Landlord' },
                 building.percent_leased && { i: I.pct, v: building.percent_leased, l: 'Percent leased' },
               ].filter(Boolean) },
