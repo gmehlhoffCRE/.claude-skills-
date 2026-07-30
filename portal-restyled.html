@@ -4701,7 +4701,8 @@ a:hover{ color:var(--link); }
 .compare-table tbody tr:nth-child(even) td{ background:var(--paper-2); }  /* subtle zebra */
 .compare-table tbody tr:hover td{ background:var(--paper-3); }            /* row highlight */
 .compare-table .compare-row-label{
-  position:sticky; left:0; z-index:2; width:200px; min-width:200px;
+  position:sticky; left:0; z-index:2; width:210px; min-width:210px;
+  padding:13px 32px 13px 18px;
   background:var(--paper-2) !important; color:#6B6B6B !important;
   text-align:left !important;
   font-size:10px !important; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
@@ -4709,11 +4710,11 @@ a:hover{ color:var(--link); }
 .compare-table tbody tr:first-child .compare-row-label,
 .compare-table tbody tr:nth-child(odd) .compare-row-label{ background:var(--paper-2) !important; color:#6B6B6B !important; }
 .compare-table tbody tr:hover .compare-row-label{ background:var(--paper-3) !important; }
-.compare-table thead th{ background:#fff; }
+.compare-table thead th{ background:var(--accent-tint); border-bottom:2px solid var(--navy); text-align:left; }
 .compare-photo{ width:100%; height:132px; border-radius:8px; overflow:hidden; background:var(--paper-3); }
 .compare-photo .real-photo{ object-fit:cover; width:100%; height:100%; }
-.compare-name{ font-size:15px; font-weight:700; color:var(--navy); letter-spacing:-.2px; }
-.compare-addr{ font-size:11.5px; color:#6B6B6B; font-weight:600; margin-top:3px; }
+.compare-name{ font-size:17px; font-weight:700; color:var(--navy); letter-spacing:-.3px; }
+.compare-addr{ font-size:13px; color:#6B6B6B; font-weight:600; margin-top:4px; }
 /* row-group micro headers */
 .compare-table tr.grouprow td{
   background:var(--paper-2) !important; font-size:10px; font-weight:700; letter-spacing:1.4px;
@@ -6590,18 +6591,15 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
     { label: 'Building Class', get: b => b.class ? 'Class ' + b.class : '—' },
     { label: 'Year Built / Renov.', get: builtOf },
     { label: 'Stories', get: b => b.stories || '—' },
-    { label: 'Total Building Area', get: b => b.total_sf ? b.total_sf + ' SF' : '—' },
     { label: 'Percent Leased', get: b => b.percent_leased || '—' },
-    { label: 'Parking Ratio', get: b => b.parking || '—' },
-    { label: 'Parking $/Space/Mo', get: parkCostOf },
-    { label: 'Landlord', get: b => b.landlord || '—' },
     { label: 'Premises SF', get: b => rangeOf((b.spaces || []).map(s => s.sf)) },
     { label: 'Base Rent/SF', get: b => rangeOf((b.spaces || []).map(s => s.rate)) },
     { label: 'Est. OpEx/SF', get: b => rangeOf((b.spaces || []).map(s => s.opex)) },
     { label: 'Total Rent/SF', get: b => rangeOf((b.spaces || []).map(s => s.total)) },
     { label: 'Monthly Rent', get: monthlyRange },
-    { label: 'Lease Type', get: dealTypeOf },
-    { label: 'Term', get: termOf },
+    { label: 'Parking Ratio', get: b => b.parking || '—' },
+    { label: 'Parking $/Space/Mo', get: parkCostOf },
+    { label: 'Landlord', get: b => b.landlord || '—' },
   ];
 
   const statusLabel = (b) => {
