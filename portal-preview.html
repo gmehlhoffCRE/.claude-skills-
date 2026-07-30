@@ -4817,6 +4817,9 @@ a:hover{ color:var(--link); }
   .suite-table td::before{ content:attr(data-label); font-size:10px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:#6B6B6B; text-align:left; flex:none; }
   .suite-table td.st-suite{ font-size:16px; }
   .suite-table td.st-plan-col{ justify-content:space-between; }
+  .hero-row{ flex-direction:column; }
+  .thumbstrip{ flex-direction:row; width:auto; }
+  .thumbstrip .thumb{ flex:1; height:72px; }
 }
 
 /* left rail */
@@ -4838,6 +4841,8 @@ a:hover{ color:var(--link); }
 .mini-map .mm-label{ position:absolute; bottom:10px; right:12px; font-size:9px; letter-spacing:1.2px; color:var(--ink-4); font-weight:700; }
 
 /* center */
+.hero-row{ display:flex; gap:12px; align-items:stretch; max-width:760px; }
+.hero-row .detail-hero{ flex:1; min-width:0; max-width:none; }
 .detail-hero{ border-radius:16px; overflow:hidden; position:relative; height:420px; max-width:720px; display:grid; place-items:center;
   background:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 11px,#EFF4FB 11px,#EFF4FB 22px); }
 .detail-hero .real-photo{ width:100%; height:100%; object-fit:cover; }
@@ -4851,8 +4856,8 @@ a:hover{ color:var(--link); }
 .hero-nav.prev{ left:14px; } .hero-nav.next{ right:14px; }
 .hero-counter{ position:absolute; bottom:14px; right:14px; background:#fff; border-radius:16px; padding:7px 14px;
   font-size:11px; font-weight:700; color:var(--navy); box-shadow:0 2px 8px rgba(0,30,90,.12); }
-.thumbstrip{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px; max-width:720px; }
-.thumb{ height:104px; border-radius:10px; border:2px solid transparent; cursor:pointer; overflow:hidden;
+.thumbstrip{ display:flex; flex-direction:column; gap:10px; width:104px; flex:none; margin-top:0; }
+.thumb{ flex:1; min-height:0; border-radius:10px; border:2px solid transparent; cursor:pointer; overflow:hidden;
   background-image:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 8px,#EFF4FB 8px,#EFF4FB 16px); }
 .thumb.on{ border-color:var(--navy); }
 .thumb .real-photo{ width:100%; height:100%; object-fit:cover; }
@@ -6202,24 +6207,26 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
           )}
         </div>
 
-        {/* ── CENTER: hero + thumbs ── */}
+        {/* ── CENTER: hero + side thumbs ── */}
         <div className="detail-center">
-          <div className="detail-hero">
-            {photos.length > 0
-              ? <img className="real-photo" src={cdnImg(photos[photoIdx], 1400)} alt={building.name} />
-              : <span className="hero-ph">HERO PHOTO</span>}
-            {photos.length > 1 && <>
-              <button className="hero-nav prev" onClick={() => setPhotoIdx((photoIdx - 1 + photos.length) % photos.length)}><Icon.ChevronLeft width="15" height="15"/></button>
-              <button className="hero-nav next" onClick={() => setPhotoIdx((photoIdx + 1) % photos.length)}><Icon.ChevronRight width="15" height="15"/></button>
-            </>}
-            <div className="hero-counter">{(photoIdx + 1)} / {Math.max(photos.length, 4)} →</div>
-          </div>
-          <div className="thumbstrip">
-            {(photos.length ? photos.slice(0, 4) : [0, 1, 2, 3]).map((ph, i) => (
-              <div key={i} className={'thumb' + (i === photoIdx ? ' on' : '')} onClick={() => photos.length && setPhotoIdx(i)}>
-                {photos.length > 0 && <img className="real-photo" src={cdnImg(photos[i], 320)} alt="" loading="lazy"/>}
-              </div>
-            ))}
+          <div className="hero-row">
+            <div className="detail-hero">
+              {photos.length > 0
+                ? <img className="real-photo" src={cdnImg(photos[photoIdx], 1400)} alt={building.name} />
+                : <span className="hero-ph">HERO PHOTO</span>}
+              {photos.length > 1 && <>
+                <button className="hero-nav prev" onClick={() => setPhotoIdx((photoIdx - 1 + photos.length) % photos.length)}><Icon.ChevronLeft width="15" height="15"/></button>
+                <button className="hero-nav next" onClick={() => setPhotoIdx((photoIdx + 1) % photos.length)}><Icon.ChevronRight width="15" height="15"/></button>
+              </>}
+              <div className="hero-counter">{(photoIdx + 1)} / {Math.max(photos.length, 4)} →</div>
+            </div>
+            <div className="thumbstrip">
+              {(photos.length ? photos.slice(0, 4) : [0, 1, 2, 3]).map((ph, i) => (
+                <div key={i} className={'thumb' + (i === photoIdx ? ' on' : '')} onClick={() => photos.length && setPhotoIdx(i)}>
+                  {photos.length > 0 && <img className="real-photo" src={cdnImg(photos[i], 320)} alt="" loading="lazy"/>}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* ── suites — reformatted as a 2-up grid below the photo ── */}
