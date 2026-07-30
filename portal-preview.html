@@ -4738,8 +4738,8 @@ a:hover{ color:var(--link); }
 .detail-pills{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
 .dpill{ font-size:12px; font-weight:700; padding:6px 14px; border-radius:16px; background:var(--paper-2); color:var(--ink-2); white-space:nowrap; }
 .dpill.gold{ background:#FFF3D6; color:var(--gold-ink); }
-.detail-name-lg{ font-size:52px; line-height:1; letter-spacing:-2px; font-weight:700; color:var(--navy); margin:0; }
-.detail-v2 .detail-addr{ font-size:15px; color:var(--ink-3); margin-top:12px; }
+.detail-name-lg{ font-size:42px; line-height:1.03; letter-spacing:-1.4px; font-weight:700; color:var(--navy); margin:0; }
+.detail-v2 .detail-addr{ font-size:17px; color:var(--ink-3); margin-top:12px; }
 .detail-title-actions{ display:flex; gap:10px; flex:none; padding-top:8px; }
 .detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
 /* Vote group sits under the address (moved from the top-right) */
@@ -4760,6 +4760,11 @@ a:hover{ color:var(--link); }
 .detail-right::-webkit-scrollbar-track{ background:transparent; }
 .detail-right::-webkit-scrollbar-thumb{ background:var(--rule); border-radius:999px; }
 .detail-right::-webkit-scrollbar-thumb:hover{ background:var(--ink-4); }
+
+/* Notes block in the left column, below the building specs (parking, etc.) */
+.detail-note{ margin-top:22px; padding-top:20px; border-top:1px solid var(--rule-2); }
+.detail-note-label{ font-size:9.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:#6B6B6B; margin-bottom:8px; }
+.detail-note-body{ font-size:13px; line-height:1.55; color:var(--ink-2); }
 
 /* Suites — a simple single-row-per-suite table below the photo. Neutral
    palette, no heavy navy accents; light header, hairline rows. */
@@ -6093,6 +6098,12 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               </div>
             );
           })()}
+          {building.notes && (
+            <div className="detail-note">
+              <div className="detail-note-label">Notes</div>
+              <div className="detail-note-body">{building.notes}</div>
+            </div>
+          )}
         </div>
 
         {/* ── CENTER: hero + thumbs ── */}
