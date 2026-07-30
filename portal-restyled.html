@@ -4740,11 +4740,15 @@ a:hover{ color:var(--link); }
 .dpill.gold{ background:#FFF3D6; color:var(--gold-ink); }
 .detail-name-lg{ font-size:42px; line-height:1.03; letter-spacing:-1.4px; font-weight:700; color:var(--navy); margin:0; }
 .detail-v2 .detail-addr{ font-size:17px; color:var(--ink-3); margin-top:12px; }
-.detail-title-actions{ display:flex; gap:10px; flex:none; padding-top:8px; }
+.detail-summary{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:14px; font-size:13.5px; color:var(--ink-3); font-weight:500; letter-spacing:-.1px; }
+.detail-summary strong{ color:var(--navy); font-weight:700; }
+.detail-summary .sep{ color:var(--ink-4); }
+.detail-title-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex:none; padding-top:8px; }
 .detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
-/* Vote group sits under the address (moved from the top-right) */
-.detail-vote{ margin-top:18px; }
-.detail-vote .vote-group{ box-shadow:var(--shadow-1); }
+.hdr-back{ appearance:none; border:0; background:transparent; color:var(--ink-3); font-family:var(--sans); font-size:12.5px; font-weight:600; cursor:pointer; padding:6px 4px; display:inline-flex; align-items:center; gap:5px; letter-spacing:-.1px; }
+.hdr-back:hover{ color:var(--navy); }
+.hdr-counter{ padding:0 12px; font-size:12.5px; font-weight:600; color:var(--ink-2); white-space:nowrap; }
+.detail-title-actions .hdr-pill{ display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
 .detail-cols{ display:grid; grid-template-columns:330px minmax(0,1fr) 550px; gap:32px; align-items:start; }
 /* Right column is the pinned action rail — decision + comments + documents in
@@ -4782,6 +4786,13 @@ a:hover{ color:var(--link); }
 .suite-table th:nth-child(7){ width:10%; }
 .suite-table th:nth-child(8){ width:12%; }
 .suite-table th:nth-child(9){ width:6%; }
+/* Right-align the numeric columns (Premises SF … Monthly Rent) so figures
+   line up down each column for easy comparison; text columns stay left. */
+.suite-table th:nth-child(2), .suite-table td:nth-child(2),
+.suite-table th:nth-child(3), .suite-table td:nth-child(3),
+.suite-table th:nth-child(4), .suite-table td:nth-child(4),
+.suite-table th:nth-child(5), .suite-table td:nth-child(5),
+.suite-table th:nth-child(6), .suite-table td:nth-child(6){ text-align:right; }
 .suite-table tbody td{ padding:11px 11px; border-bottom:1px solid var(--rule-2); color:#2A2A2A; font-weight:600; white-space:nowrap; vertical-align:middle; }
 .suite-table tbody tr:last-child td{ border-bottom:0; }
 .suite-table tbody tr:hover td{ background:var(--paper-2); }
@@ -4797,6 +4808,11 @@ a:hover{ color:var(--link); }
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
+.spec-groups{ display:flex; flex-direction:column; gap:22px; }
+.spec-group-label{ font-size:9.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--navy); margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--rule-2); }
+.spec-group .spec-list{ gap:16px; }
+/* Vote buttons use the UI font (Inter), not the mono face */
+.vote-btn{ font-family:var(--sans); letter-spacing:0; }
 .spec-row{ display:flex; gap:12px; align-items:flex-start; }
 .spec-row svg{ width:20px; height:20px; flex:none; margin-top:1px; }
 .spec-row .sv{ font-size:15px; font-weight:700; color:var(--navy); line-height:1.2; }
@@ -6026,6 +6042,20 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
     })),
   ].filter(Boolean);
 
+  // At-a-glance summary derived from the spaces (ranges shown; per-suite
+  // strings stay verbatim in the table below).
+  const parseN = (v) => { const m = String(v || '').replace(/[$,]/g, '').match(/\d[\d.]*/); return m ? parseFloat(m[0]) : NaN; };
+  const rangeStr = (arr) => {
+    const items = arr.map(v => ({ v, n: parseN(v) })).filter(x => !isNaN(x.n));
+    if (!items.length) return null;
+    const lo = items.reduce((a, b) => b.n < a.n ? b : a);
+    const hi = items.reduce((a, b) => b.n > a.n ? b : a);
+    return lo.v === hi.v ? lo.v : lo.v + '–' + hi.v;
+  };
+  const sfSummary = rangeStr(building.spaces.map(s => s.sf));
+  const rentNums = building.spaces.map(s => parseN(s.rate)).filter(n => !isNaN(n));
+  const rentSummary = rentNums.length ? '$' + Math.min(...rentNums).toFixed(2) + '–$' + Math.max(...rentNums).toFixed(2) + '/SF' : null;
+
   const send = () => {
     if (!draft.trim()) return;
     onComment(building.id, draft.trim());
@@ -6043,11 +6073,21 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
           </div>
           <h1 className="detail-name-lg">{building.name}</h1>
           <div className="detail-addr">{[building.address, building.city].filter(Boolean).join(', ')}</div>
+          {building.spaces.length > 0 && (
+            <div className="detail-summary">
+              <span><strong>{building.spaces.length}</strong> {building.spaces.length === 1 ? 'space' : 'spaces'}</span>
+              {sfSummary && <><span className="sep">·</span><span><strong>{sfSummary}</strong> SF</span></>}
+              {rentSummary && <><span className="sep">·</span><span><strong>{rentSummary}</strong> base rent</span></>}
+              {building.class && <><span className="sep">·</span><span>Class {building.class}</span></>}
+            </div>
+          )}
         </div>
         <div className="detail-title-actions">
+          <button className="hdr-back" onClick={onBack}><Icon.ChevronLeft width="14" height="14"/> Back to spaces</button>
           <div className="hdr-pager">
-            <button className="hdr-pill" onClick={() => onNav(-1)}>← Prev</button>
-            <button className="hdr-pill" onClick={() => onNav(1)}>Next →</button>
+            <button className="hdr-pill" onClick={() => onNav(-1)} aria-label="Previous building"><Icon.ChevronLeft width="15" height="15"/></button>
+            <span className="hdr-counter">Building {idx + 1} of {allBuildings.length}</span>
+            <button className="hdr-pill" onClick={() => onNav(1)} aria-label="Next building"><Icon.ChevronRight width="15" height="15"/></button>
           </div>
         </div>
       </div>
@@ -6074,33 +6114,48 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               owner: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M3 21h18M5 21V10l7-5 7 5v11M10 21v-5h4v5"/></svg>,
               pct: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5L5 19M6.5 6.5h.01M17.5 17.5h.01"/></svg>,
             };
-            const specs = [
-              building.class && { i: I.bldg, v: 'Class ' + building.class, l: 'Building class' },
-              building.stories && { i: I.stories, v: building.stories, l: 'Stories' },
-              building.total_sf && { i: I.bldg, v: building.total_sf + ' SF', l: 'Total building' },
-              built && { i: I.cal, v: built, l: 'Built / renovated' },
-              building.landlord && { i: I.owner, v: building.landlord, l: 'Landlord' },
-              building.percent_leased && { i: I.pct, v: building.percent_leased, l: 'Percent leased' },
-              building.parking && { i: I.park, v: building.parking, l: 'Parking ratio' },
-              (building.parking_reserved || building.parking_unreserved) && {
-                i: I.park,
-                v: [
-                  building.parking_reserved && 'Res ' + building.parking_reserved,
-                  building.parking_unreserved && 'Unres ' + building.parking_unreserved,
-                ].filter(Boolean).join(' / '),
-                l: 'Parking $/Space/Mo',
-              },
-              building.clear_height && { i: I.height, v: building.clear_height, l: 'Clear height' },
-              building.loading && { i: I.gen, v: building.loading, l: 'Loading' },
-              building.power && { i: I.gen, v: building.power, l: 'Power' },
-              building.crane && { i: I.gen, v: building.crane, l: 'Crane' },
-            ].filter(Boolean);
+            const groups = [
+              { label: 'Building', items: [
+                building.class && { i: I.bldg, v: 'Class ' + building.class, l: 'Building class' },
+                building.stories && { i: I.stories, v: building.stories, l: 'Stories' },
+                building.total_sf && { i: I.bldg, v: building.total_sf + ' SF', l: 'Total building' },
+                built && { i: I.cal, v: built, l: 'Built / renovated' },
+                building.clear_height && { i: I.height, v: building.clear_height, l: 'Clear height' },
+              ].filter(Boolean) },
+              { label: 'Parking', items: [
+                building.parking && { i: I.park, v: building.parking, l: 'Parking ratio' },
+                (building.parking_reserved || building.parking_unreserved) && {
+                  i: I.park,
+                  v: [
+                    building.parking_reserved && 'Res ' + building.parking_reserved,
+                    building.parking_unreserved && 'Unres ' + building.parking_unreserved,
+                  ].filter(Boolean).join(' / '),
+                  l: 'Parking $/Space/Mo',
+                },
+              ].filter(Boolean) },
+              { label: 'Ownership', items: [
+                building.landlord && { i: I.owner, v: building.landlord, l: 'Landlord' },
+                building.percent_leased && { i: I.pct, v: building.percent_leased, l: 'Percent leased' },
+              ].filter(Boolean) },
+              { label: 'Building systems', items: [
+                building.loading && { i: I.gen, v: building.loading, l: 'Loading' },
+                building.power && { i: I.gen, v: building.power, l: 'Power' },
+                building.crane && { i: I.gen, v: building.crane, l: 'Crane' },
+              ].filter(Boolean) },
+            ].filter(g => g.items.length);
             return (
-              <div className="spec-list">
-                {specs.map((s, i) => (
-                  <div className="spec-row" key={i}>
-                    {s.i}
-                    <div><div className="sv">{s.v}</div><div className="sl">{s.l}</div></div>
+              <div className="spec-groups">
+                {groups.map((g, gi) => (
+                  <div className="spec-group" key={gi}>
+                    <div className="spec-group-label">{g.label}</div>
+                    <div className="spec-list">
+                      {g.items.map((s, i) => (
+                        <div className="spec-row" key={i}>
+                          {s.i}
+                          <div><div className="sv">{s.v}</div><div className="sl">{s.l}</div></div>
+                        </div>
+                      ))}
+                    </div>
                   </div>
                 ))}
               </div>
