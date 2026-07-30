@@ -4771,8 +4771,8 @@ a:hover{ color:var(--link); }
 .detail-right::-webkit-scrollbar-thumb:hover{ background:var(--ink-4); }
 
 /* Notes block in the left column, below the building specs (parking, etc.) */
-.detail-note{ margin-top:22px; padding-top:20px; border-top:1px solid var(--rule-2); }
-.detail-note-label{ font-size:9.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:#6B6B6B; margin-bottom:8px; }
+.detail-note{ margin-top:22px; }
+.detail-note-label{ font-size:9.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--navy); margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--rule-2); }
 .detail-note-body{ font-size:13px; line-height:1.55; color:var(--ink-2); }
 
 /* Suites — a simple single-row-per-suite table below the photo. Neutral
@@ -6280,7 +6280,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
         <div className="detail-right">
           {interactive && (
             <div className="rail-block">
-              <div className="rail-label">Your decision</div>
+              <div className="section-head"><h3 className="section-title">Vote</h3></div>
               <VoteGroup vote={status.vote} onVote={(v) => onVote(building.id, v)} />
             </div>
           )}
@@ -6318,7 +6318,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
           )}
           {docs.length > 0 && (
             <div className="rail-block">
-              <div className="section-head"><h3 className="section-title">Documents &amp; attachments <span className="count">({docs.length})</span></h3></div>
+              <div className="section-head"><h3 className="section-title">Attachments <span className="count">({docs.length})</span></h3></div>
               <div className="docs-grid">
                 {docs.map((d, i) => (
                   <a key={i} className="doc-tile" href={d.url} target="_blank" rel="noopener">
