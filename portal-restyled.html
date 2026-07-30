@@ -6079,6 +6079,16 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
   const rentNums = building.spaces.map(s => parseN(s.rate)).filter(n => !isNaN(n));
   const rentSummary = rentNums.length ? '$' + Math.min(...rentNums).toFixed(2) + '–$' + Math.max(...rentNums).toFixed(2) + '/SF' : null;
 
+  // Suites default to floor order (lowest → highest), read from the suite
+  // number (e.g. "Suite 4400" → 44xx). Parsing is for ordering only.
+  const orderedSpaces = [...building.spaces].sort((a, b) => {
+    const fa = parseInt(String(a.suite || '').replace(/\D/g, ''), 10);
+    const fb = parseInt(String(b.suite || '').replace(/\D/g, ''), 10);
+    if (isNaN(fa)) return isNaN(fb) ? 0 : 1;
+    if (isNaN(fb)) return -1;
+    return fa - fb;
+  });
+
   const send = () => {
     if (!draft.trim()) return;
     onComment(building.id, draft.trim());
@@ -6228,7 +6238,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                   </tr>
                 </thead>
                 <tbody>
-                  {building.spaces.map((s, i) => {
+                  {orderedSpaces.map((s, i) => {
                     // Total monthly cost — computed from Total Rent/SF (or asking) × SF ÷ 12.
                     // NOTE: this is the one spot the portal does display-time math on the
                     // record strings; it degrades to the raw rent string when the rate is
