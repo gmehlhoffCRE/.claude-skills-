@@ -4749,7 +4749,7 @@ a:hover{ color:var(--link); }
 .detail-cols{ display:grid; grid-template-columns:250px minmax(0,1fr) 660px; gap:36px; align-items:start; }
 /* Suites scroll within their own panel (capped to ~one screen) so a long
    list doesn't push the Comments section far down the page. */
-.detail-right{ max-height:calc(100vh - 240px); overflow-y:auto; padding-right:8px; }
+.detail-right{ min-height:0; max-height:calc(100vh - 240px); overflow-y:auto; padding-right:8px; }
 .detail-right::-webkit-scrollbar{ width:8px; }
 .detail-right::-webkit-scrollbar-track{ background:transparent; }
 .detail-right::-webkit-scrollbar-thumb{ background:var(--rule); border-radius:999px; }
