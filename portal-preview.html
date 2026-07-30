@@ -4691,16 +4691,15 @@ a:hover{ color:var(--link); }
 .compare-table{ border:1px solid var(--rule); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
 .compare-table th,.compare-table td{
   border:0; border-bottom:1px solid var(--rule-2); border-right:1px solid var(--rule-2);
-  padding:16px 16px; vertical-align:middle; text-align:center;
+  padding:13px 16px; vertical-align:middle; text-align:left;
   font-size:13px; color:#2A2A2A; font-weight:600; background:#fff;
   font-variant-numeric:tabular-nums;
 }
 .compare-table th:last-child,.compare-table td:last-child{ border-right:0; }
 .compare-table tbody tr:last-child td{ border-bottom:0; }
-.compare-table tbody tr:nth-child(odd) td{ background:#fff; }   /* kill zebra */
-.compare-table tbody tr:first-child td{ background:#fff; }      /* kill navy header row bg */
-.compare-table tbody tr.tint td{ background:#fff; }             /* uniform cells, no best-in-row */
-.compare-table tbody tr:hover td{ background:var(--paper-2); }  /* row highlight */
+.compare-table tbody tr:nth-child(odd) td{ background:#fff; }
+.compare-table tbody tr:nth-child(even) td{ background:var(--paper-2); }  /* subtle zebra */
+.compare-table tbody tr:hover td{ background:var(--paper-3); }            /* row highlight */
 .compare-table .compare-row-label{
   position:sticky; left:0; z-index:2; width:200px; min-width:200px;
   background:var(--paper-2) !important; color:#6B6B6B !important;
@@ -6563,28 +6562,50 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
   };
   const groupOf = (k) => GROUPS[k] || 'Details';
 
-  const cellVal = (pid, key) => {
-    const v = (cells[pid] || {})[key];
-    if (Array.isArray(v)) return v.length ? v.map((l, i) => <div key={i}>{l}</div>) : '—';
-    return (v && String(v).trim()) ? v : '—';
+  // Compare uses the same data points as the building detail page, derived from
+  // the building records. Suite-level fields are shown as min–max ranges;
+  // strings stay verbatim (parsing is only used to pick the range endpoints).
+  const parseN = (v) => { const m = String(v || '').replace(/[$,]/g, '').match(/\d[\d.]*/); return m ? parseFloat(m[0]) : NaN; };
+  const rangeOf = (arr) => {
+    const items = arr.map(v => ({ v, n: parseN(v) })).filter(x => !isNaN(x.n));
+    if (!items.length) return '—';
+    const lo = items.reduce((a, b) => b.n < a.n ? b : a);
+    const hi = items.reduce((a, b) => b.n > a.n ? b : a);
+    return lo.v === hi.v ? lo.v : lo.v + '–' + hi.v;
   };
-
-  // Lease Type = Direct / Sublease, derived from each building's suites.
-  const dealTypeOf = (b) => {
-    const set = new Set((b.spaces || []).map(s => s.dealType || 'Direct'));
-    return set.size ? [...set].join(' / ') : 'Direct';
+  const dealTypeOf = (b) => { const set = new Set((b.spaces || []).map(s => s.dealType || 'Direct')); return set.size ? [...set].join(' / ') : 'Direct'; };
+  const termOf = (b) => { const t = [...new Set((b.spaces || []).map(s => s.term).filter(Boolean))]; return t.length ? t.join(', ') : '—'; };
+  const builtOf = (b) => [b.year_built, b.year_renovated].filter(Boolean).join(' / ') || '—';
+  const parkCostOf = (b) => [b.parking_reserved && 'Res ' + b.parking_reserved, b.parking_unreserved && 'Unres ' + b.parking_unreserved].filter(Boolean).join(' / ') || '—';
+  const monthlyRange = (b) => {
+    const vals = (b.spaces || []).map(s => {
+      const per = !isNaN(parseN(s.total)) ? parseN(s.total) : parseN(s.rate);
+      const sf = parseN(s.sf);
+      return (!isNaN(per) && !isNaN(sf)) ? Math.round(per * sf / 12) : NaN;
+    }).filter(n => !isNaN(n));
+    if (!vals.length) return '—';
+    const f = n => '$' + n.toLocaleString('en-US');
+    const lo = Math.min(...vals), hi = Math.max(...vals);
+    return lo === hi ? f(lo) : f(lo) + '–' + f(hi);
   };
-  // Relabel the matrix's rent-basis row to "Lease Structure" and add a
-  // "Lease Type" (Direct/Sublease) row, keeping Lease Type consistent app-wide.
-  const displayRows = [];
-  rows.forEach(r => {
-    if (r.key === 'leaseType') {
-      displayRows.push({ key: '__dealType', label: 'Lease Type', synth: true });
-      displayRows.push({ ...r, label: 'Lease Structure' });
-    } else {
-      displayRows.push(r);
-    }
-  });
+  const compareRows = [
+    { label: 'Submarket', get: b => b.submarket || '—' },
+    { label: 'Building Class', get: b => b.class ? 'Class ' + b.class : '—' },
+    { label: 'Year Built / Renov.', get: builtOf },
+    { label: 'Stories', get: b => b.stories || '—' },
+    { label: 'Total Building Area', get: b => b.total_sf ? b.total_sf + ' SF' : '—' },
+    { label: 'Percent Leased', get: b => b.percent_leased || '—' },
+    { label: 'Parking Ratio', get: b => b.parking || '—' },
+    { label: 'Parking $/Space/Mo', get: parkCostOf },
+    { label: 'Landlord', get: b => b.landlord || '—' },
+    { label: 'Premises SF', get: b => rangeOf((b.spaces || []).map(s => s.sf)) },
+    { label: 'Base Rent/SF', get: b => rangeOf((b.spaces || []).map(s => s.rate)) },
+    { label: 'Est. OpEx/SF', get: b => rangeOf((b.spaces || []).map(s => s.opex)) },
+    { label: 'Total Rent/SF', get: b => rangeOf((b.spaces || []).map(s => s.total)) },
+    { label: 'Monthly Rent', get: monthlyRange },
+    { label: 'Lease Type', get: dealTypeOf },
+    { label: 'Term', get: termOf },
+  ];
 
   const statusLabel = (b) => {
     const v = statuses[b.id]?.vote;
@@ -6611,10 +6632,10 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
           </tr>
         </thead>
         <tbody>
-          {displayRows.map(r => (
-            <tr key={r.key}>
+          {compareRows.map((r, ri) => (
+            <tr key={ri}>
               <td className="compare-row-label">{r.label}</td>
-              {buildings.map(b => <td key={b.id}>{r.synth ? dealTypeOf(b) : cellVal(b.id, r.key)}</td>)}
+              {buildings.map(b => <td key={b.id}>{r.get(b)}</td>)}
             </tr>
           ))}
           {interactive && (
@@ -6629,16 +6650,16 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
           )}
         </tbody>
       </table>
-      {rows.length > 0 && (
+      {buildings.length > 0 && (
         <div className="compare-foot">
           <span>Data as of {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} · asking terms</span>
           <a onClick={() => window.print()}>Export comparison PDF →</a>
         </div>
       )}
-      {rows.length === 0 && (
+      {buildings.length === 0 && (
         <div className="empty-state" style={{padding:'40px 20px'}}>
-          <div className="empty-state-title">Comparison not available</div>
-          <div className="empty-state-body">This survey was published before comparison data was added. Ask your broker to re-publish it.</div>
+          <div className="empty-state-title">No properties to compare</div>
+          <div className="empty-state-body">Add properties to this survey to compare them side by side.</div>
         </div>
       )}
     </div>
