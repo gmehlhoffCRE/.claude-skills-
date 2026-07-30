@@ -4746,11 +4746,16 @@ a:hover{ color:var(--link); }
 .detail-vote{ margin-top:18px; }
 .detail-vote .vote-group{ box-shadow:var(--shadow-1); }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
-.detail-cols{ display:grid; grid-template-columns:250px minmax(0,1fr) 660px; gap:36px; align-items:start; }
-/* With many suites, the left (map + specs) and center (hero) columns pin in
-   place while the taller suite column scrolls past — hero/specs stay in view
-   without a cramped inner scrollbar. */
+.detail-cols{ display:grid; grid-template-columns:250px minmax(0,1fr) 380px; gap:36px; align-items:start; }
+/* Left (map + specs) and center (hero) pin while a long comments rail scrolls. */
 .detail-left, .detail-center{ position:sticky; top:16px; align-self:start; }
+.detail-right .section{ margin-bottom:0; }
+
+/* Full-width available-spaces section below the photo + data points.
+   Each suite card is two lines: navy header, then all data on one row. */
+.detail-suites{ margin-top:40px; }
+.suite-list-wide{ display:flex; flex-direction:column; gap:14px; margin-top:16px; }
+.suite-list-wide .suite-datarow{ display:grid; grid-template-columns:repeat(8,1fr); gap:14px 18px; padding:16px 18px; }
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
@@ -4814,7 +4819,8 @@ a:hover{ color:var(--link); }
 /* extra sections (docs + comments) below the 3-col block */
 .detail-extra{ margin-top:44px; display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:start; }
 .detail-extra .section{ margin-bottom:0; }
-@media (max-width:1100px){ .detail-cols{ grid-template-columns:1fr; } .detail-extra{ grid-template-columns:1fr; } .detail-left, .detail-center{ position:static; } }
+@media (max-width:1100px){ .detail-cols{ grid-template-columns:1fr; } .detail-extra{ grid-template-columns:1fr; } .detail-left, .detail-center{ position:static; } .suite-list-wide .suite-datarow{ grid-template-columns:repeat(4,1fr); } }
+@media (min-width:1101px) and (max-width:1500px){ .suite-list-wide .suite-datarow{ grid-template-columns:repeat(4,1fr); } }
 
 
 /* ══════════ COMMUTE (design 3a — table-first matrix) ══════════ */
@@ -6096,8 +6102,47 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
           </div>
         </div>
 
-        {/* ── RIGHT: suite cards ── */}
+        {/* ── RIGHT: comments rail ── */}
         <div className="detail-right">
+          {interactive && (
+            <div className="section">
+              <div className="section-head">
+                <h3 className="section-title">Comments <span className="count">({bComments.length})</span></h3>
+                <span className="mono-tag"><span className="live-dot"/> Live</span>
+              </div>
+              <div>
+                {bComments.length === 0 && (
+                  <div style={{ padding: '18px 0', color: 'var(--ink-3)', fontStyle: 'italic', fontSize: 14 }}>No comments yet. Start the conversation below.</div>
+                )}
+                {bComments.map((c) => (
+                  <div className="comment" key={c.id}>
+                    <div className={'avatar ' + c.author_type}>{c.initials}</div>
+                    <div>
+                      <div className="comment-head">
+                        <span className="comment-author">{c.author}</span>
+                        <span className="comment-role">{c.author_type === 'broker' ? 'Broker' : 'Client'}</span>
+                        <span className="comment-time">{c.ts}</span>
+                      </div>
+                      <div className="comment-body">{c.body}</div>
+                    </div>
+                  </div>
+                ))}
+                <div className="comment-input-row">
+                  <div className="avatar client">{initialsOf(localStorage.getItem('cresaPortalName.v1') || '') || 'You'}</div>
+                  <input className="comment-input" placeholder="Add a comment to your broker..." value={draft}
+                    onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') send(); }} />
+                  <button className="btn" onClick={send}><Icon.Send width="13" height="13"/> Send</button>
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>{/* /.detail-cols */}
+
+      {/* ── full-width available spaces (below the photo + data points) ── */}
+      <div className="detail-suites">
+        <div className="section-head"><h3 className="section-title">Available spaces <span className="count">({building.spaces.length})</span></h3></div>
+        <div className="suite-list-wide">
           {building.spaces.map((s, i) => {
             // Total monthly cost — computed from Total Rent/SF (or asking) × SF ÷ 12.
             // NOTE: this is the one spot the portal does display-time math on the
@@ -6122,26 +6167,24 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 21V9M15 15h6"/></svg>
                   </span>
                 </div>
-                <div className="suite-metricrow">
+                <div className="suite-datarow">
                   <div><div className="sm-lbl">Base Rent/SF</div><div className="sm-val">{s.rate || '—'}</div></div>
                   <div><div className="sm-lbl">Est. OpEx/SF</div><div className="sm-val">{s.opex || '—'}</div></div>
                   <div><div className="sm-lbl">Total Rent/SF</div><div className="sm-val">{s.total || '—'}</div></div>
                   <div><div className="sm-lbl">Monthly Est. Rent</div><div className="sm-val">{monthly}</div></div>
-                </div>
-                <div className="suite-metarow">
-                  <div><div className="sm-lbl">Lease Type</div><div className="sm2-val">{dealType}</div></div>
-                  <div><div className="sm-lbl">Term</div><div className="sm2-val">{s.term || '—'}</div></div>
-                  <div><div className="sm-lbl">Availability</div><div className="sm2-val">{s.available || '—'}</div></div>
-                  <div><div className="sm-lbl">Lease Structure</div><div className="sm2-val">{s.lease || '—'}</div></div>
+                  <div><div className="sm-lbl">Lease Type</div><div className="sm-val">{dealType}</div></div>
+                  <div><div className="sm-lbl">Term</div><div className="sm-val">{s.term || '—'}</div></div>
+                  <div><div className="sm-lbl">Availability</div><div className="sm-val">{s.available || '—'}</div></div>
+                  <div><div className="sm-lbl">Structure</div><div className="sm-val">{s.lease || '—'}</div></div>
                 </div>
               </div>
             );
           })}
           {building.spaces.length === 0 && (
-            <div className="suite-card" style={{ color: 'var(--ink-3)', fontStyle: 'italic' }}>No spaces published.</div>
+            <div className="suite-card" style={{ padding:16, color: 'var(--ink-3)', fontStyle: 'italic' }}>No spaces published.</div>
           )}
         </div>
-      </div>{/* /.detail-cols */}
+      </div>
 
       {/* ── extra: documents + comments ── */}
       <div className="detail-extra">
@@ -6156,38 +6199,6 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                   <Icon.Download width="14" height="14" style={{ color: 'var(--ink-3)' }}/>
                 </a>
               ))}
-            </div>
-          </div>
-        )}
-        {interactive && (
-          <div className="section">
-            <div className="section-head">
-              <h3 className="section-title">Comments <span className="count">({bComments.length})</span></h3>
-              <span className="mono-tag"><span className="live-dot"/> Live</span>
-            </div>
-            <div>
-              {bComments.length === 0 && (
-                <div style={{ padding: '18px 0', color: 'var(--ink-3)', fontStyle: 'italic', fontSize: 14 }}>No comments yet. Start the conversation below.</div>
-              )}
-              {bComments.map((c) => (
-                <div className="comment" key={c.id}>
-                  <div className={'avatar ' + c.author_type}>{c.initials}</div>
-                  <div>
-                    <div className="comment-head">
-                      <span className="comment-author">{c.author}</span>
-                      <span className="comment-role">{c.author_type === 'broker' ? 'Broker' : 'Client'}</span>
-                      <span className="comment-time">{c.ts}</span>
-                    </div>
-                    <div className="comment-body">{c.body}</div>
-                  </div>
-                </div>
-              ))}
-              <div className="comment-input-row">
-                <div className="avatar client">{initialsOf(localStorage.getItem('cresaPortalName.v1') || '') || 'You'}</div>
-                <input className="comment-input" placeholder="Add a comment to your broker..." value={draft}
-                  onChange={e => setDraft(e.target.value)} onKeyDown={e => { if (e.key === 'Enter') send(); }} />
-                <button className="btn" onClick={send}><Icon.Send width="13" height="13"/> Send</button>
-              </div>
             </div>
           </div>
         )}
