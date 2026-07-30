@@ -4754,7 +4754,7 @@ a:hover{ color:var(--link); }
 .spec-row svg{ width:20px; height:20px; flex:none; margin-top:1px; }
 .spec-row .sv{ font-size:15px; font-weight:700; color:var(--navy); line-height:1.2; }
 .spec-row .sl{ font-size:11px; color:var(--ink-4); margin-top:2px; }
-.mini-map{ margin-top:26px; border-radius:10px; overflow:hidden; position:relative; height:150px;
+.mini-map{ margin:0 0 24px; border-radius:10px; overflow:hidden; position:relative; height:160px;
   background:#E8EFF8; background-image:radial-gradient(#D4DEEE 1px,transparent 1px); background-size:16px 16px; }
 .mini-map .mm-pin{ position:absolute; left:34%; top:46%; transform:translate(-50%,-50%);
   width:26px; height:26px; border-radius:50%; background:var(--navy); box-shadow:0 0 0 3px var(--gold);
@@ -6016,6 +6016,10 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
       <div className="detail-cols">
         {/* ── LEFT: specs + mini map ── */}
         <div className="detail-left">
+          <div className="mini-map">
+            <div className="mm-pin">{idx + 1}</div>
+            <div className="mm-label">LIVE MAP</div>
+          </div>
           {(() => {
             const built = [building.year_built, building.year_renovated].filter(Boolean).join(' / ');
             const I = {
@@ -6061,13 +6065,9 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               </div>
             );
           })()}
-          <div className="mini-map">
-            <div className="mm-pin">{idx + 1}</div>
-            <div className="mm-label">LIVE MAP</div>
-          </div>
         </div>
 
-        {/* ── CENTER: hero + thumbs + broker note ── */}
+        {/* ── CENTER: hero + thumbs ── */}
         <div className="detail-center">
           <div className="detail-hero">
             {photos.length > 0
