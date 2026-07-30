@@ -6569,6 +6569,23 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
     return (v && String(v).trim()) ? v : '—';
   };
 
+  // Lease Type = Direct / Sublease, derived from each building's suites.
+  const dealTypeOf = (b) => {
+    const set = new Set((b.spaces || []).map(s => s.dealType || 'Direct'));
+    return set.size ? [...set].join(' / ') : 'Direct';
+  };
+  // Relabel the matrix's rent-basis row to "Lease Structure" and add a
+  // "Lease Type" (Direct/Sublease) row, keeping Lease Type consistent app-wide.
+  const displayRows = [];
+  rows.forEach(r => {
+    if (r.key === 'leaseType') {
+      displayRows.push({ key: '__dealType', label: 'Lease Type', synth: true });
+      displayRows.push({ ...r, label: 'Lease Structure' });
+    } else {
+      displayRows.push(r);
+    }
+  });
+
   const statusLabel = (b) => {
     const v = statuses[b.id]?.vote;
     return v === 'up' ? '★ Shortlisted' : v === 'down' ? 'Passed' : 'Under review';
@@ -6594,10 +6611,10 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
           </tr>
         </thead>
         <tbody>
-          {rows.map(r => (
+          {displayRows.map(r => (
             <tr key={r.key}>
               <td className="compare-row-label">{r.label}</td>
-              {buildings.map(b => <td key={b.id}>{cellVal(b.id, r.key)}</td>)}
+              {buildings.map(b => <td key={b.id}>{r.synth ? dealTypeOf(b) : cellVal(b.id, r.key)}</td>)}
             </tr>
           ))}
           {interactive && (
