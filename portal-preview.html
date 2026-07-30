@@ -4746,7 +4746,7 @@ a:hover{ color:var(--link); }
 .detail-vote{ margin-top:18px; }
 .detail-vote .vote-group{ box-shadow:var(--shadow-1); }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
-.detail-cols{ display:grid; grid-template-columns:270px minmax(0,1fr) 460px; gap:32px; align-items:start; }
+.detail-cols{ display:grid; grid-template-columns:300px minmax(0,1fr) 500px; gap:32px; align-items:start; }
 /* Right column is the pinned action rail — decision + comments + documents in
    one panel. Sticky so it stays visible; scrolls internally if it runs long. */
 .detail-right{ position:sticky; top:16px; align-self:start; min-height:0; max-height:calc(100vh - 190px); overflow-y:auto;
@@ -4798,7 +4798,7 @@ a:hover{ color:var(--link); }
 .mini-map .mm-label{ position:absolute; bottom:10px; right:12px; font-size:9px; letter-spacing:1.2px; color:var(--ink-4); font-weight:700; }
 
 /* center */
-.detail-hero{ border-radius:16px; overflow:hidden; position:relative; height:290px; display:grid; place-items:center;
+.detail-hero{ border-radius:16px; overflow:hidden; position:relative; height:420px; display:grid; place-items:center;
   background:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 11px,#EFF4FB 11px,#EFF4FB 22px); }
 .detail-hero .real-photo{ width:100%; height:100%; object-fit:cover; }
 .detail-hero .hero-ph{ font-size:11px; letter-spacing:1.6px; color:var(--ink-4); font-weight:700; }
@@ -4809,7 +4809,7 @@ a:hover{ color:var(--link); }
 .hero-counter{ position:absolute; bottom:14px; right:14px; background:#fff; border-radius:16px; padding:7px 14px;
   font-size:11px; font-weight:700; color:var(--navy); box-shadow:0 2px 8px rgba(0,30,90,.12); }
 .thumbstrip{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; margin-top:12px; }
-.thumb{ height:92px; border-radius:10px; border:2px solid transparent; cursor:pointer; overflow:hidden;
+.thumb{ height:104px; border-radius:10px; border:2px solid transparent; cursor:pointer; overflow:hidden;
   background-image:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 8px,#EFF4FB 8px,#EFF4FB 16px); }
 .thumb.on{ border-color:var(--navy); }
 .thumb .real-photo{ width:100%; height:100%; object-fit:cover; }
@@ -6134,6 +6134,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                 <thead>
                   <tr>
                     <th>Suite</th>
+                    <th>Premises SF</th>
                     <th>Base Rent/SF</th>
                     <th>Est. OpEx/SF</th>
                     <th>Total Rent/SF</th>
@@ -6161,8 +6162,8 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                       <tr key={s.key || i}>
                         <td className="st-suite">
                           <span className="st-name">{s.suite || `Suite ${i + 1}`}</span>
-                          <span className="st-sf">{s.sf ? s.sf + ' SF' : '—'}</span>
                         </td>
+                        <td>{s.sf || '—'}</td>
                         <td>{s.rate || '—'}</td>
                         <td>{s.opex || '—'}</td>
                         <td>{s.total || '—'}</td>
@@ -6178,7 +6179,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                     );
                   })}
                   {building.spaces.length === 0 && (
-                    <tr><td colSpan={8} className="st-empty">No spaces published.</td></tr>
+                    <tr><td colSpan={9} className="st-empty">No spaces published.</td></tr>
                   )}
                 </tbody>
               </table>
