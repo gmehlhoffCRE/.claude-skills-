@@ -4770,13 +4770,13 @@ a:hover{ color:var(--link); }
    palette, no heavy navy accents; light header, hairline rows. */
 .detail-suites{ margin-top:30px; }
 .suite-table-wrap{ margin-top:16px; border:1px solid var(--rule); border-radius:12px; overflow:auto; box-shadow:var(--shadow-1); background:#fff; }
-.suite-table{ width:100%; border-collapse:collapse; font-size:13px; font-variant-numeric:tabular-nums; }
-.suite-table thead th{ text-align:left; padding:11px 14px; background:var(--paper-2); color:#6B6B6B; font-weight:700; font-size:9.5px; letter-spacing:.5px; text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--rule); }
-.suite-table tbody td{ padding:13px 14px; border-bottom:1px solid var(--rule-2); color:#2A2A2A; font-weight:600; white-space:nowrap; vertical-align:middle; }
+.suite-table{ width:100%; border-collapse:collapse; font-size:12px; font-variant-numeric:tabular-nums; }
+.suite-table thead th{ text-align:left; padding:10px 11px; background:var(--paper-2); color:#6B6B6B; font-weight:700; font-size:9px; letter-spacing:.4px; text-transform:uppercase; white-space:nowrap; border-bottom:1px solid var(--rule); }
+.suite-table tbody td{ padding:11px 11px; border-bottom:1px solid var(--rule-2); color:#2A2A2A; font-weight:600; white-space:nowrap; vertical-align:middle; }
 .suite-table tbody tr:last-child td{ border-bottom:0; }
 .suite-table tbody tr:hover td{ background:var(--paper-2); }
 .st-suite{ white-space:nowrap; }
-.st-name{ font-weight:700; color:#1A1A1A; font-size:14px; }
+.st-name{ font-weight:700; color:#1A1A1A; font-size:13px; }
 .st-sf{ font-weight:600; color:#6B6B6B; font-size:12px; margin-left:10px; }
 .st-plan-col{ text-align:right; width:52px; }
 .st-plan{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:6px; border:1px solid var(--rule); color:#555; cursor:pointer; transition:background .15s, border-color .15s, color .15s; }
@@ -6138,7 +6138,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                     <th>Base Rent/SF</th>
                     <th>Est. OpEx/SF</th>
                     <th>Total Rent/SF</th>
-                    <th>Monthly Est. Rent</th>
+                    <th>Monthly Rent</th>
                     <th>Lease Type</th>
                     <th>Term</th>
                     <th className="st-plan-col" aria-label="Floor plan"></th>
