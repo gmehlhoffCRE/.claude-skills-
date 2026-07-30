@@ -4786,9 +4786,10 @@ a:hover{ color:var(--link); }
 .suite-card{ border:1px solid var(--rule); border-radius:14px; background:#fff; box-shadow:var(--shadow-1); overflow:hidden; }
 /* Navy header bar — suite name + SF (white, inverted) + floor-plan icon */
 .suite-cardhead{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:11px 16px; }
+.sch-id{ display:flex; align-items:center; gap:12px; min-width:0; }
 .sch-name{ font-size:14px; font-weight:700; color:#fff; letter-spacing:-.1px; }
-.sch-right{ display:flex; align-items:center; gap:12px; flex:none; }
-.sch-sf{ font-size:14px; font-weight:700; color:#fff; opacity:.9; white-space:nowrap; }
+.sch-sf{ font-size:14px; font-weight:700; color:#fff; opacity:.9; white-space:nowrap;
+  border-left:1px solid rgba(255,255,255,.28); padding-left:12px; }
 .sch-plan{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:6px; background:rgba(255,255,255,.16); color:#fff; cursor:pointer; transition:background .15s var(--ease); }
 .sch-plan:hover{ background:rgba(255,255,255,.30); }
 .sch-plan svg{ width:15px; height:15px; }
@@ -6102,13 +6103,13 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
             return (
               <div className="suite-card" key={s.key || i}>
                 <div className="suite-cardhead">
-                  <span className="sch-name">{s.suite || `Suite ${i + 1}`}</span>
-                  <div className="sch-right">
+                  <div className="sch-id">
+                    <span className="sch-name">{s.suite || `Suite ${i + 1}`}</span>
                     <span className="sch-sf">{s.sf ? s.sf + ' SF' : '—'}</span>
-                    <span className="sch-plan" title="Open floor plan" role="button" aria-label="Open floor plan" onClick={openPlan}>
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 21V9M15 15h6"/></svg>
-                    </span>
                   </div>
+                  <span className="sch-plan" title="Open floor plan" role="button" aria-label="Open floor plan" onClick={openPlan}>
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 21V9M15 15h6"/></svg>
+                  </span>
                 </div>
                 <div className="suite-metricrow">
                   <div><div className="sm-lbl">Base Rent/SF</div><div className="sm-val">{s.rate || '—'}</div></div>
