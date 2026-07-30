@@ -4791,7 +4791,7 @@ a:hover{ color:var(--link); }
 .sch-plan svg{ width:15px; height:15px; }
 /* One rent row: Base / OpEx / Total / Monthly — all same size */
 .suite-metricrow{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; padding:16px 16px 14px; }
-.suite-metarow{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:14px 16px 16px; border-top:1px solid var(--rule-2); }
+.suite-metarow{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; padding:14px 16px 16px; border-top:1px solid var(--rule-2); }
 .sm-val{ font-size:15px; font-weight:700; color:var(--ink); letter-spacing:-.2px; line-height:1.15; }
 .sm-lbl{ font-size:9px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); }
 .suite-metricrow .sm-lbl{ margin-top:4px; }
@@ -6116,6 +6116,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                   <div><div className="sm-lbl">Availability</div><div className="sm2-val">{s.available || '—'}</div></div>
                   <div><div className="sm-lbl">Term</div><div className="sm2-val">{s.term || '—'}</div></div>
                   <div><div className="sm-lbl">Lease Type</div><div className="sm2-val">{dealType}</div></div>
+                  <div><div className="sm-lbl">Lease Structure</div><div className="sm2-val">{s.lease || '—'}</div></div>
                 </div>
               </div>
             );
