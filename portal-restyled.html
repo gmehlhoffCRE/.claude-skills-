@@ -4746,7 +4746,7 @@ a:hover{ color:var(--link); }
 .detail-vote{ margin-top:18px; }
 .detail-vote .vote-group{ box-shadow:var(--shadow-1); }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
-.detail-cols{ display:grid; grid-template-columns:250px minmax(0,1fr) 360px; gap:36px; align-items:start; }
+.detail-cols{ display:grid; grid-template-columns:230px minmax(0,1fr) 460px; gap:32px; align-items:start; }
 /* Right column is the pinned action rail — decision + comments + documents in
    one panel. Sticky so it stays visible; scrolls internally if it runs long. */
 .detail-right{ position:sticky; top:16px; align-self:start; min-height:0; max-height:calc(100vh - 190px); overflow-y:auto;
@@ -4770,8 +4770,9 @@ a:hover{ color:var(--link); }
 .suite-table tbody td{ padding:13px 14px; border-bottom:1px solid var(--rule-2); color:#2A2A2A; font-weight:600; white-space:nowrap; vertical-align:middle; }
 .suite-table tbody tr:last-child td{ border-bottom:0; }
 .suite-table tbody tr:hover td{ background:var(--paper-2); }
+.st-suite{ white-space:nowrap; }
 .st-name{ font-weight:700; color:#1A1A1A; font-size:14px; }
-.st-sf{ font-weight:600; color:#6B6B6B; font-size:11.5px; margin-top:2px; }
+.st-sf{ font-weight:600; color:#6B6B6B; font-size:12px; margin-left:10px; }
 .st-plan-col{ text-align:right; width:52px; }
 .st-plan{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:6px; border:1px solid var(--rule); color:#555; cursor:pointer; transition:background .15s, border-color .15s, color .15s; }
 .st-plan:hover{ background:var(--paper-2); border-color:var(--ink-4); color:var(--ink); }
@@ -4792,7 +4793,7 @@ a:hover{ color:var(--link); }
 .mini-map .mm-label{ position:absolute; bottom:10px; right:12px; font-size:9px; letter-spacing:1.2px; color:var(--ink-4); font-weight:700; }
 
 /* center */
-.detail-hero{ border-radius:16px; overflow:hidden; position:relative; height:400px; display:grid; place-items:center;
+.detail-hero{ border-radius:16px; overflow:hidden; position:relative; height:340px; display:grid; place-items:center;
   background:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 11px,#EFF4FB 11px,#EFF4FB 22px); }
 .detail-hero .real-photo{ width:100%; height:100%; object-fit:cover; }
 .detail-hero .hero-ph{ font-size:11px; letter-spacing:1.6px; color:var(--ink-4); font-weight:700; }
@@ -6125,8 +6126,6 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                     <th>Monthly Est. Rent</th>
                     <th>Lease Type</th>
                     <th>Term</th>
-                    <th>Availability</th>
-                    <th>Structure</th>
                     <th className="st-plan-col" aria-label="Floor plan"></th>
                   </tr>
                 </thead>
@@ -6147,8 +6146,8 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                     return (
                       <tr key={s.key || i}>
                         <td className="st-suite">
-                          <div className="st-name">{s.suite || `Suite ${i + 1}`}</div>
-                          <div className="st-sf">{s.sf ? s.sf + ' SF' : '—'}</div>
+                          <span className="st-name">{s.suite || `Suite ${i + 1}`}</span>
+                          <span className="st-sf">{s.sf ? s.sf + ' SF' : '—'}</span>
                         </td>
                         <td>{s.rate || '—'}</td>
                         <td>{s.opex || '—'}</td>
@@ -6156,8 +6155,6 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                         <td>{monthly}</td>
                         <td>{dealType}</td>
                         <td>{s.term || '—'}</td>
-                        <td>{s.available || '—'}</td>
-                        <td>{s.lease || '—'}</td>
                         <td className="st-plan-col">
                           <span className="st-plan" title="Open floor plan" role="button" aria-label="Open floor plan" onClick={openPlan}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 21V9M15 15h6"/></svg>
@@ -6167,7 +6164,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                     );
                   })}
                   {building.spaces.length === 0 && (
-                    <tr><td colSpan={10} className="st-empty">No spaces published.</td></tr>
+                    <tr><td colSpan={8} className="st-empty">No spaces published.</td></tr>
                   )}
                 </tbody>
               </table>
