@@ -5168,6 +5168,7 @@ const PREVIEW_RECORD = {
       address: '2800 Post Oak Blvd', city: 'Houston', submarket: 'Galleria / Uptown', projectName: 'Williams Tower',
       buildingClass: 'A', totalSize: '1,476,973', stories: '64', yearBuilt: '1983', renovated: '2018',
       parkingType: 'Garage', parkingRatio: '2.5/1,000', landlord: 'Invesco',
+      parkingReserved: '$200', parkingUnreserved: '$150', percentLeased: '92%',
       coords: [-95.4618, 29.7372], photos: [], brochure: '', subleaseBrochure: '',
       notes: 'Anchor of the Galleria submarket. Premier views.',
       suites: [
@@ -5178,6 +5179,7 @@ const PREVIEW_RECORD = {
       address: '845 Texas Ave', city: 'Houston', submarket: 'CBD / Downtown', projectName: 'Texas Tower',
       buildingClass: 'A', totalSize: '1,135,000', stories: '47', yearBuilt: '2022', renovated: '',
       parkingType: 'Garage', parkingRatio: '2.8/1,000', landlord: 'Hines',
+      parkingReserved: '$225', parkingUnreserved: '$175', percentLeased: '88%',
       coords: [-95.3651, 29.7589], photos: [], brochure: '', subleaseBrochure: '',
       notes: 'New construction; LEED Platinum target.',
       suites: [
@@ -5187,6 +5189,7 @@ const PREVIEW_RECORD = {
       address: '825 Town & Country Lane', city: 'Houston', submarket: 'Katy Freeway', projectName: 'CityCentre Five',
       buildingClass: 'A', totalSize: '270,000', stories: '11', yearBuilt: '2014', renovated: '',
       parkingType: 'Garage', parkingRatio: '4.0/1,000', landlord: 'Midway',
+      parkingReserved: '$150', parkingUnreserved: '$100', percentLeased: '95%',
       coords: [-95.5550, 29.7794], photos: [], brochure: '', subleaseBrochure: '',
       suites: [
         { key: 'suite 600', name: 'Suite 600', hasName: true, sf: '12,300', askingRent: 'Negotiable', opex: '$11.80', totalRent: '', leaseType: 'NNN', term: '5 Years', availability: 'Immediate', floorplan: '' },
@@ -6034,8 +6037,14 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               building.landlord && { i: I.owner, v: building.landlord, l: 'Landlord' },
               building.percent_leased && { i: I.pct, v: building.percent_leased, l: 'Percent leased' },
               building.parking && { i: I.park, v: building.parking, l: 'Parking ratio' },
-              building.parking_reserved && { i: I.park, v: building.parking_reserved, l: 'Reserved parking' },
-              building.parking_unreserved && { i: I.park, v: building.parking_unreserved, l: 'Unreserved parking' },
+              (building.parking_reserved || building.parking_unreserved) && {
+                i: I.park,
+                v: [
+                  building.parking_reserved && 'Res ' + building.parking_reserved,
+                  building.parking_unreserved && 'Unres ' + building.parking_unreserved,
+                ].filter(Boolean).join(' / '),
+                l: 'Parking $/Space/Mo',
+              },
               building.clear_height && { i: I.height, v: building.clear_height, l: 'Clear height' },
               building.loading && { i: I.gen, v: building.loading, l: 'Loading' },
               building.power && { i: I.gen, v: building.power, l: 'Power' },
