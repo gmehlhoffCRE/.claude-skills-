@@ -4691,27 +4691,30 @@ a:hover{ color:var(--link); }
 .compare-table{ border:1px solid var(--rule); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
 .compare-table th,.compare-table td{
   border:0; border-bottom:1px solid var(--rule-2); border-right:1px solid var(--rule-2);
-  padding:18px 16px; vertical-align:middle; text-align:center;
-  font-size:12px; color:var(--ink-2); font-weight:400; background:#fff;
+  padding:16px 16px; vertical-align:middle; text-align:center;
+  font-size:13px; color:#2A2A2A; font-weight:600; background:#fff;
+  font-variant-numeric:tabular-nums;
 }
 .compare-table th:last-child,.compare-table td:last-child{ border-right:0; }
 .compare-table tbody tr:last-child td{ border-bottom:0; }
 .compare-table tbody tr:nth-child(odd) td{ background:#fff; }   /* kill zebra */
 .compare-table tbody tr:first-child td{ background:#fff; }      /* kill navy header row bg */
 .compare-table tbody tr.tint td{ background:#fff; }             /* uniform cells, no best-in-row */
+.compare-table tbody tr:hover td{ background:var(--paper-2); }  /* row highlight */
 .compare-table .compare-row-label{
   position:sticky; left:0; z-index:2; width:200px; min-width:200px;
-  background:var(--paper-2) !important; color:var(--ink-4) !important;
+  background:var(--paper-2) !important; color:#6B6B6B !important;
   text-align:left !important;
-  font-size:10.5px !important; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
+  font-size:10px !important; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
 }
 .compare-table tbody tr:first-child .compare-row-label,
-.compare-table tbody tr:nth-child(odd) .compare-row-label{ background:var(--paper-2) !important; color:var(--ink-4) !important; }
+.compare-table tbody tr:nth-child(odd) .compare-row-label{ background:var(--paper-2) !important; color:#6B6B6B !important; }
+.compare-table tbody tr:hover .compare-row-label{ background:var(--paper-3) !important; }
 .compare-table thead th{ background:#fff; }
 .compare-photo{ width:100%; height:132px; border-radius:8px; overflow:hidden; background:var(--paper-3); }
 .compare-photo .real-photo{ object-fit:cover; width:100%; height:100%; }
-.compare-name{ font-size:12.5px; font-weight:700; color:var(--navy); }
-.compare-addr{ font-size:11px; color:var(--ink-4); margin-top:2px; }
+.compare-name{ font-size:15px; font-weight:700; color:var(--navy); letter-spacing:-.2px; }
+.compare-addr{ font-size:11.5px; color:#6B6B6B; font-weight:600; margin-top:3px; }
 /* row-group micro headers */
 .compare-table tr.grouprow td{
   background:var(--paper-2) !important; font-size:10px; font-weight:700; letter-spacing:1.4px;
@@ -6599,7 +6602,7 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
           ))}
           {interactive && (
             <tr>
-              <td className="compare-row-label">Shortlist / Pass</td>
+              <td className="compare-row-label">Shortlist / Remove</td>
               {buildings.map(b => (
                 <td key={b.id}>
                   <VoteGroup vote={statuses[b.id]?.vote} onVote={(v) => onVote(b.id, v)}/>
