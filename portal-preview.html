@@ -4743,7 +4743,7 @@ a:hover{ color:var(--link); }
 .detail-title-actions{ display:flex; gap:10px; flex:none; padding-top:8px; }
 .detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
-.detail-cols{ display:grid; grid-template-columns:230px minmax(0,1fr) 460px; gap:40px; align-items:start; }
+.detail-cols{ display:grid; grid-template-columns:220px minmax(0,1fr) 540px; gap:36px; align-items:start; }
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
@@ -4780,20 +4780,23 @@ a:hover{ color:var(--link); }
 
 /* right rail — suite cards */
 .detail-right{ display:flex; flex-direction:column; gap:16px; }
-.suite-card{ border:1px solid var(--rule); border-radius:14px; background:#fff; padding:20px; box-shadow:var(--shadow-1); }
-.suite-card-top{ display:flex; justify-content:space-between; align-items:baseline; gap:12px; }
-.suite-name{ font-size:14px; font-weight:700; color:var(--navy); }
-.suite-sf{ font-size:14px; color:var(--ink-3); font-weight:700; white-space:nowrap; }
-.suite-monthly{ font-size:32px; font-weight:700; color:var(--navy); letter-spacing:-1px; line-height:1; margin:12px 0 2px; }
-.suite-monthly .per{ font-size:13px; color:var(--ink-4); font-weight:600; letter-spacing:0; margin-left:6px; }
-.suite-rentrow{ display:grid; grid-template-columns:repeat(3,1fr); gap:12px; margin-top:16px; padding-top:14px; border-top:1px solid var(--rule-2); }
-.suite-rentrow .srr-val{ font-size:15px; font-weight:700; color:var(--ink); letter-spacing:-.2px; }
-.suite-rentrow .srr-lbl{ font-size:9.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); margin-top:4px; }
-.suite-availrow{ display:grid; grid-template-columns:repeat(2,1fr); gap:12px; margin-top:14px; padding-top:14px; border-top:1px solid var(--rule-2); }
-.suite-availrow .srr-lbl{ font-size:9.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); }
-.suite-availrow .sa-val{ font-size:14px; font-weight:600; color:var(--ink-2); margin-top:3px; }
-.suite-plan{ display:inline-block; margin-top:12px; font-size:13px; font-weight:700; color:var(--link); cursor:pointer; }
-.suite-plan:hover{ text-decoration:underline; }
+.suite-card{ border:1px solid var(--rule); border-radius:14px; background:#fff; box-shadow:var(--shadow-1); overflow:hidden; }
+/* Navy header bar — suite name + SF (white, inverted) + floor-plan icon */
+.suite-cardhead{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:11px 16px; }
+.sch-name{ font-size:14px; font-weight:700; color:#fff; letter-spacing:-.1px; }
+.sch-right{ display:flex; align-items:center; gap:12px; flex:none; }
+.sch-sf{ font-size:14px; font-weight:700; color:#fff; opacity:.9; white-space:nowrap; }
+.sch-plan{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:6px; background:rgba(255,255,255,.16); color:#fff; cursor:pointer; transition:background .15s var(--ease); }
+.sch-plan:hover{ background:rgba(255,255,255,.30); }
+.sch-plan svg{ width:15px; height:15px; }
+/* One rent row: Base / OpEx / Total / Monthly — all same size */
+.suite-metricrow{ display:grid; grid-template-columns:repeat(4,1fr); gap:14px; padding:16px 16px 14px; }
+.suite-metarow{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; padding:14px 16px 16px; border-top:1px solid var(--rule-2); }
+.sm-val{ font-size:15px; font-weight:700; color:var(--ink); letter-spacing:-.2px; line-height:1.15; }
+.sm-lbl{ font-size:9px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); }
+.suite-metricrow .sm-lbl{ margin-top:4px; }
+.suite-metarow .sm-lbl{ margin-bottom:4px; }
+.sm2-val{ font-size:13.5px; font-weight:600; color:var(--ink-2); line-height:1.2; }
 
 /* header pager + tabs-in-detail */
 .hdr-pager{ display:flex; gap:8px; }
@@ -5095,6 +5098,7 @@ function adaptRecord(sid, rec) {
       opex:      s.opex,
       total:     s.totalRent,
       lease:     s.leaseType,
+      dealType:  s.dealType || s.availabilityType,     // optional — Direct / Sublease, when supplied
       term:      s.term,
       available: s.availability,
       floorplan: s.floorplan,
@@ -6092,26 +6096,30 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
             const monthly = (!isNaN(perSf) && !isNaN(sfN))
               ? '$' + Math.round(perSf * sfN / 12).toLocaleString('en-US')
               : (s.total || s.rate || '—');
-            const monthlyIsCost = /^\$[\d,]/.test(monthly);
+            const dealType = s.dealType || 'Direct';
+            const openPlan = () => setLightbox({ label: `${s.suite || 'Space ' + (i + 1)} floor plan · ${building.name}`, url: s.floorplan, sub: [s.suite, s.sf && `${s.sf} SF`, s.rate].filter(Boolean).join(' · ') });
             return (
               <div className="suite-card" key={s.key || i}>
-                <div className="suite-card-top">
-                  <span className="suite-name">{s.suite || `Suite ${i + 1}`}</span>
-                  <span className="suite-sf">{s.sf ? s.sf + ' SF' : '—'}</span>
+                <div className="suite-cardhead">
+                  <span className="sch-name">{s.suite || `Suite ${i + 1}`}</span>
+                  <div className="sch-right">
+                    <span className="sch-sf">{s.sf ? s.sf + ' SF' : '—'}</span>
+                    <span className="sch-plan" title="Open floor plan" role="button" aria-label="Open floor plan" onClick={openPlan}>
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 21V9M15 15h6"/></svg>
+                    </span>
+                  </div>
                 </div>
-                <div className="suite-monthly">{monthly}{monthlyIsCost && <span className="per">/mo est.</span>}</div>
-                <div className="suite-rentrow">
-                  <div><div className="srr-val">{s.rate || '—'}</div><div className="srr-lbl">Base Rent/SF</div></div>
-                  <div><div className="srr-val">{s.opex || '—'}</div><div className="srr-lbl">Est. OpEx/SF</div></div>
-                  <div><div className="srr-val">{s.total || '—'}</div><div className="srr-lbl">Total Rent/SF</div></div>
+                <div className="suite-metricrow">
+                  <div><div className="sm-val">{s.rate || '—'}</div><div className="sm-lbl">Base Rent/SF</div></div>
+                  <div><div className="sm-val">{s.opex || '—'}</div><div className="sm-lbl">Est. OpEx/SF</div></div>
+                  <div><div className="sm-val">{s.total || '—'}</div><div className="sm-lbl">Total Rent/SF</div></div>
+                  <div><div className="sm-val">{monthly}</div><div className="sm-lbl">Monthly Est. Rent</div></div>
                 </div>
-                <div className="suite-availrow">
-                  <div><div className="srr-lbl">Availability</div><div className="sa-val">{s.available || '—'}</div></div>
-                  <div><div className="srr-lbl">Term</div><div className="sa-val">{s.term || '—'}</div></div>
+                <div className="suite-metarow">
+                  <div><div className="sm-lbl">Availability</div><div className="sm2-val">{s.available || '—'}</div></div>
+                  <div><div className="sm-lbl">Term</div><div className="sm2-val">{s.term || '—'}</div></div>
+                  <div><div className="sm-lbl">Lease Type</div><div className="sm2-val">{dealType}</div></div>
                 </div>
-                {s.floorplan && (
-                  <span className="suite-plan" onClick={() => setLightbox({ label: `${s.suite || 'Space ' + (i + 1)} floor plan · ${building.name}`, url: s.floorplan, sub: [s.suite, s.sf && `${s.sf} SF`, s.rate].filter(Boolean).join(' · ') })}>Open floor plan →</span>
-                )}
               </div>
             );
           })}
@@ -6180,12 +6188,14 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                 <div style={{fontFamily:'var(--serif)', fontSize:22, marginTop:2}}>{lightbox.label}</div>
               </div>
               <div style={{display:'flex', gap:8}}>
-                <a className="btn subtle sm" href={lightbox.url} target="_blank" rel="noopener"><Icon.Download width="12" height="12"/> Open original</a>
+                {lightbox.url && <a className="btn subtle sm" href={lightbox.url} target="_blank" rel="noopener"><Icon.Download width="12" height="12"/> Open original</a>}
                 <button className="btn ghost sm" onClick={() => setLightbox(null)}><Icon.X width="14" height="14"/></button>
               </div>
             </div>
             <div className="lightbox-body">
-              <img className="real-photo contain" src={floorplanImg(lightbox.url, 1800)} alt={lightbox.label}/>
+              {lightbox.url
+                ? <img className="real-photo contain" src={floorplanImg(lightbox.url, 1800)} alt={lightbox.label}/>
+                : <div className="placeholder lg" style={{aspectRatio:'16/10', borderRadius:6, display:'grid', placeItems:'center'}}>Floor plan not uploaded yet</div>}
             </div>
             {lightbox.sub && (
               <div className="lightbox-foot">
