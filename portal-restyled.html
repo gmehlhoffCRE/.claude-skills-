@@ -68,7 +68,8 @@
      brand's Swiss-grotesque look survives even if Inter fails to load. */
   --serif: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
   --sans: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
-  --mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  /* Single UI typeface everywhere — mono alias points at Inter too */
+  --mono: 'Inter', 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
 /* Original warm-paper palette is kept as an opt-in theme */
@@ -4738,15 +4739,21 @@ a:hover{ color:var(--link); }
 .detail-pills{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
 .dpill{ font-size:12px; font-weight:700; padding:6px 14px; border-radius:16px; background:var(--gold); color:var(--navy); white-space:nowrap; }
 .dpill.gold{ background:#FFF3D6; color:var(--gold-ink); }
-.detail-name-lg{ font-size:42px; line-height:1.03; letter-spacing:-1.4px; font-weight:700; color:var(--navy); margin:0; }
-.detail-v2 .detail-addr{ font-size:17px; color:var(--ink-3); margin-top:12px; }
+.detail-name-lg{ font-size:32px; line-height:1.08; letter-spacing:-0.8px; font-weight:700; color:var(--navy); margin:0; }
+.detail-v2 .detail-addr{ font-size:20px; color:var(--ink-3); margin-top:10px; }
 .detail-summary{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:14px; font-size:13.5px; color:var(--ink-3); font-weight:500; letter-spacing:-.1px; }
 .detail-summary strong{ color:var(--navy); font-weight:700; }
 .detail-summary .sep{ color:var(--ink-4); }
-.detail-title-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:10px; flex:none; padding-top:8px; }
+.detail-titlebar{ position:relative; align-items:flex-end; }
+.detail-close{ position:absolute; top:0; right:0; appearance:none; width:38px; height:38px; display:grid; place-items:center; border-radius:9px; border:1px solid var(--rule); background:#fff; color:var(--ink-3); cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), color .15s, border-color .15s; }
+.detail-close:hover{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.detail-title-actions{ display:flex; flex-direction:column; align-items:flex-end; gap:12px; flex:none; padding-top:0; }
 .detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
-.hdr-back{ appearance:none; border:0; background:transparent; color:var(--ink-3); font-family:var(--sans); font-size:12.5px; font-weight:600; cursor:pointer; padding:6px 4px; display:inline-flex; align-items:center; gap:5px; letter-spacing:-.1px; }
-.hdr-back:hover{ color:var(--navy); }
+.return-map-btn{ display:inline-flex; align-items:center; gap:7px; padding:9px 15px; border-radius:9px; border:1px solid rgba(0,30,90,.18); background:var(--accent-tint); color:var(--navy); font-family:var(--sans); font-size:12.5px; font-weight:700; letter-spacing:-.1px; cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), color .15s, border-color .15s, transform .1s; }
+.return-map-btn:hover{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.return-map-btn:active{ transform:translateY(1px); }
+.return-map-btn svg{ width:15px; height:15px; }
+.hdr-pager{ align-items:center; }
 .hdr-counter{ padding:0 12px; font-size:12.5px; font-weight:600; color:var(--ink-2); white-space:nowrap; }
 .detail-title-actions .hdr-pill{ display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
@@ -4805,6 +4812,20 @@ a:hover{ color:var(--link); }
 .st-plan:active{ transform:translateY(1px); }
 .st-plan svg{ width:15px; height:15px; }
 .st-empty{ padding:20px; color:var(--ink-3); font-style:italic; }
+/* Mobile: collapse the suite table into stacked cards (labels from data-label) */
+@media (max-width:700px){
+  .suite-table-wrap{ border:0; box-shadow:none; background:transparent; overflow:visible; margin-top:12px; }
+  .suite-table{ table-layout:auto; }
+  .suite-table thead{ display:none; }
+  .suite-table, .suite-table tbody, .suite-table tr, .suite-table td{ display:block; width:auto; }
+  .suite-table tr{ border:1px solid var(--rule); border-radius:12px; background:#fff; box-shadow:var(--shadow-1); padding:4px 16px 8px; margin-bottom:12px; }
+  .suite-table tbody tr:hover td{ background:transparent; }
+  .suite-table td{ display:flex; justify-content:space-between; align-items:center; gap:16px; text-align:right !important; padding:10px 0 !important; border-bottom:1px solid var(--rule-2); white-space:normal; }
+  .suite-table td:last-child{ border-bottom:0; }
+  .suite-table td::before{ content:attr(data-label); font-size:10px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:#6B6B6B; text-align:left; flex:none; }
+  .suite-table td.st-suite{ font-size:16px; }
+  .suite-table td.st-plan-col{ justify-content:space-between; }
+}
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
@@ -4829,6 +4850,9 @@ a:hover{ color:var(--link); }
   background:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 11px,#EFF4FB 11px,#EFF4FB 22px); }
 .detail-hero .real-photo{ width:100%; height:100%; object-fit:cover; }
 .detail-hero .hero-ph{ font-size:11px; letter-spacing:1.6px; color:var(--ink-4); font-weight:700; }
+/* Bottom gradient scrim so the photo counter stays legible on any image */
+.detail-hero::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:120px; background:linear-gradient(to top, rgba(8,16,36,.55), rgba(8,16,36,0)); pointer-events:none; z-index:1; }
+.detail-hero .hero-counter{ z-index:2; background:transparent; box-shadow:none; color:#fff; font-weight:700; }
 .hero-nav{ position:absolute; top:50%; transform:translateY(-50%); width:34px; height:34px; border-radius:50%;
   background:#fff; box-shadow:0 2px 8px rgba(0,30,90,.15); display:grid; place-items:center; color:var(--navy); cursor:pointer; border:0; }
 .hero-nav:hover{ background:var(--navy); color:#fff; }
@@ -5151,6 +5175,7 @@ function adaptRecord(sid, rec) {
     photos:      (p.photos && p.photos.length) ? p.photos : [p.buildingPhoto].filter(Boolean),
     brochure:    p.brochure,                          // NOT p.flyer — the v1 bug
     subleaseBrochure: p.subleaseBrochure,
+    documents:   p.documents || [],                   // uploaded files: flyers, RFP responses, etc.
     notes:       p.notes,
     eliminated:  p.status === 'eliminated',           // BROKER-owned, from the record
     spaces: (p.suites || []).map(s => ({
@@ -5229,6 +5254,11 @@ const PREVIEW_RECORD = {
       buildingClass: 'A', totalSize: '1,476,973', stories: '64', yearBuilt: '1983', renovated: '2018',
       parkingType: 'Garage', parkingRatio: '2.5/1,000', landlord: 'Invesco',
       parkingReserved: '$200', parkingUnreserved: '$150', percentLeased: '92%',
+      documents: [
+        { label: 'Building flyer', type: 'PDF', url: '#' },
+        { label: 'RFP response — Acme Co', type: 'PDF', url: '#' },
+        { label: 'Amenities & stacking plan', type: 'PDF', url: '#' },
+      ],
       coords: [-95.4618, 29.7372], photos: [], brochure: '', subleaseBrochure: '',
       notes: 'Anchor of the Galleria submarket. Premier views.',
       suites: [
@@ -6037,6 +6067,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
   const docs = [
     building.brochure && { label: `Building brochure · ${building.name}`, sub: 'PDF', url: building.brochure },
     building.subleaseBrochure && { label: 'Sublease brochure', sub: 'PDF', url: building.subleaseBrochure },
+    ...(building.documents || []).map(d => ({ label: d.label, sub: d.type || d.sub || 'PDF', url: d.url || '#' })),
     ...building.spaces.filter(s => s.floorplan).map(s => ({
       label: `${s.suite || 'Suite'} floor plan`, sub: s.sf ? `${s.sf} SF` : 'Floor plan', url: s.floorplan, plan: true,
     })),
@@ -6077,13 +6108,15 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
             <div className="detail-summary">
               <span><strong>{building.spaces.length}</strong> {building.spaces.length === 1 ? 'space' : 'spaces'}</span>
               {sfSummary && <><span className="sep">·</span><span><strong>{sfSummary}</strong> SF</span></>}
-              {rentSummary && <><span className="sep">·</span><span><strong>{rentSummary}</strong> base rent</span></>}
-              {building.class && <><span className="sep">·</span><span>Class {building.class}</span></>}
             </div>
           )}
         </div>
+        <button className="detail-close" onClick={onBack} aria-label="Close and return to map"><Icon.X width="18" height="18"/></button>
         <div className="detail-title-actions">
-          <button className="hdr-back" onClick={onBack}><Icon.ChevronLeft width="14" height="14"/> Back to spaces</button>
+          <button className="return-map-btn" onClick={onBack}>
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M9 3 3 6v15l6-3 6 3 6-3V3l-6 3-6-3zM9 3v15M15 6v15"/></svg>
+            Return to map
+          </button>
           <div className="hdr-pager">
             <button className="hdr-pill" onClick={() => onNav(-1)} aria-label="Previous building"><Icon.ChevronLeft width="15" height="15"/></button>
             <span className="hdr-counter">Building {idx + 1} of {allBuildings.length}</span>
@@ -6115,12 +6148,12 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               pct: <svg viewBox="0 0 24 24" fill="none" stroke="#001E5A" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round"><path d="M19 5L5 19M6.5 6.5h.01M17.5 17.5h.01"/></svg>,
             };
             const groups = [
-              { label: 'Building', items: [
+              { label: 'Building Info', items: [
                 building.class && { i: I.bldg, v: 'Class ' + building.class, l: 'Building class' },
+                built && { i: I.cal, v: built, l: 'Year built / renovated' },
                 building.stories && { i: I.stories, v: building.stories, l: 'Stories' },
-                building.total_sf && { i: I.bldg, v: building.total_sf + ' SF', l: 'Total building' },
-                built && { i: I.cal, v: built, l: 'Built / renovated' },
-                building.clear_height && { i: I.height, v: building.clear_height, l: 'Clear height' },
+                building.total_sf && { i: I.bldg, v: building.total_sf + ' SF', l: 'Total building area' },
+                building.percent_leased && { i: I.pct, v: building.percent_leased, l: 'Percent leased' },
                 building.parking && { i: I.park, v: building.parking, l: 'Parking ratio' },
                 (building.parking_reserved || building.parking_unreserved) && {
                   i: I.park,
@@ -6131,7 +6164,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                   l: 'Parking $/Space/Mo',
                 },
                 building.landlord && { i: I.owner, v: building.landlord, l: 'Landlord' },
-                building.percent_leased && { i: I.pct, v: building.percent_leased, l: 'Percent leased' },
+                building.clear_height && { i: I.height, v: building.clear_height, l: 'Clear height' },
               ].filter(Boolean) },
               { label: 'Building systems', items: [
                 building.loading && { i: I.gen, v: building.loading, l: 'Loading' },
@@ -6219,17 +6252,17 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                     const openPlan = () => setLightbox({ label: `${s.suite || 'Space ' + (i + 1)} floor plan · ${building.name}`, url: s.floorplan, sub: [s.suite, s.sf && `${s.sf} SF`, s.rate].filter(Boolean).join(' · ') });
                     return (
                       <tr key={s.key || i}>
-                        <td className="st-suite">
+                        <td className="st-suite" data-label="Suite">
                           <span className="st-name">{s.suite || `Suite ${i + 1}`}</span>
                         </td>
-                        <td>{s.sf || '—'}</td>
-                        <td>{s.rate || '—'}</td>
-                        <td>{s.opex || '—'}</td>
-                        <td>{s.total || '—'}</td>
-                        <td>{monthly}</td>
-                        <td>{dealType}</td>
-                        <td>{s.term || '—'}</td>
-                        <td className="st-plan-col">
+                        <td data-label="Premises SF">{s.sf || '—'}</td>
+                        <td data-label="Base Rent/SF">{s.rate || '—'}</td>
+                        <td data-label="Est. OpEx/SF">{s.opex || '—'}</td>
+                        <td data-label="Total Rent/SF">{s.total || '—'}</td>
+                        <td data-label="Monthly Rent">{monthly}</td>
+                        <td data-label="Lease Type">{dealType}</td>
+                        <td data-label="Term">{s.term || '—'}</td>
+                        <td className="st-plan-col" data-label="Floor plan">
                           <span className="st-plan" title="Open floor plan" role="button" aria-label="Open floor plan" onClick={openPlan}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 21V9M15 15h6"/></svg>
                           </span>
