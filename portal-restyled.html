@@ -4746,7 +4746,7 @@ a:hover{ color:var(--link); }
 .detail-vote{ margin-top:18px; }
 .detail-vote .vote-group{ box-shadow:var(--shadow-1); }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
-.detail-cols{ display:grid; grid-template-columns:220px minmax(0,1fr) 540px; gap:36px; align-items:start; }
+.detail-cols{ display:grid; grid-template-columns:250px minmax(0,1fr) 660px; gap:36px; align-items:start; }
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
@@ -6083,12 +6083,6 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               </div>
             ))}
           </div>
-          {building.notes && (
-            <div className="broker-note">
-              <div className="avatar broker">{(brokers[0] && brokers[0].initials) || 'B'}</div>
-              <div><b>{(brokers[0] && brokers[0].name) || "Broker's note"}</b> · {building.notes}</div>
-            </div>
-          )}
         </div>
 
         {/* ── RIGHT: suite cards ── */}
