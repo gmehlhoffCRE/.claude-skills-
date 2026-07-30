@@ -4747,6 +4747,10 @@ a:hover{ color:var(--link); }
 .detail-vote .vote-group{ box-shadow:var(--shadow-1); }
 .detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
 .detail-cols{ display:grid; grid-template-columns:250px minmax(0,1fr) 660px; gap:36px; align-items:start; }
+/* With many suites, the left (map + specs) and center (hero) columns pin in
+   place while the taller suite column scrolls past — hero/specs stay in view
+   without a cramped inner scrollbar. */
+.detail-left, .detail-center{ position:sticky; top:16px; align-self:start; }
 
 /* left rail */
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
@@ -4810,7 +4814,7 @@ a:hover{ color:var(--link); }
 /* extra sections (docs + comments) below the 3-col block */
 .detail-extra{ margin-top:44px; display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:start; }
 .detail-extra .section{ margin-bottom:0; }
-@media (max-width:1100px){ .detail-cols{ grid-template-columns:1fr; } .detail-extra{ grid-template-columns:1fr; } }
+@media (max-width:1100px){ .detail-cols{ grid-template-columns:1fr; } .detail-extra{ grid-template-columns:1fr; } .detail-left, .detail-center{ position:static; } }
 
 
 /* ══════════ COMMUTE (design 3a — table-first matrix) ══════════ */
@@ -5174,6 +5178,10 @@ const PREVIEW_RECORD = {
       suites: [
         { key: 'suite 4400', name: 'Suite 4400', hasName: true, sf: '18,420', askingRent: '$42.50 FS', opex: '$14.20', totalRent: '$42.50', leaseType: 'Full Service', term: '5-10 Years', availability: 'Immediate', floorplan: '' },
         { key: 'suite 5100', name: 'Suite 5100', hasName: true, sf: '9,840',  askingRent: '$46.00 FS', opex: '$14.20', totalRent: '', leaseType: 'Full Service', term: 'Negotiable', availability: '30 Days', floorplan: '' },
+        { key: 'suite 3200', name: 'Suite 3200', hasName: true, sf: '14,200', askingRent: '$44.00 FS', opex: '$14.20', totalRent: '$44.00', leaseType: 'Full Service', term: '7 Years', availability: 'Q3 2026', floorplan: '' },
+        { key: 'suite 2800', name: 'Suite 2800', hasName: true, sf: '6,500',  askingRent: '$45.00 FS', opex: '$14.20', totalRent: '$45.00', leaseType: 'Full Service', term: '5 Years', availability: 'Immediate', floorplan: '' },
+        { key: 'suite 1900', name: 'Suite 1900', hasName: true, sf: '22,750', askingRent: '$41.50 FS', opex: '$14.20', totalRent: '$41.50', leaseType: 'Full Service', term: '10 Years', availability: '60 Days', floorplan: '' },
+        { key: 'suite 1200', name: 'Suite 1200', hasName: true, sf: '11,300', askingRent: '$43.00 FS', opex: '$14.20', totalRent: '$43.00', leaseType: 'Full Service', dealType: 'Sublease', term: 'Negotiable', availability: 'Immediate', floorplan: '' },
       ] },
     { pid: 'texas-tower', bldgSlug: 'texas-tower', status: 'active', site: '2',
       address: '845 Texas Ave', city: 'Houston', submarket: 'CBD / Downtown', projectName: 'Texas Tower',
