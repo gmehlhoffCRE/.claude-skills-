@@ -4705,16 +4705,18 @@ a:hover{ color:var(--link); }
   padding:13px 32px 13px 18px;
   background:var(--paper-2) !important; color:#6B6B6B !important;
   text-align:left !important;
-  font-size:10px !important; font-weight:700; letter-spacing:.4px; text-transform:uppercase;
+  font-size:13px !important; font-weight:700; letter-spacing:.2px; text-transform:uppercase;
 }
 .compare-table tbody tr:first-child .compare-row-label,
 .compare-table tbody tr:nth-child(odd) .compare-row-label{ background:var(--paper-2) !important; color:#6B6B6B !important; }
 .compare-table tbody tr:hover .compare-row-label{ background:var(--paper-3) !important; }
-.compare-table thead th{ background:var(--accent-tint); border-bottom:2px solid var(--navy); text-align:left; }
-.compare-photo{ width:200px; max-width:100%; height:132px; border-radius:8px; overflow:hidden; background:var(--paper-3); margin-right:auto; }
+.compare-table thead th{ background:#fff; text-align:left; }
+.compare-photo{ width:200px; max-width:100%; height:132px; border-radius:8px; overflow:hidden; background:var(--paper-3); margin:0 auto 0 0; }
 .compare-photo .real-photo{ object-fit:cover; width:100%; height:100%; }
-.compare-name{ font-size:17px; font-weight:700; color:var(--navy); letter-spacing:-.3px; }
-.compare-addr{ font-size:13px; color:#6B6B6B; font-weight:600; margin-top:4px; }
+/* Navy band behind name + address only */
+.compare-namebar{ width:200px; max-width:100%; margin-top:10px; background:var(--navy); border-radius:8px; padding:10px 12px; }
+.compare-name{ font-size:13px; font-weight:700; color:#fff; letter-spacing:-.1px; }
+.compare-addr{ font-size:13px; color:rgba(255,255,255,.72); font-weight:600; margin-top:3px; }
 /* row-group micro headers */
 .compare-table tr.grouprow td{
   background:var(--paper-2) !important; font-size:10px; font-weight:700; letter-spacing:1.4px;
@@ -6623,8 +6625,10 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
                 <div className="compare-photo" onClick={() => onOpen(b.id)} style={{cursor:'pointer'}}>
                   <Photo src={b.photos[0]} w={480} label={`#${i+1}`} />
                 </div>
-                <div className="compare-name" style={{cursor:'pointer', marginTop:8}} onClick={() => onOpen(b.id)}>{b.name}</div>
-                <div className="compare-addr">{b.address}</div>
+                <div className="compare-namebar" style={{cursor:'pointer'}} onClick={() => onOpen(b.id)}>
+                  <div className="compare-name">{b.name}</div>
+                  <div className="compare-addr">{b.address}</div>
+                </div>
               </th>
             ))}
           </tr>
