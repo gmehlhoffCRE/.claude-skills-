@@ -624,15 +624,21 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
 
 <script>
 const GMAPS_KEY='AIzaSyAbuuXR2lkGck7cG94qS11CfWWHbLq8AlU';
-/* ── AdvancedMarkerElement requires a cloud Map ID ──────────────────────────
-   Setting a Map ID means Google renders the base map from a CLOUD style, so
-   the in-code Cresa style below is no longer applied by the browser. To keep
-   Cresa branding (and fix the zoom lag — cloud tiles are pre-styled server-
-   side), create a Map ID in Google Cloud Console, import the style from
-   cresa-map-style.cloud.json (shipped alongside this file), and paste the ID
-   here. Until then, 'DEMO_MAP_ID' renders Advanced Markers on Google's default
-   base map so nothing is broken. See MAP_UPGRADE.md for the 10-minute setup. */
+/* ── Map styling & marker mode ──────────────────────────────────────────────
+   Two modes, chosen automatically by whether GMAPS_MAP_ID is a REAL cloud Map ID:
+
+   • Not configured ('DEMO_MAP_ID' or ''):  the map is styled IN-CODE with the
+     muted, POI-free `cresaStyles` below, using classic markers. This works
+     immediately with zero Google Cloud setup — the muted/no-POI look shows now.
+
+   • A real Map ID:  the map uses that Map ID (server-side cloud style) plus
+     AdvancedMarkerElement (GPU markers, no zoom lag). A Map ID makes Google
+     ignore the in-code style, so the SAME look must be imported into the cloud
+     style — see cresa-map-style.cloud.json + MAP_UPGRADE.md.
+
+   To upgrade: create a Map ID, import that JSON, and paste the ID below. */
 const GMAPS_MAP_ID='DEMO_MAP_ID';
+const REAL_MAP_ID = !!GMAPS_MAP_ID && GMAPS_MAP_ID!=='DEMO_MAP_ID';
 const MONTHS=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const CHART_COLORS=['#001E5A','#FFB600','#2E6CC7','#C2410C','#059669','#7C3AED','#DB2777','#EA580C','#0891B2','#4F46E5'];
 const CLASS_ORDER={AA:1,A:2,B:3,C:4};
@@ -1564,10 +1570,8 @@ function initMap(){
     { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#A4B1C1' }] },
     { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#E2E7EC' }, { weight: 2 }] },
   ];
-  map=new google.maps.Map(document.getElementById('gmap'),{
+  const mapOpts={
     center:{lat:29.76,lng:-95.40},zoom:10,
-    // Cloud Map ID enables AdvancedMarkerElement + server-side styling.
-    mapId:GMAPS_MAP_ID,
     // Enable zoom control + greedy gestures: scroll-wheel zooms immediately
     // without needing ctrl/cmd held, and pinch-zoom on trackpad is direct.
     zoomControl:true,
@@ -1577,9 +1581,19 @@ function initMap(){
     zoomControlOptions:{position:google.maps.ControlPosition.RIGHT_BOTTOM},
     // Pin min zoom so we don't accidentally zoom out to the whole world.
     minZoom:6,maxZoom:20
-  });
-  // Base styling now comes from the cloud Map ID (see cresaStyles note above).
-  // The MAP/HYBRID toggle switches between the cloud-styled roadmap and hybrid.
+  };
+  if(REAL_MAP_ID){
+    // Cloud Map ID → server-side styling + AdvancedMarkerElement. The in-code
+    // `styles` are ignored in this mode; the look comes from the cloud style.
+    mapOpts.mapId=GMAPS_MAP_ID;
+  }else{
+    // No real Map ID → style the base map in-code so the muted, POI-free look
+    // renders immediately with no Google Cloud setup (classic markers).
+    mapOpts.styles=cresaStyles;
+  }
+  map=new google.maps.Map(document.getElementById('gmap'),mapOpts);
+  // The MAP/HYBRID toggle switches between the (cloud- or in-code-)styled
+  // roadmap and Google Hybrid.
   map.addListener('click',()=>{closeClusterPopover();closeDetail();});
   // Track whether the user has manually interacted with the viewport. Once
   // they have, plotMarkers stops calling fitBounds on filter changes.
@@ -1634,17 +1648,36 @@ let clusterPopoverEl=null;
 let clusterPopoverOverlay=null;
 
 // AdvancedMarkerElement accessor. Resolved lazily (google is undefined until
-// the Maps script loads); plotMarkers only runs after initMap, so this is safe.
+// the Maps script loads). Advanced markers require a real cloud Map ID, so we
+// only use them when one is configured; otherwise we fall back to classic
+// google.maps.Marker (which works with in-code styling and no Map ID).
 function AMEclass(){ return (window.google&&google.maps&&google.maps.marker)?google.maps.marker.AdvancedMarkerElement:null; }
+function useAdvanced(){ return REAL_MAP_ID && !!AMEclass(); }
+
+// Classic marker icon (SymbolPath circle) for the fallback path. Sized so a
+// multi-firm cluster always reads as more prominent than a single firm —
+// mirroring the DOM marker hierarchy.
+function legacyIcon(isCluster,isActive,isHovered,hasSelected){
+  if(isCluster){
+    return {path:google.maps.SymbolPath.CIRCLE,fillColor:'#001E5A',fillOpacity:0.95,
+      strokeColor:hasSelected?'#FFB600':'#fff',strokeWeight:hasSelected?4:(isActive||isHovered?3:2),
+      scale:isActive||isHovered?15:13,labelOrigin:new google.maps.Point(0,0)};
+  }
+  return {path:google.maps.SymbolPath.CIRCLE,fillColor:(hasSelected||isActive)?'#FFB600':'#001E5A',
+    fillOpacity:(hasSelected||isActive)?1:0.9,
+    strokeColor:(hasSelected||isActive)?'#001E5A':(isHovered?'#FFB600':'#fff'),
+    strokeWeight:(hasSelected||isActive)?2:(isHovered?3:1.5),
+    scale:(hasSelected||isActive)?9:(isHovered?8:6),labelOrigin:new google.maps.Point(0,0)};
+}
 
 function plotMarkers(firms){
   // DIFF rather than rebuild. Markers are cached per location group so
   // filter changes only touch the delta (groups entering/leaving the set).
-  const AME=AMEclass();
-  if(!AME){
-    console.error('[MAP] Advanced Markers library not available. Ensure the Maps script includes "&libraries=marker" and a valid Map ID (GMAPS_MAP_ID).');
-    return;
-  }
+  // Bail until the Maps API + map object exist (plotMarkers can be called by
+  // an early applyFilters before initMap has run).
+  if(!window.google||!google.maps||!map)return;
+  const advanced=useAdvanced();
+  const AME=advanced?AMEclass():null;
 
   // Close any open cluster popover — if the filter change removed the
   // building we were showing firms for, the popover would be orphaned.
@@ -1676,7 +1709,7 @@ function plotMarkers(firms){
 
   // Remove markers whose groups are no longer in the filter set.
   groupMarkerByKey.forEach((m,key)=>{
-    if(!wantedKeys.has(key)){m.map=null;groupMarkerByKey.delete(key);}
+    if(!wantedKeys.has(key)){detachMarker(m);groupMarkerByKey.delete(key);}
   });
 
   const bounds=new google.maps.LatLngBounds();
@@ -1690,17 +1723,22 @@ function plotMarkers(firms){
     const hasSelected=selectedInGroup.length>0;
     let m=groupMarkerByKey.get(key);
     if(m){
-      // Reuse existing marker — update position (coords rarely shift) and, if
-      // the group flipped between single/cluster under the new filter, swap
-      // its DOM content so the visual matches.
-      m.position=pos; m._pos=pos; m.map=map;
-      if(m._isCluster!==isCluster){ m.content=makeMarkerEl(isCluster); m._isCluster=isCluster; }
+      // Reuse existing marker — update position (coords rarely shift). On the
+      // advanced path, if the group flipped between single/cluster under the
+      // new filter, swap its DOM content so the visual matches.
+      m._pos=pos;
+      if(m._adv){ m.position=pos; m.map=map; if(m._isCluster!==isCluster){ m.content=makeMarkerEl(isCluster); } }
+      else { m.setPosition(pos); m.setMap(map); }
+      m._isCluster=isCluster;
     } else {
-      m=new AME({
-        position:pos,map,content:makeMarkerEl(isCluster),gmpClickable:true,
-        title:isCluster?group.firms.length+' firms at this building':group.firms[0].n,
-        zIndex:1
-      });
+      const title=isCluster?group.firms.length+' firms at this building':group.firms[0].n;
+      if(advanced){
+        m=new AME({position:pos,map,content:makeMarkerEl(isCluster),gmpClickable:true,title,zIndex:1});
+        m._adv=true;
+      }else{
+        m=new google.maps.Marker({position:pos,map,icon:legacyIcon(isCluster,false,false,hasSelected),title,zIndex:1,optimized:true});
+        m._adv=false;
+      }
       m._groupKey=key; m._pos=pos; m._isCluster=isCluster;
       m.addListener('click',()=>{
         // Read current state by key — don't close over the group object,
@@ -1763,9 +1801,23 @@ function makeMarkerEl(isCluster){
 // Paint a marker's live state onto its DOM content: selection ring/number,
 // cluster count + size tier, hover/active emphasis, and z-order. Replaces the
 // old setIcon/setLabel calls. isCluster vs single is read fresh from the group.
+// Detach a marker from the map regardless of type (advanced uses the `.map`
+// property; classic uses setMap()).
+function detachMarker(m){ if(m._adv){ m.map=null; } else if(typeof m.setMap==='function'){ m.setMap(null); } }
+
 function paintMarker(m,active,hovered){
-  const el=m.content; if(!el)return;
   const s=getMarkerGroupState(m);
+  if(!m._adv){
+    // Classic marker path: recompute icon + label + z-order.
+    m.setIcon(legacyIcon(s.isCluster,active,hovered,s.hasSelected));
+    if(s.isCluster){ m.setLabel({text:String(s.group?s.group.firms.length:0),color:'#fff',fontSize:'11px',fontWeight:'700'}); }
+    else if(s.hasSelected&&s.group){ m.setLabel({text:String([...selectedIds].indexOf(s.group.firms[0].id)+1),color:'#001E5A',fontSize:'12px',fontWeight:'800'}); }
+    else { m.setLabel(null); }
+    m.setZIndex(active?3000:(hovered?1500:(s.hasSelected?2000:1)));
+    return;
+  }
+  // Advanced (DOM) marker path.
+  const el=m.content; if(!el)return;
   const numEl=el.querySelector('.px-num');
   el.classList.toggle('selected',s.hasSelected);
   el.classList.toggle('active',!!active);
@@ -2703,25 +2755,39 @@ function openDashboard(f){
   // Peer map with Google Maps
   const peerMapEl=document.getElementById('dashPeerMap');
   if(peerMapEl&&typeof google!=='undefined'){
-    const peerMap=new google.maps.Map(peerMapEl,{
-      center:{lat:29.76,lng:-95.40},zoom:10,mapId:GMAPS_MAP_ID,
-      zoomControl:true,mapTypeControl:false,streetViewControl:false,fullscreenControl:false
-    });
-    const AME=AMEclass();
-    // Small round dot content for the peer mini-map (Advanced Markers).
+    const peerAdvanced=useAdvanced();
+    const peerOpts={center:{lat:29.76,lng:-95.40},zoom:10,
+      zoomControl:true,mapTypeControl:false,streetViewControl:false,fullscreenControl:false};
+    if(REAL_MAP_ID){ peerOpts.mapId=GMAPS_MAP_ID; }
+    else { peerOpts.styles=[
+      {featureType:'poi',stylers:[{visibility:'off'}]},
+      {featureType:'transit',stylers:[{visibility:'off'}]},
+      {elementType:'labels.icon',stylers:[{visibility:'off'}]},
+      {elementType:'geometry',stylers:[{color:'#F3F4F6'}]},
+      {featureType:'road',elementType:'geometry.fill',stylers:[{color:'#FDFDFE'}]},
+      {featureType:'road.highway',elementType:'geometry',stylers:[{color:'#EAECF1'}]},
+      {featureType:'water',elementType:'geometry.fill',stylers:[{color:'#E2E7EC'}]}
+    ]; }
+    const peerMap=new google.maps.Map(peerMapEl,peerOpts);
+    const AME=peerAdvanced?AMEclass():null;
+    // Peer dot — DOM element (advanced) or SymbolPath circle (classic).
     const dotEl=(subject)=>{const d=document.createElement('div');d.className='px-dotmark'+(subject?' subject':'');return d;};
+    const legDot=(subject)=>({path:google.maps.SymbolPath.CIRCLE,scale:subject?9:6,fillColor:subject?'#FFB600':'#001E5A',fillOpacity:subject?1:0.75,strokeColor:subject?'#001E5A':'#fff',strokeWeight:subject?2.5:1});
+    const mkDot=(pos,subject,title,z)=>{
+      if(peerAdvanced&&AME)return new AME({position:pos,map:peerMap,content:dotEl(subject),title,gmpClickable:true,zIndex:z||1});
+      return new google.maps.Marker({position:pos,map:peerMap,icon:legDot(subject),title,zIndex:z||1});
+    };
     const bounds=new google.maps.LatLngBounds();
     // Subject firm - gold marker
     if(f.lat&&f.lng){
       const pos={lat:f.lat,lng:f.lng};bounds.extend(pos);
-      if(AME)new AME({position:pos,map:peerMap,content:dotEl(true),title:f.n,zIndex:10});
+      mkDot(pos,true,f.n,10);
     }
     // Same 15 closest peers as bubble chart - navy markers
     scatterPeers.forEach(p=>{
       if(!p.lat||!p.lng)return;
       const pos={lat:p.lat,lng:p.lng};bounds.extend(pos);
-      if(!AME)return;
-      const m=new AME({position:pos,map:peerMap,content:dotEl(false),title:p.n,gmpClickable:true});
+      const m=mkDot(pos,false,p.n);
       m.addListener('click',()=>{openDashboard(FIRMS[p.id]);});
     });
     if(f.lat||scatterPeers.some(p=>p.lat))peerMap.fitBounds(bounds,{top:30,right:30,bottom:30,left:30});

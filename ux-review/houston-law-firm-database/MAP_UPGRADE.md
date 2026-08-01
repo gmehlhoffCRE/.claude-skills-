@@ -1,98 +1,66 @@
-# Map upgrade — AdvancedMarkerElement + cloud Map ID
+# Map styling & markers
 
-This build migrates the map from the deprecated `google.maps.Marker` to
-**`AdvancedMarkerElement`** (GPU-accelerated, DOM-based markers). The pins and
-clusters are now real HTML/CSS elements, so they animate (drop-in, hover-scale,
-selection pop) and render far more smoothly.
-
-## Why a Map ID is required (and why it's a good thing)
-
-`AdvancedMarkerElement` **only works on a map created with a cloud `mapId`.** The
-code already passes one:
+The map has **two modes**, chosen automatically by the `GMAPS_MAP_ID` constant near
+the top of the script. You don't have to do anything to get the muted, POI-free look
+— it works out of the box.
 
 ```js
-const GMAPS_MAP_ID = 'DEMO_MAP_ID';   // ← replace with your own (see below)
+const GMAPS_MAP_ID = 'DEMO_MAP_ID';   // default → in-code styling (mode A)
 ```
 
-`DEMO_MAP_ID` makes everything work immediately, but it renders Google's **default**
-base map — you lose the Cresa styling (warm off-white land, navy highways, muted
-parks). To get the Cresa look back, the map style has to move from the code into a
-**cloud style** attached to your own Map ID.
+## Mode A — default, works immediately (no Google Cloud setup)
 
-That migration is also what **fixes the zoom lag** noted in the README: with a cloud
-Map ID, tiles are styled **server-side** instead of re-running 26 style rules per
-tile in the browser on every zoom.
+When `GMAPS_MAP_ID` is `'DEMO_MAP_ID'` (or empty), the app styles the base map
+**in-code** with the muted, all-POI-off `cresaStyles` array, and uses classic
+markers. This renders correctly the moment you open the file with a valid API key —
+**nothing to configure**. This is almost certainly what you want.
 
-## One-time setup (~10 minutes)
+- Muted, desaturated base; every point of interest hidden.
+- Markers keep the size hierarchy (small single dots, larger clusters with a count,
+  gold selection).
+- Trade-off vs. Mode B: markers are the classic type (no CSS drop-in animation), and
+  the client re-styles tiles on zoom, so very fast zooming can feel slightly less
+  smooth on big screens.
 
-1. Go to **Google Cloud Console → Google Maps Platform** (make sure the correct
-   project is selected — the one whose API key is in the file).
-2. **Map styles** → **Create map style** → **Import JSON** → paste the full contents
-   of **`cresa-map-style.cloud.json`** (shipped next to the HTML file). Choose the
-   **Raster** map type, name it `Cresa Houston`, and **Save**. (POIs are already
-   turned off inside the JSON — nothing else to toggle.)
-3. **Map management** → **Create Map ID**:
-   - Map type: **JavaScript**
-   - Rendering: **Raster**
-   - **Associate** it with the `Cresa Houston` style from step 2.
-4. Copy the new Map ID (looks like `a1b2c3d4e5f6g7h8`).
-5. In the HTML, replace the placeholder near the top of the script:
-   ```js
-   const GMAPS_MAP_ID = 'YOUR_MAP_ID_HERE';   // was 'DEMO_MAP_ID'
-   ```
-6. Reload. The muted, POI-free Cresa base returns, tiles render pre-styled (no zoom
-   lag), and the Advanced Markers sit on top.
+## Mode B — optional upgrade: Advanced Markers + server-side tiles
 
-> If you later tweak the palette, edit the style in the console (or re-import an
-> updated `cresa-map-style.cloud.json`) — no code change needed, the Map ID stays
-> the same.
+`AdvancedMarkerElement` (GPU/DOM markers, animated pins, no zoom lag) **requires a
+cloud Map ID**, and a Map ID makes Google ignore in-code styling. So to use Mode B
+you recreate the muted/no-POI look as a **cloud style** and attach it to a Map ID.
 
-> Tip: keep your API key restricted to your domain(s) (HTTP referrers) in the
-> console — the same key is already in the file.
+> ⚠️ **Important — the legacy JSON does not import into the new cloud editor.**
+> Google's current "Map styles" editor uses a **new format** (you'll see something
+> like `{ "variant": "light" }`, with a *Map features* panel of toggles). Our
+> `cresa-map-style.cloud.json` is the **legacy** style-array format — it works great
+> for **Mode A (in-code)** but the new cloud editor will not apply it. If you upload
+> it there, the map stays on Google's default (bright, POIs showing) — which is the
+> preview you saw.
 
-## What changed in the code
+To do Mode B in the new editor:
 
-- Maps loader now requests the marker library: `&libraries=marker&v=weekly`.
-- `initMap` creates the map with `mapId: GMAPS_MAP_ID`; the client-side
-  `StyledMapType` is removed (ignored when a Map ID is set — kept only as the source
-  for the cloud JSON).
-- The MAP / HYBRID toggle switches between `roadmap` (your cloud style) and `hybrid`.
-- Markers are built as DOM content (`makeMarkerEl`) and their live state
-  (selection number, cluster count + size tier, hover/active, z-order) is painted by
-  `paintMarker` — replacing the old `setIcon`/`setLabel` calls.
-- The dashboard peer mini-map was migrated too.
-- A capability guard means that if the marker library ever fails to load, the app
-  logs a clear message instead of throwing (the map just shows no pins).
+1. **Google Cloud Console → Google Maps Platform → Map styles → Create style.**
+2. In the **Map features** tab, set the map variant to **Light**, then turn **off**
+   the POI categories (Business, Attractions, Transit, etc.). Nudge colors toward the
+   muted Cresa palette if you like (land `#F3F4F6`, water `#E2E7EC`, roads near-white,
+   highways light grey `#EAECF1`). Save.
+3. **Map management → Create Map ID** (JavaScript / Raster) and associate the style.
+4. Put the Map ID in the code: `const GMAPS_MAP_ID = 'your-id';`
+5. Reload. The app auto-switches to Advanced Markers on the cloud-styled base.
 
-## Marker design (upgraded)
+`cresa-map-style.cloud.json` is kept as the **reference palette** (and the exact
+source for Mode A's in-code style) — use it as the spec while toggling the new editor.
 
-Sizing is deliberately hierarchical — a multi-firm building always reads as more
-important than a single firm:
+## Recommendation
 
-- **Single firm:** a compact navy **dot** (13px) centered on the coordinate.
-  Selected → 22px gold dot with a navy index number. Hover/active → scales.
-- **Cluster:** navy circular badge with a downward nub pointing at the exact
-  coordinate, white firm count, **sized by how many firms share the building**
-  (34 / 40 / 48 px). Selected → gold ring (count stays legible). Hover/active → scales.
-  Even a selected, hovered single dot stays clearly smaller than the smallest cluster.
-- **Drop-in entrance** when markers appear; all motion respects
-  `prefers-reduced-motion`.
+Stick with **Mode A** unless you specifically want the animated GPU markers and have
+a Map ID set up. Mode A already gives you the muted, POI-free premium map with zero
+console work — which is exactly what was asked for.
 
-## Base map style (muted, POI-free)
+## Marker design (both modes)
 
-`cresa-map-style.cloud.json` is a **muted, low-contrast** palette with **all points
-of interest hidden**: desaturated land and water, soft-grey roads, highways in light
-grey rather than navy, and every POI category (business, attraction, medical, school,
-transit…) turned off — only a faint, unlabeled park fill remains for orientation. The
-navy highways and bright POIs previously competed with the navy markers; muting the
-map and clearing POIs lets the pins and clusters carry all the visual weight.
+Sizing is hierarchical so a multi-firm building always outranks a single firm:
 
-Until this style is attached to a real Map ID, `DEMO_MAP_ID` shows Google's **default**
-base map (bright, POIs on) — that is expected, not a bug.
-
-## Verifying
-
-Open the app with a valid API key + Map ID and confirm: pins drop in, hovering a
-firm card rings its pin, selecting adds the gold/number treatment, multi-firm
-buildings show a sized cluster that opens the firm popover, and MAP/HYBRID toggles
-cleanly. (This can only be checked with live Google Maps — it can't render offline.)
+- **Single firm:** small navy dot; selected → gold with a navy index number.
+- **Cluster:** larger navy badge with the firm count; **sized by how many firms share
+  the building**; selected → gold ring. (Mode B adds a coordinate nub + hover/drop
+  animation; Mode A uses the classic circle marker.)
