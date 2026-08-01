@@ -479,10 +479,126 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
 .px-dotmark:hover{transform:scale(1.3);opacity:1}
 .px-dotmark.subject{width:18px;height:18px;background:var(--gold);border:2.5px solid var(--navy);opacity:1}
 
+/* ---- Header: Share / icon button + live-chip retry ---- */
+.icon-btn{height:32px;padding:0 12px;background:var(--white);color:var(--ink-2);border:1px solid var(--line);border-radius:var(--radius);font-size:12px;font-weight:600;letter-spacing:-.1px;font-family:inherit;display:inline-flex;align-items:center;gap:6px;cursor:pointer;white-space:nowrap;transition:background var(--dur-1),border-color var(--dur-1),color var(--dur-1),box-shadow var(--dur-1),transform var(--dur-1)}
+.icon-btn:hover{border-color:var(--navy);color:var(--navy);box-shadow:var(--shadow-1);transform:translateY(-1px)}
+.chip-retry{margin-left:7px;border:1px solid var(--warn);background:var(--white);color:var(--warn);font-size:9.5px;font-weight:800;padding:2px 7px;border-radius:4px;cursor:pointer;font-family:inherit;letter-spacing:.3px;text-transform:uppercase;transition:background var(--dur-1),color var(--dur-1)}
+.chip-retry:hover{background:var(--warn);color:#fff}
+
+/* ---- Toast ---- */
+.app-toast{position:fixed;left:50%;bottom:26px;transform:translate(-50%,20px);background:var(--navy);color:#fff;font-size:12.5px;font-weight:600;padding:11px 18px;border-radius:var(--radius-lg);box-shadow:0 10px 40px rgba(0,30,90,.28);z-index:9999;opacity:0;pointer-events:none;transition:opacity .25s var(--ease-out),transform .25s var(--ease-out);max-width:90vw;text-align:center}
+.app-toast.show{opacity:1;transform:translate(-50%,0)}
+
+/* ---- Cross-view hover highlight ---- */
+.comp-card.xhl{border-color:var(--navy);box-shadow:0 0 0 2px var(--blue-soft),var(--shadow-2)}
+.cresa-t-row.xhl{background:var(--blue-soft)!important}
+
+/* ---- New view panes (timeline / submarket): hidden until active ---- */
+.view-pane{visibility:hidden;background:var(--bg)}
+.view-pane.visible{visibility:visible;animation:pxFadeUp .34s var(--ease-out)}
+
+/* ============ LEASE-EXPIRATION TIMELINE ============ */
+.tl-shell{display:flex;flex-direction:column;height:100%;padding:16px 20px;overflow:hidden}
+.tl-topbar{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:12px;flex-shrink:0}
+.tl-title{font-size:14px;font-weight:700;color:var(--navy);display:flex;align-items:baseline;gap:10px}
+.tl-count{font-size:11px;font-weight:600;color:var(--ink-4);text-transform:uppercase;letter-spacing:.6px}
+.tl-hint{font-size:11px;color:var(--ink-4)}
+.tl-summary{display:flex;gap:10px;margin-bottom:14px;flex-shrink:0}
+.tl-sum{flex:1;background:var(--white);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);padding:10px 12px 10px 15px;text-align:left;position:relative;overflow:hidden;cursor:pointer;font-family:inherit;transition:transform var(--dur-2) var(--ease-out),box-shadow var(--dur-2) var(--ease-out),border-color var(--dur-2)}
+.tl-sum:hover{transform:translateY(-2px);box-shadow:var(--shadow-2)}
+.tl-sum.active{border-color:var(--navy);box-shadow:0 0 0 3px var(--blue-softer)}
+.tl-sum-bar{position:absolute;left:0;top:0;bottom:0;width:4px;background:var(--c)}
+.tl-sum-label{display:block;font-size:10px;font-weight:700;color:var(--ink-4);text-transform:uppercase;letter-spacing:.6px;margin-bottom:5px}
+.tl-sum-val{display:block;font-size:22px;font-weight:700;color:var(--navy);line-height:1;letter-spacing:-.5px}
+.tl-sum-unit{font-size:11px;font-weight:600;color:var(--ink-4);letter-spacing:0}
+.tl-sum-sub{display:block;font-size:11px;font-weight:600;color:var(--ink-3);margin-top:4px;font-variant-numeric:tabular-nums}
+.tl-scroll{flex:1;min-height:0;overflow:auto;background:var(--white);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);position:relative}
+.tl-head{display:flex;position:sticky;top:0;z-index:4;background:var(--white);border-bottom:1px solid var(--line);height:34px}
+.tl-head-label{width:230px;min-width:230px;display:flex;align-items:center;padding:0 14px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.8px;color:var(--ink-4)}
+.tl-head-track{flex:1;position:relative;border-left:2px solid rgba(46,108,199,.35)}
+.tl-year{position:absolute;top:50%;transform:translate(6px,-50%);font-size:10px;font-weight:700;color:var(--ink-3);white-space:nowrap}
+.tl-year:first-child{color:var(--blue-accent)}
+.tl-row{display:flex;align-items:stretch;border-bottom:1px solid var(--line-soft);cursor:pointer;min-height:46px;animation:pxFadeIn .3s var(--ease-out) both;animation-delay:calc(var(--i,0)*14ms);transition:background var(--dur-1)}
+.tl-row:hover,.tl-row.xhl{background:var(--blue-softer)}
+.tl-label{width:230px;min-width:230px;padding:7px 14px;display:flex;flex-direction:column;justify-content:center;border-right:1px solid var(--line-soft)}
+.tl-firm{font-size:12.5px;font-weight:700;color:var(--navy);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;letter-spacing:-.1px}
+.tl-rank{color:var(--gold);font-weight:800;font-size:11px}
+.tl-meta{font-size:10.5px;color:var(--ink-3);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-top:2px;font-variant-numeric:tabular-nums}
+.tl-track{flex:1;position:relative;border-left:2px solid rgba(46,108,199,.35);background:repeating-linear-gradient(to right,transparent 0,transparent calc(var(--yearpct) - 1px),var(--line-soft) calc(var(--yearpct) - 1px),var(--line-soft) var(--yearpct))}
+.tl-bar{position:absolute;top:50%;left:0;height:7px;transform:translateY(-50%);border-radius:0 4px 4px 0;opacity:.45;min-width:2px;transform-origin:left;animation:tlGrow .5s var(--ease-out) both}
+@keyframes tlGrow{from{transform:translateY(-50%) scaleX(0)}to{transform:translateY(-50%) scaleX(1)}}
+.tl-end{position:absolute;top:50%;width:11px;height:11px;border-radius:50%;transform:translate(-50%,-50%);border:2px solid var(--white);box-shadow:0 1px 3px rgba(0,30,90,.3);z-index:1}
+.tl-date{position:absolute;top:50%;transform:translate(9px,-50%);font-size:10.5px;font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums;z-index:1}
+.tl-undated{padding:12px 14px;font-size:11.5px;color:var(--ink-4);font-style:italic}
+
+/* ============ SUBMARKET ROLLUP ============ */
+.smk-shell{display:flex;flex-direction:column;height:100%;padding:16px 20px;overflow:hidden}
+.smk-scroll{flex:1;min-height:0;overflow:auto;background:var(--white);border:1px solid var(--line);border-radius:var(--radius-lg);box-shadow:var(--shadow-1)}
+.smk-table{min-width:800px}
+.smk-headrow,.smk-row{display:grid;grid-template-columns:minmax(180px,1.6fr) 68px 96px 116px 92px 116px 132px;align-items:center}
+.smk-headrow{position:sticky;top:0;z-index:2;background:var(--navy)}
+.smk-h{padding:11px 12px;font-size:10px;font-weight:700;color:#fff;text-transform:uppercase;letter-spacing:.7px;cursor:pointer;user-select:none;white-space:nowrap;transition:background var(--dur-1)}
+.smk-h.num{text-align:right}
+.smk-h:hover{background:rgba(255,255,255,.08)}
+.smk-h.active{color:var(--gold)}
+.smk-h:last-child,.smk-h:last-child:hover{cursor:default;background:transparent}
+.smk-row{border-bottom:1px solid var(--line-soft);cursor:pointer;transition:background var(--dur-1);animation:pxFadeIn .3s var(--ease-out) both;animation-delay:calc(var(--i,0)*16ms)}
+.smk-row:hover{background:var(--blue-softer)}
+.smk-c{padding:11px 12px;font-size:12px;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.smk-c.num{text-align:right;font-variant-numeric:tabular-nums;font-weight:600;color:var(--ink-2)}
+.smk-name{position:relative;font-weight:700;color:var(--navy)}
+.smk-rail{position:absolute;left:0;top:0;bottom:0;background:var(--blue-softer);z-index:0}
+.smk-nm{position:relative;z-index:1}
+.smk-bar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:var(--line-soft)}
+.smk-bar span{display:block;height:100%}
+
 /* ---- Respect users who prefer reduced motion ---- */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
   .comp-card:hover,.stat-card:hover,.view-btn:hover,.pill:hover,.btn-navy:hover{transform:none}
+}
+
+/* ============================================================
+   RESPONSIVE — graceful degradation on smaller laptops, tablets,
+   and phones. The desktop 3-column shell is untouched above ~1180px.
+   ============================================================ */
+@media (max-width:1180px){
+  .cards-panel{width:340px;min-width:340px}
+  .stat-val{font-size:19px}
+}
+@media (max-width:1024px){
+  .header{gap:12px;padding:0 14px}
+  .left-panel{width:224px;min-width:224px}
+  .cards-panel{width:296px;min-width:296px}
+  .view-btn{padding:0 9px;font-size:11.5px;gap:5px}
+  .stats-bar{flex-wrap:wrap}
+  .stat-card{flex:1 1 30%;min-width:118px}
+}
+@media (max-width:880px){
+  .header-sub{display:none}
+  .cards-panel{display:none!important}   /* map keeps its markers; list lives in Table/Timeline */
+  .left-panel{width:210px;min-width:210px}
+  .tl-summary{flex-wrap:wrap}
+  .tl-sum{flex:1 1 46%}
+}
+@media (max-width:720px){
+  body{position:static;height:auto;min-height:100vh;overflow-x:hidden;overflow-y:auto;width:auto}
+  #app{height:auto;min-height:100vh}
+  .header{flex-wrap:wrap;height:auto;min-height:56px;padding:9px 12px;gap:8px 10px}
+  .header-left{gap:12px}
+  .live-chip{order:2}
+  .view-toggle{order:10;width:100%;overflow-x:auto;padding-bottom:2px}
+  #shareBtn,#exportPdfBtn,.login-signout{order:11}
+  .stats-bar{flex-wrap:wrap;padding:12px 12px 0}
+  .stat-card{flex:1 1 44%}
+  .app-body{flex-direction:column;height:auto;padding:10px 12px 18px;gap:10px}
+  .left-panel{width:100%!important;min-width:0}
+  .filter-rail{max-height:300px}
+  .main-pane{min-height:64vh}
+  .detail-panel{width:auto;left:12px;right:12px;top:12px;max-height:calc(100% - 24px)}
+  .tl-label,.tl-head-label{width:150px;min-width:150px}
+  .tl-summary{gap:8px}
+  .smk-table{min-width:640px}
 }
 </style>
 </head>
@@ -545,6 +661,12 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
       <button class="view-btn" data-view="table" onclick="setView('table')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:12px;height:12px"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg> Table
       </button>
+      <button class="view-btn" data-view="timeline" onclick="setView('timeline')" title="Lease expiration pipeline">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:12px;height:12px"><circle cx="12" cy="12" r="9"/><path d="M12 8v4l3 2"/></svg> Timeline
+      </button>
+      <button class="view-btn" data-view="submarket" onclick="setView('submarket')" title="Submarket rollup">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" style="width:12px;height:12px"><line x1="3" y1="6" x2="15" y2="6"/><line x1="3" y1="12" x2="20" y2="12"/><line x1="3" y1="18" x2="10" y2="18"/></svg> Markets
+      </button>
       <button class="view-btn disabled" data-view="compare" id="compareBtn" onclick="setView('compare')">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:12px;height:12px"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg> Compare
         <span class="compare-badge" id="compareBadge" style="display:none">0</span>
@@ -553,6 +675,11 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:12px;height:12px"><path d="M12 20V10"/><path d="M18 20V4"/><path d="M6 20v-4"/></svg> Model
       </button>
     </div>
+
+    <button id="shareBtn" class="icon-btn" onclick="copyShareLink()" title="Copy a link to this exact view (filters + selection)">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:14px;height:14px"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+      Share
+    </button>
 
     <button id="exportPdfBtn" onclick="handleExportPDF()">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
@@ -612,6 +739,12 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
 
       <!-- MODEL -->
       <div class="compare-area" id="modelArea" style="position:absolute;inset:0;padding:24px 32px;overflow:auto"></div>
+
+      <!-- TIMELINE (lease-expiration pipeline) -->
+      <div class="view-pane" id="timelineArea" style="position:absolute;inset:0"></div>
+
+      <!-- SUBMARKET ROLLUP -->
+      <div class="view-pane" id="submarketArea" style="position:absolute;inset:0"></div>
 
       <!-- DETAIL PANEL (floats over any view) -->
       <div class="detail-panel" id="detailPanel"></div>
@@ -2120,7 +2253,10 @@ function applyFilters(){
   renderCards();renderStats();
   if(currentView==='map')plotMarkers(f);
   if(currentView==='table')renderTable();
+  if(currentView==='timeline')renderTimeline();
+  if(currentView==='submarket')renderSubmarkets();
   updateSelUI();
+  syncUrlState();
 
   // Update submarket button label
   const smBtnText=document.getElementById('smBtnText');
@@ -2144,6 +2280,228 @@ function clearAllFilters(){
   document.querySelectorAll('.sm-check').forEach(c=>c.checked=false);
   const ss=document.getElementById('sideSearch');if(ss)ss.value='';
   applyFilters();
+}
+
+/* ============================================================
+   CROSS-VIEW HOVER HIGHLIGHT
+   A single hovered-firm state. Hovering a card, table row, or
+   timeline row highlights that firm's map marker AND emphasizes
+   every on-screen element tagged data-fid="<id>".
+   ============================================================ */
+let hoveredFirmId=null;
+function clearHoverFirmDom(){document.querySelectorAll('.xhl').forEach(e=>e.classList.remove('xhl'));}
+function applyHoverFirm(){
+  if(hoveredFirmId==null)return;
+  document.querySelectorAll('[data-fid="'+hoveredFirmId+'"]').forEach(e=>e.classList.add('xhl'));
+}
+function setHoverFirm(id){
+  if(hoveredFirmId===id)return;
+  clearHoverFirmDom();
+  hoveredFirmId=id;
+  applyHoverFirm();
+  hoverMarker(id);
+}
+function clearHoverFirm(){
+  clearHoverFirmDom();
+  hoveredFirmId=null;
+  clearMarkerHover();
+}
+
+/* ============================================================
+   LEASE-EXPIRATION TIMELINE
+   ============================================================ */
+// Months from now to a firm's lease expiry (negative = already expired).
+function leToMonths(le){
+  if(!le)return null;
+  let y,m;
+  if(/^\d{4}-\d{2}$/.test(le)){y=+le.slice(0,4);m=+le.slice(5,7);}
+  else if(/^\d{4}$/.test(le)){y=+le;m=12;}
+  else return null;
+  const now=new Date();
+  return (y-now.getFullYear())*12+(m-(now.getMonth()+1));
+}
+const TL_BANDS=[
+  {k:'y1',label:'Now – 12 mo',color:'#C93B3B',test:mo=>mo<=12},
+  {k:'y2',label:'1 – 2 yrs',color:'#B54708',test:mo=>mo>12&&mo<=24},
+  {k:'y5',label:'2 – 5 yrs',color:'#2E6CC7',test:mo=>mo>24&&mo<=60},
+  {k:'y5p',label:'5+ yrs',color:'#3B5488',test:mo=>mo>60},
+];
+function tlBandOf(mo){if(mo==null)return null;for(const b of TL_BANDS){if(b.test(mo))return b;}return TL_BANDS[TL_BANDS.length-1];}
+function sfCompact(v){v=Math.round(v||0);if(v>=1e6)return (v/1e6).toFixed(1)+'M';if(v>=1e3)return Math.round(v/1e3)+'K';return String(v);}
+
+function renderTimeline(){
+  const el=document.getElementById('timelineArea');if(!el)return;
+  const now=new Date();
+  const dated=filteredFirms.map(f=>({f,mo:leToMonths(f.le)})).filter(x=>x.mo!=null).sort((a,b)=>a.mo-b.mo);
+  const undated=filteredFirms.length-dated.length;
+  if(dated.length===0){
+    el.innerHTML=`<div class="tl-shell"><div class="tl-topbar"><div class="tl-title">Lease Expiration Pipeline</div></div>`+
+      emptyStateHtml('No lease dates in view','None of the firms in the current selection have a disclosed lease-expiration date. Widen the filters to populate the pipeline.')+`</div>`;
+    return;
+  }
+  const maxMo=Math.max(...dated.map(x=>x.mo),12);
+  const totalMonths=Math.min(Math.ceil(Math.max(maxMo,12)/12)*12+12,144);
+  const bandStats=TL_BANDS.map(b=>{
+    const items=dated.filter(x=>b.test(x.mo));
+    return {b,count:items.length,rsf:items.reduce((s,x)=>s+(x.f.rsf||0),0)};
+  });
+  const summary=bandStats.map(({b,count,rsf})=>`
+    <button class="tl-sum" data-band="${b.k}" style="--c:${b.color}" onclick="tlScrollBand('${b.k}')">
+      <span class="tl-sum-bar"></span>
+      <span class="tl-sum-label">${b.label}</span>
+      <span class="tl-sum-val">${count}<span class="tl-sum-unit"> firm${count!==1?'s':''}</span></span>
+      <span class="tl-sum-sub">${sfCompact(rsf)} SF</span>
+    </button>`).join('');
+  const ticks=[];
+  for(let mo=0;mo<=totalMonths;mo+=12){
+    const yr=now.getFullYear()+Math.floor((now.getMonth()+mo)/12);
+    ticks.push(`<span class="tl-year" style="left:${(mo/totalMonths*100).toFixed(3)}%">${mo===0?'Now':yr}</span>`);
+  }
+  const rows=dated.map(({f,mo},i)=>{
+    const band=tlBandOf(mo);
+    const pos=Math.max(0,Math.min(mo,totalMonths))/totalMonths*100;
+    const meta=[f.att!=null?f.att+' attys':null,f.rsf!=null?Math.round(f.rsf).toLocaleString()+' SF':null,f.sm||null].filter(Boolean).join(' · ');
+    return `<div class="tl-row" data-fid="${f.id}" data-band="${band.k}" style="--i:${Math.min(i,24)}" onclick="openDetail(FIRMS[${f.id}])" onmouseenter="setHoverFirm(${f.id})" onmouseleave="clearHoverFirm()">
+      <div class="tl-label"><div class="tl-firm">${f.rank?'<span class="tl-rank">#'+f.rank+'</span> ':''}${esc(f.n)}</div><div class="tl-meta">${esc(meta)}</div></div>
+      <div class="tl-track"><div class="tl-bar" style="width:${pos.toFixed(2)}%;background:${band.color}"></div><div class="tl-end" style="left:${pos.toFixed(2)}%;background:${band.color}"></div><div class="tl-date" style="left:${pos.toFixed(2)}%;color:${band.color}">${mo<0?'Expired · ':''}${fmtLE(f.le)}</div></div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="tl-shell">
+    <div class="tl-topbar"><div class="tl-title">Lease Expiration Pipeline <span class="tl-count">${dated.length} dated${undated?' · '+undated+' undated':''}</span></div><div class="tl-hint">Soonest first · click a firm for its profile</div></div>
+    <div class="tl-summary">${summary}</div>
+    <div class="tl-scroll" style="--yearpct:${(12/totalMonths*100).toFixed(3)}%">
+      <div class="tl-head"><div class="tl-head-label">Firm</div><div class="tl-head-track">${ticks.join('')}</div></div>
+      <div class="tl-rows">${rows}</div>
+      ${undated?`<div class="tl-undated">${undated} firm${undated!==1?'s':''} with no disclosed lease date (not shown on the timeline)</div>`:''}
+    </div></div>`;
+  applyHoverFirm();
+}
+function tlScrollBand(k){
+  const row=document.querySelector('#timelineArea .tl-row[data-band="'+k+'"]');
+  document.querySelectorAll('#timelineArea .tl-sum').forEach(s=>s.classList.toggle('active',s.dataset.band===k));
+  if(row)row.scrollIntoView({behavior:prefersReducedMotion()?'auto':'smooth',block:'center'});
+}
+
+/* ============================================================
+   SUBMARKET ROLLUP
+   ============================================================ */
+let smkSort={key:'rsf',dir:'desc'};
+function smkSortBy(k){
+  if(smkSort.key===k)smkSort.dir=smkSort.dir==='asc'?'desc':'asc';
+  else{smkSort.key=k;smkSort.dir=(k==='name')?'asc':'desc';}
+  renderSubmarkets();
+}
+function renderSubmarkets(){
+  const el=document.getElementById('submarketArea');if(!el)return;
+  const groups={};
+  filteredFirms.forEach(f=>{
+    const key=f.sm||'—';
+    (groups[key]=groups[key]||[]).push(f);
+  });
+  let rows=Object.entries(groups).map(([name,arr])=>{
+    const sum=k=>arr.reduce((s,x)=>s+(x[k]||0),0);
+    const totAtt=sum('att'),totRsf=sum('rsf');
+    const rentPairs=arr.filter(x=>x.rsf!=null&&x.grs!=null);
+    const wRentDen=rentPairs.reduce((s,x)=>s+x.rsf,0);
+    const wRent=wRentDen>0?rentPairs.reduce((s,x)=>s+x.rsf*x.grs,0)/wRentDen:null;
+    const bands={y1:0,y2:0,y5:0,y5p:0,none:0};
+    arr.forEach(x=>{const mo=leToMonths(x.le);const b=tlBandOf(mo);bands[b?b.k:'none']++;});
+    return {name,count:arr.length,att:totAtt,rsf:totRsf,sfa:totAtt>0?totRsf/totAtt:null,rent:wRent,bands};
+  });
+  const dir=smkSort.dir==='asc'?1:-1;
+  rows.sort((a,b)=>{
+    if(smkSort.key==='name')return a.name.localeCompare(b.name)*dir;
+    const av=a[smkSort.key]==null?-1:a[smkSort.key],bv=b[smkSort.key]==null?-1:b[smkSort.key];
+    return (av-bv)*dir;
+  });
+  const totals={count:filteredFirms.length,att:rows.reduce((s,r)=>s+r.att,0),rsf:rows.reduce((s,r)=>s+r.rsf,0)};
+  const maxRsf=Math.max(1,...rows.map(r=>r.rsf));
+  const cols=[['name','Submarket','l'],['count','Firms','r'],['att','Attorneys','r'],['rsf','Total SF','r'],['sfa','SF/Atty','r'],['rent','MKT Rent/SF','r']];
+  const arrow=k=>smkSort.key===k?(smkSort.dir==='asc'?' ▲':' ▼'):'';
+  const head=cols.map(([k,label,al])=>`<div class="smk-h ${al==='r'?'num':''}${smkSort.key===k?' active':''}" onclick="smkSortBy('${k}')">${label}${arrow(k)}</div>`).join('')+`<div class="smk-h">Expiry mix</div>`;
+  const body=rows.map((r,i)=>{
+    const seg=TL_BANDS.map(b=>{const n=r.bands[b.k];return n?`<span style="width:${(n/r.count*100).toFixed(1)}%;background:${b.color}" title="${b.label}: ${n}"></span>`:'';}).join('')+(r.bands.none?`<span style="width:${(r.bands.none/r.count*100).toFixed(1)}%;background:#C6CDD9" title="No date: ${r.bands.none}"></span>`:'');
+    return `<div class="smk-row" style="--i:${Math.min(i,20)}" data-sm="${esc(r.name)}" onclick="smkFilterTo(this.dataset.sm)" title="Filter to ${esc(r.name)}">
+      <div class="smk-c smk-name"><span class="smk-rail" style="width:${(r.rsf/maxRsf*100).toFixed(1)}%"></span><span class="smk-nm">${esc(r.name)}</span></div>
+      <div class="smk-c num">${r.count}</div>
+      <div class="smk-c num">${Math.round(r.att).toLocaleString()}</div>
+      <div class="smk-c num">${Math.round(r.rsf).toLocaleString()}</div>
+      <div class="smk-c num">${r.sfa!=null?Math.round(r.sfa).toLocaleString():'—'}</div>
+      <div class="smk-c num">${r.rent!=null?fmtMoney(r.rent):'—'}</div>
+      <div class="smk-c smk-mix"><div class="smk-bar">${seg}</div></div>
+    </div>`;
+  }).join('');
+  el.innerHTML=`<div class="smk-shell">
+    <div class="tl-topbar"><div class="tl-title">Submarket Rollup <span class="tl-count">${rows.length} submarket${rows.length!==1?'s':''} · ${totals.count} firms</span></div><div class="tl-hint">Click a submarket to filter the whole app to it</div></div>
+    <div class="smk-scroll"><div class="smk-table"><div class="smk-headrow">${head}</div>${body}</div></div>
+  </div>`;
+}
+function smkFilterTo(name){
+  document.querySelectorAll('.sm-check').forEach(c=>{c.checked=(c.value===name);});
+  setView('map');
+}
+
+/* ============================================================
+   SHAREABLE DEEP LINKS  (state ↔ URL hash)
+   ============================================================ */
+let _restoringState=false;
+function collectState(){
+  const pills=cls=>[...document.querySelectorAll('.'+cls+'.active')].map(p=>p.dataset.val);
+  const ss=document.getElementById('sideSearch');
+  const sortEl=document.getElementById('cardSort');
+  return {
+    v:currentView,
+    q:ss?ss.value:'',
+    tier:pills('tier-pill'),cat:pills('cat-pill'),size:pills('size-pill'),lease:pills('lease-pill'),
+    sm:[...document.querySelectorAll('.sm-check:checked')].map(c=>c.value),
+    sel:[...selectedIds],
+    sort:sortEl?sortEl.value:'rank-asc'
+  };
+}
+function syncUrlState(){
+  if(_restoringState)return;
+  try{
+    const enc=encodeURIComponent(JSON.stringify(collectState()));
+    history.replaceState(null,'','#s='+enc);
+  }catch(e){}
+}
+function applyUrlState(){
+  const h=location.hash||'';
+  const m=h.match(/#s=(.+)$/);
+  if(!m)return false;
+  let st;try{st=JSON.parse(decodeURIComponent(m[1]));}catch(e){return false;}
+  _restoringState=true;
+  try{
+    const setPills=(cls,vals)=>document.querySelectorAll('.'+cls).forEach(p=>p.classList.toggle('active',(vals||[]).includes(p.dataset.val)));
+    setPills('tier-pill',st.tier);setPills('cat-pill',st.cat);setPills('size-pill',st.size);setPills('lease-pill',st.lease);
+    const smSet=new Set(st.sm||[]);
+    document.querySelectorAll('.sm-check').forEach(c=>c.checked=smSet.has(c.value));
+    const ss=document.getElementById('sideSearch');if(ss)ss.value=st.q||'';
+    const sortEl=document.getElementById('cardSort');if(sortEl&&st.sort)sortEl.value=st.sort;
+    selectedIds=new Set((st.sel||[]).filter(id=>FIRMS[id]));
+  }finally{_restoringState=false;}
+  const view=st.v&&VIEW_PANES[st.v]?st.v:'map';
+  updateSelUI();
+  setView(view);
+  return true;
+}
+function copyShareLink(){
+  syncUrlState();
+  const url=location.href;
+  const done=()=>showToast('Link copied — paste to share this exact view');
+  if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(url).then(done).catch(()=>showToast('Copy failed — copy the address bar'));}
+  else{done();}
+}
+
+/* Lightweight toast */
+let _toastTimer=null;
+function showToast(msg){
+  let t=document.getElementById('appToast');
+  if(!t){t=document.createElement('div');t.id='appToast';t.className='app-toast';document.body.appendChild(t);}
+  t.textContent=msg;
+  t.classList.add('show');
+  clearTimeout(_toastTimer);
+  _toastTimer=setTimeout(()=>t.classList.remove('show'),2600);
 }
 
 /* RENDER STATS */
@@ -2213,7 +2571,7 @@ function renderCards(){
   el.innerHTML=filteredFirms.map((f,i)=>{
     const sel=selectedIds.has(f.id);
     const selNum=sel?selArr.indexOf(f.id)+1:0;
-    return`<div class="comp-card${sel?' selected':''}" style="--i:${Math.min(i,14)}" data-id="${f.id}" onclick="openDetail(FIRMS[${f.id}])" onmouseenter="hoverMarker(${f.id})" onmouseleave="clearMarkerHover()">
+    return`<div class="comp-card${sel?' selected':''}" style="--i:${Math.min(i,14)}" data-id="${f.id}" data-fid="${f.id}" onclick="openDetail(FIRMS[${f.id}])" onmouseenter="setHoverFirm(${f.id})" onmouseleave="clearHoverFirm()">
       ${sel?`<div class="sel-badge">${selNum}</div>`:''}
       <input type="checkbox" class="card-checkbox" ${sel?'checked':''} onclick="event.stopPropagation();toggleSelect(${f.id})" onchange="event.stopPropagation()">
       <div class="card-photo" style="overflow:hidden">${f.img?`<img src="${f.img}" alt="" style="width:100%;height:100%;object-fit:cover" onerror="this.parentElement.innerHTML='<svg viewBox=&quot;0 0 24 24&quot; fill=&quot;none&quot; stroke=&quot;#8A93A8&quot; stroke-width=&quot;1.2&quot; style=&quot;width:28px;height:28px&quot;><rect x=&quot;4&quot; y=&quot;2&quot; width=&quot;16&quot; height=&quot;20&quot; rx=&quot;2&quot; ry=&quot;2&quot;/><path d=&quot;M9 22V12h6v10&quot;/></svg>'">`:`<svg viewBox="0 0 24 24" fill="none" stroke="#8A93A8" stroke-width="1.2" style="width:28px;height:28px"><rect x="4" y="2" width="16" height="20" rx="2" ry="2"/><path d="M9 22V12h6v10"/></svg>`}</div>
@@ -2229,6 +2587,7 @@ function renderCards(){
     </div>`;
   }).join('');
   document.getElementById('cardsCount').textContent=filteredFirms.length;
+  applyHoverFirm();
 }
 
 /* SELECTION */
@@ -2356,7 +2715,7 @@ function renderTable(){
     const sel=selectedIds.has(f.id);
     const selIdx=sel?[...selectedIds].indexOf(f.id)+1:0;
     const rowCls=`cresa-t-row${sel?' selected':''}${i%2===1?' striped':''}`;
-    return `<div class="${rowCls}" onclick="openDashboard(FIRMS[${f.id}])">
+    return `<div class="${rowCls}" data-fid="${f.id}" onclick="openDashboard(FIRMS[${f.id}])" onmouseenter="setHoverFirm(${f.id})" onmouseleave="clearHoverFirm()">
       <div class="cresa-t-chk" onclick="event.stopPropagation();toggleSelect(${f.id});renderTable()">
         <div class="cresa-t-chkbox ${sel?'on':''}">${sel?selIdx:''}</div>
       </div>
@@ -2374,6 +2733,7 @@ function renderTable(){
     ? emptyStateHtml('No firms match','Try widening a filter or clearing your search to see more of the Houston market.')
     : `<div class="cresa-t-inner">${header}${rows}</div>`;
   el.innerHTML=`<div class="cresa-t-wrap">${body}</div>`;
+  applyHoverFirm();
 }
 function tableToggleAll(checked){
   if(checked)filteredFirms.forEach(f=>selectedIds.add(f.id));
@@ -4017,35 +4377,38 @@ function updateModelOutputs(){
 }
 
 /* VIEW TOGGLE */
+// Panes keyed by view name → their container id.
+const VIEW_PANES={map:'mapArea',table:'tableArea',timeline:'timelineArea',submarket:'submarketArea',compare:'compareArea',model:'modelArea'};
 function setView(v){
   if(v==='compare'&&selectedIds.size<2)return;
   currentView=v;
   closeDetail();
   hideChartTooltip();
   document.querySelectorAll('.view-btn').forEach(b=>b.classList.toggle('active',b.dataset.view===v));
-  // Filter rail stays visible on map + table (so filters apply to both
-   // views), but hidden on compare + model per user request — those views
-   // are about picked/locked firms, not the full dataset.
+  // Filter rail is shown on the dataset-wide views (map/table/timeline/markets)
+  // and hidden on compare/model (which act on picked/locked firms).
   const onMap = v === 'map';
-  const showFilters = v === 'map' || v === 'table';
+  const showFilters = v==='map'||v==='table'||v==='timeline'||v==='submarket';
   const lp = document.getElementById('leftPanel');
   if (lp) lp.classList.toggle('hidden', !showFilters);
   const cardsPanel = document.getElementById('cardsPanel');
   if (cardsPanel) cardsPanel.classList.toggle('hidden', !onMap);
-  document.getElementById('mapArea').style.visibility=v==='map'?'visible':'hidden';
-  document.getElementById('mapArea').style.zIndex=v==='map'?'1':'0';
-  document.getElementById('tableArea').classList.toggle('visible',v==='table');
-  document.getElementById('tableArea').style.zIndex=v==='table'?'1':'0';
-  document.getElementById('compareArea').classList.toggle('visible',v==='compare');
-  document.getElementById('compareArea').style.zIndex=v==='compare'?'1':'0';
-  document.getElementById('modelArea').classList.toggle('visible',v==='model');
-  document.getElementById('modelArea').style.zIndex=v==='model'?'1':'0';
+  Object.entries(VIEW_PANES).forEach(([key,id])=>{
+    const el=document.getElementById(id); if(!el)return;
+    const on=key===v;
+    if(key==='map'){ el.style.visibility=on?'visible':'hidden'; }
+    else { el.classList.toggle('visible',on); }
+    el.style.zIndex=on?'1':'0';
+  });
   const exportBtn=document.getElementById('exportPdfBtn');
   if(exportBtn)exportBtn.style.display=(v==='model'||v==='compare')?'inline-flex':'none';
   if(v==='map'&&map){google.maps.event.trigger(map,'resize');plotMarkers(filteredFirms);}
   if(v==='table')renderTable();
   if(v==='compare')renderCompare();
   if(v==='model')renderModel();
+  if(v==='timeline')renderTimeline();
+  if(v==='submarket')renderSubmarkets();
+  syncUrlState();
   applyFilters();
 }
 
@@ -4183,10 +4546,10 @@ async function init(){
     if (chip) chip.classList.remove('fallback');
     if (chipLabel) chipLabel.innerHTML = 'LIVE &middot; <strong id="totalCount">' + FIRMS.length + '</strong> FIRMS';
   } else {
-    loader.textContent = 'Using embedded data — ' + FIRMS.length + ' firms';
+    loader.textContent = 'Live sync failed — using embedded data (' + FIRMS.length + ' firms)';
     loader.style.background = '#E24B4A';
     if (chip) chip.classList.add('fallback');
-    if (chipLabel) chipLabel.innerHTML = 'SAMPLE &middot; <strong id="totalCount">' + FIRMS.length + '</strong> FIRMS';
+    setFallbackChip(chipLabel);
   }
 
   // Recalculate SF/Attorney and AGR/Attorney for all firms (ensures consistency)
@@ -4202,13 +4565,44 @@ async function init(){
   const totalEl = document.getElementById('totalCount');
   if (totalEl) totalEl.textContent = FIRMS.length;
 
-  // Build UI
+  // Build UI. Restore any shared-link state from the URL; otherwise render fresh.
   buildFilters();
-  applyFilters();
+  if(!applyUrlState())applyFilters();
   setupKeyboardShortcuts();
 
   // Fade out loader
-  setTimeout(() => { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 300); }, 2000);
+  setTimeout(() => { loader.style.opacity = '0'; setTimeout(() => loader.remove(), 2000); }, 2000);
+}
+
+// SAMPLE-state chip with an inline Retry affordance (live-sync retry).
+function setFallbackChip(chipLabel){
+  chipLabel=chipLabel||document.getElementById('dataSourceLabel');
+  if(chipLabel)chipLabel.innerHTML='SAMPLE &middot; <strong id="totalCount">'+FIRMS.length+'</strong> FIRMS <button class="chip-retry" onclick="event.stopPropagation();retryLiveSync()" title="Retry loading live data">&#8635; Retry</button>';
+}
+// Re-attempt the live Google Sheets pull on demand.
+async function retryLiveSync(){
+  const chip=document.getElementById('dataSourceChip');
+  const chipLabel=document.getElementById('dataSourceLabel');
+  if(chip){chip.classList.remove('fallback');chip.classList.add('loading');}
+  if(chipLabel)chipLabel.innerHTML='SYNCING &middot; <strong id="totalCount">…</strong>';
+  const live=await fetchLiveData();
+  if(chip)chip.classList.remove('loading');
+  if(live&&live.length>0){
+    live.forEach(f=>{f.tier=getAmTier(f);});
+    FIRMS=live;
+    SUBMARKETS=[...new Set(FIRMS.map(f=>f.sm).filter(Boolean))].sort();
+    FIRMS.forEach(f=>{f.sfa=(f.rsf!=null&&f.att!=null&&f.att>0)?f.rsf/f.att:null;f.agra=(f.agr!=null&&f.att!=null&&f.att>0)?f.agr/f.att:null;if(!f.img)f.img='';});
+    if(chip)chip.classList.remove('fallback');
+    if(chipLabel)chipLabel.innerHTML='LIVE &middot; <strong id="totalCount">'+FIRMS.length+'</strong> FIRMS';
+    selectedIds=new Set();
+    buildFilters();
+    applyFilters();
+    showToast('Live data loaded — '+FIRMS.length+' firms');
+  }else{
+    if(chip)chip.classList.add('fallback');
+    setFallbackChip(chipLabel);
+    showToast('Still can’t reach the live sheet — showing sample data');
+  }
 }
 
 // Load Google Maps
