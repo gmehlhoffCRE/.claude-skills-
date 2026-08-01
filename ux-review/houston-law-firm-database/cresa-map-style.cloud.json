@@ -115,13 +115,31 @@
   },
   {
     "featureType": "administrative.locality",
+    "elementType": "labels",
+    "stylers": [
+      {
+        "visibility": "on"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#2B3350"
+        "color": "#1E2A47"
+      }
+    ]
+  },
+  {
+    "featureType": "administrative.locality",
+    "elementType": "labels.text.stroke",
+    "stylers": [
+      {
+        "color": "#FFFFFF"
       },
       {
-        "weight": 600
+        "weight": 3.5
       }
     ]
   },
@@ -130,7 +148,7 @@
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#7A8398"
+        "color": "#8A93A8"
       }
     ]
   },
@@ -175,10 +193,10 @@
     "elementType": "geometry.stroke",
     "stylers": [
       {
-        "color": "#E2E7F0"
+        "color": "#E4E8F1"
       },
       {
-        "weight": 0.4
+        "weight": 0.35
       }
     ]
   },
@@ -196,7 +214,7 @@
     "elementType": "geometry.fill",
     "stylers": [
       {
-        "color": "#EBEFF7"
+        "color": "#EDF0F7"
       }
     ]
   },
@@ -205,10 +223,10 @@
     "elementType": "geometry.stroke",
     "stylers": [
       {
-        "color": "#DFE4EF"
+        "color": "#E7EBF3"
       },
       {
-        "weight": 0.3
+        "weight": 0.2
       }
     ]
   },
@@ -217,7 +235,7 @@
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#5A6580"
+        "color": "#6B7488"
       }
     ]
   },
@@ -226,7 +244,7 @@
     "elementType": "geometry.fill",
     "stylers": [
       {
-        "color": "#D8DFED"
+        "color": "#DEE3EF"
       }
     ]
   },
@@ -235,10 +253,10 @@
     "elementType": "geometry.stroke",
     "stylers": [
       {
-        "color": "#6E7EA6"
+        "color": "#93A0BE"
       },
       {
-        "weight": 0.5
+        "weight": 0.4
       }
     ]
   },
@@ -247,7 +265,19 @@
     "elementType": "geometry.fill",
     "stylers": [
       {
-        "color": "#CDD6E7"
+        "color": "#D2DAE8"
+      }
+    ]
+  },
+  {
+    "featureType": "road.highway.controlled_access",
+    "elementType": "geometry.stroke",
+    "stylers": [
+      {
+        "color": "#8492B2"
+      },
+      {
+        "weight": 0.5
       }
     ]
   },
@@ -256,7 +286,7 @@
     "elementType": "labels.text.fill",
     "stylers": [
       {
-        "color": "#41527A"
+        "color": "#5A6A92"
       }
     ]
   },
