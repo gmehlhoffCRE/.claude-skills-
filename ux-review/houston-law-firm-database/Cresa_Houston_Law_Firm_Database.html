@@ -452,27 +452,24 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
 @keyframes pxDropIn{0%{opacity:0;transform:translateY(-12px)}60%{opacity:1}100%{opacity:1;transform:translateY(0)}}
 .px-marker{position:relative;cursor:pointer;animation:pxDropIn .34s var(--ease-out) both}
 .px-drop{position:relative;transition:transform .18s var(--ease-out)}
-/* Single-firm teardrop pin */
-.px-pin .px-drop{width:26px}
-.px-pin-svg{width:26px;height:auto;display:block;fill:var(--navy);filter:drop-shadow(0 3px 4px rgba(0,30,90,.4))}
-.px-pin-svg path{stroke:#fff;stroke-width:1.5}
-.px-pin .px-dot{position:absolute;left:50%;top:9px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#fff;pointer-events:none}
-.px-pin .px-num{position:absolute;left:0;right:0;top:4px;height:18px;display:none;align-items:center;justify-content:center;font:800 11px/1 Arial,Helvetica,sans-serif;color:var(--navy);pointer-events:none}
-.px-pin.selected .px-pin-svg{fill:var(--gold)}
-.px-pin.selected .px-pin-svg path{stroke:var(--navy)}
-.px-pin.selected .px-dot{display:none}
-.px-pin.selected .px-num{display:flex}
-.px-pin.active .px-pin-svg{fill:var(--gold);filter:drop-shadow(0 5px 8px rgba(0,30,90,.45))}
-.px-pin.active .px-pin-svg path{stroke:var(--navy)}
-.px-pin.active .px-dot{display:none}
-.px-pin:hover .px-drop,.px-pin.hover .px-drop,.px-pin.active .px-drop{transform:translateY(-3px) scale(1.09)}
-/* Cluster badge with a downward nub pointing at the coordinate */
+/* Single-firm dot — deliberately lighter and smaller than any cluster so a
+   multi-firm building always reads as the more prominent marker. Centered on
+   the coordinate via the translateY(50%) layer (clusters point at it via nub). */
+.px-dot .px-center{transform:translateY(50%)}
+.px-dot .px-dotwrap{width:13px;height:13px;border-radius:50%;background:var(--navy);border:2px solid #fff;box-shadow:0 2px 4px rgba(0,30,90,.3);display:flex;align-items:center;justify-content:center;transition:width .18s var(--ease-out),height .18s var(--ease-out),transform .18s var(--ease-out),box-shadow .18s var(--ease-out)}
+.px-dot .px-num{color:var(--navy);font:800 11px/1 Arial,Helvetica,sans-serif;display:none;pointer-events:none}
+.px-dot.selected .px-dotwrap{width:22px;height:22px;background:var(--gold);border-color:var(--navy)}
+.px-dot.selected .px-num{display:block}
+.px-dot:hover .px-dotwrap,.px-dot.hover .px-dotwrap{transform:scale(1.28)}
+.px-dot.active .px-dotwrap{width:22px;height:22px;background:var(--gold);border-color:var(--navy);box-shadow:0 0 0 3px rgba(255,182,0,.35),0 3px 8px rgba(0,30,90,.4)}
+/* Cluster badge with a downward nub pointing at the coordinate. Sized up so
+   even the biggest single-firm state stays clearly subordinate. */
 .px-cluster .px-drop{display:flex;flex-direction:column;align-items:center}
-.px-cluster .px-badge{width:30px;height:30px;border-radius:50%;background:var(--navy);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,30,90,.4);display:flex;align-items:center;justify-content:center;transition:transform .18s var(--ease-out),box-shadow .18s var(--ease-out)}
-.px-cluster.sz-md .px-badge{width:36px;height:36px}
-.px-cluster.sz-lg .px-badge{width:44px;height:44px}
-.px-cluster .px-num{color:#fff;font:800 12px/1 Arial,Helvetica,sans-serif;pointer-events:none}
-.px-cluster.sz-lg .px-num{font-size:14px}
+.px-cluster .px-badge{width:34px;height:34px;border-radius:50%;background:var(--navy);border:2px solid #fff;box-shadow:0 4px 10px rgba(0,30,90,.42);display:flex;align-items:center;justify-content:center;transition:transform .18s var(--ease-out),box-shadow .18s var(--ease-out)}
+.px-cluster.sz-md .px-badge{width:40px;height:40px}
+.px-cluster.sz-lg .px-badge{width:48px;height:48px}
+.px-cluster .px-num{color:#fff;font:800 13px/1 Arial,Helvetica,sans-serif;pointer-events:none}
+.px-cluster.sz-lg .px-num{font-size:15px}
 .px-cluster .px-nub{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--navy);margin-top:-2px;filter:drop-shadow(0 2px 1px rgba(0,30,90,.3))}
 .px-cluster.selected .px-badge{box-shadow:0 0 0 3px var(--gold),0 3px 8px rgba(0,30,90,.4)}
 .px-cluster:hover .px-badge,.px-cluster.hover .px-badge,.px-cluster.active .px-badge{transform:scale(1.12)}
@@ -1530,33 +1527,36 @@ function initMap(){
   // client-side style array — it is retained here only as the source of
   // truth for the cloud style. Import cresa-map-style.cloud.json in the
   // Google Cloud Console and attach it to your Map ID to reproduce this look.
+  // Muted, low-contrast Cresa base: desaturated land/water, soft grey roads,
+  // and — critically — highways are no longer navy (they were competing with
+  // the navy markers). The map recedes so the pins/clusters carry the weight.
   const cresaStyles = [
-    { elementType: 'geometry', stylers: [{ color: '#F2F4F8' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }] },
+    { elementType: 'geometry', stylers: [{ color: '#F3F4F6' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#8A93A8' }] },
     { elementType: 'labels.text.stroke', stylers: [{ color: '#FFFFFF' }, { weight: 3 }] },
     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#C6CDD9' }, { weight: 0.8 }] },
-    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#2B3350' }, { weight: 600 }] },
-    { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }] },
-    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#EBEEF4' }] },
-    { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#F2F4F8' }] },
-    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#D8E2D6' }] },
-    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#5A7562' }] },
+    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#D8DCE4' }, { weight: 0.7 }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }, { weight: 500 }] },
+    { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#9AA2B4' }] },
+    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#EDEFF3' }] },
+    { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#F3F4F6' }] },
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#E3E8E2' }] },
+    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#9BA89A' }] },
     { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
     { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
     { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-    { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#FFFFFF' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#E4E8F0' }, { weight: 0.5 }] },
-    { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: '#D6DDEA' }] },
-    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#001E5A' }, { weight: 0.6 }] },
-    { featureType: 'road.highway.controlled_access', elementType: 'geometry.fill', stylers: [{ color: '#C9D2E2' }] },
-    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#001E5A' }] },
-    { featureType: 'road.arterial', elementType: 'geometry.fill', stylers: [{ color: '#FFFFFF' }] },
-    { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#2B3350' }] },
-    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }] },
-    { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#C9D9EC' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#001E5A' }] },
-    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#C9D9EC' }, { weight: 2 }] },
+    { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#FDFDFE' }] },
+    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#EBEEF3' }, { weight: 0.5 }] },
+    { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: '#E7EAF0' }] },
+    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#D2D8E2' }, { weight: 0.5 }] },
+    { featureType: 'road.highway.controlled_access', elementType: 'geometry.fill', stylers: [{ color: '#E1E5EC' }] },
+    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#8A93A8' }] },
+    { featureType: 'road.arterial', elementType: 'geometry.fill', stylers: [{ color: '#FDFDFE' }] },
+    { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#9AA2B4' }] },
+    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#A6AEBE' }] },
+    { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#DEE5EC' }] },
+    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#9AAABD' }] },
+    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#DEE5EC' }, { weight: 2 }] },
   ];
   map=new google.maps.Map(document.getElementById('gmap'),{
     center:{lat:29.76,lng:-95.40},zoom:10,
@@ -1745,11 +1745,11 @@ function getCurrentGroup(key){
 // scale — keeping the two transforms on separate elements so they never fight.
 function makeMarkerEl(isCluster){
   const el=document.createElement('div');
-  el.className='px-marker '+(isCluster?'px-cluster':'px-pin');
+  el.className='px-marker '+(isCluster?'px-cluster':'px-dot');
   if(isCluster){
     el.innerHTML='<div class="px-drop"><div class="px-badge"><span class="px-num"></span></div><div class="px-nub"></div></div>';
   }else{
-    el.innerHTML='<div class="px-drop"><svg class="px-pin-svg" viewBox="0 0 24 32" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 8.4 10.05 18.9 11.14 20.02a1.2 1.2 0 0 0 1.72 0C13.95 30.9 24 20.4 24 12 24 5.373 18.627 0 12 0z"/></svg><span class="px-dot"></span><span class="px-num"></span></div>';
+    el.innerHTML='<div class="px-center"><div class="px-dotwrap"><span class="px-num"></span></div></div>';
   }
   return el;
 }

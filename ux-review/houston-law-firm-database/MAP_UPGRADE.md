@@ -60,13 +60,25 @@ tile in the browser on every zoom.
 
 ## Marker design (upgraded)
 
-- **Single firm:** navy teardrop pin, white center dot. Selected → gold pin with a
-  navy index number. Hover/active → lifts and scales.
+Sizing is deliberately hierarchical — a multi-firm building always reads as more
+important than a single firm:
+
+- **Single firm:** a compact navy **dot** (13px) centered on the coordinate.
+  Selected → 22px gold dot with a navy index number. Hover/active → scales.
 - **Cluster:** navy circular badge with a downward nub pointing at the exact
   coordinate, white firm count, **sized by how many firms share the building**
-  (30 / 36 / 44 px). Selected → gold ring (count stays legible). Hover/active → scales.
+  (34 / 40 / 48 px). Selected → gold ring (count stays legible). Hover/active → scales.
+  Even a selected, hovered single dot stays clearly smaller than the smallest cluster.
 - **Drop-in entrance** when markers appear; all motion respects
   `prefers-reduced-motion`.
+
+## Base map style (muted)
+
+`cresa-map-style.cloud.json` is a **muted, low-contrast** palette: desaturated land
+and water, soft-grey roads, and highways rendered in light grey rather than navy.
+The navy highways previously competed with the navy markers — muting the map lets
+the pins and clusters carry the visual weight. Re-import the JSON if you update your
+cloud Map ID style.
 
 ## Verifying
 
