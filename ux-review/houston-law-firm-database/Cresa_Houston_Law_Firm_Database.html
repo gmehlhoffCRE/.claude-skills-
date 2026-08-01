@@ -444,6 +444,44 @@ button:active,.pill:active,.view-btn:active:not(.disabled){transform:translateY(
 /* ---- Keyboard-shortcut hint chips ---- */
 kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;font-weight:700;color:var(--ink-3);background:var(--bg);border:1px solid var(--line);border-bottom-width:2px;border-radius:4px;padding:1px 5px;line-height:1.4;min-width:16px;text-align:center}
 
+/* ---- Map markers (AdvancedMarkerElement DOM content) ----
+   Outer .px-marker owns the drop-in entrance; inner .px-drop / .px-badge own
+   the hover scale — two transforms kept on separate elements so neither fights
+   the other. Anchored bottom-center by Advanced Markers: the pin tip and the
+   cluster nub land exactly on the coordinate. */
+@keyframes pxDropIn{0%{opacity:0;transform:translateY(-12px)}60%{opacity:1}100%{opacity:1;transform:translateY(0)}}
+.px-marker{position:relative;cursor:pointer;animation:pxDropIn .34s var(--ease-out) both}
+.px-drop{position:relative;transition:transform .18s var(--ease-out)}
+/* Single-firm teardrop pin */
+.px-pin .px-drop{width:26px}
+.px-pin-svg{width:26px;height:auto;display:block;fill:var(--navy);filter:drop-shadow(0 3px 4px rgba(0,30,90,.4))}
+.px-pin-svg path{stroke:#fff;stroke-width:1.5}
+.px-pin .px-dot{position:absolute;left:50%;top:9px;width:8px;height:8px;margin-left:-4px;border-radius:50%;background:#fff;pointer-events:none}
+.px-pin .px-num{position:absolute;left:0;right:0;top:4px;height:18px;display:none;align-items:center;justify-content:center;font:800 11px/1 Arial,Helvetica,sans-serif;color:var(--navy);pointer-events:none}
+.px-pin.selected .px-pin-svg{fill:var(--gold)}
+.px-pin.selected .px-pin-svg path{stroke:var(--navy)}
+.px-pin.selected .px-dot{display:none}
+.px-pin.selected .px-num{display:flex}
+.px-pin.active .px-pin-svg{fill:var(--gold);filter:drop-shadow(0 5px 8px rgba(0,30,90,.45))}
+.px-pin.active .px-pin-svg path{stroke:var(--navy)}
+.px-pin.active .px-dot{display:none}
+.px-pin:hover .px-drop,.px-pin.hover .px-drop,.px-pin.active .px-drop{transform:translateY(-3px) scale(1.09)}
+/* Cluster badge with a downward nub pointing at the coordinate */
+.px-cluster .px-drop{display:flex;flex-direction:column;align-items:center}
+.px-cluster .px-badge{width:30px;height:30px;border-radius:50%;background:var(--navy);border:2px solid #fff;box-shadow:0 3px 8px rgba(0,30,90,.4);display:flex;align-items:center;justify-content:center;transition:transform .18s var(--ease-out),box-shadow .18s var(--ease-out)}
+.px-cluster.sz-md .px-badge{width:36px;height:36px}
+.px-cluster.sz-lg .px-badge{width:44px;height:44px}
+.px-cluster .px-num{color:#fff;font:800 12px/1 Arial,Helvetica,sans-serif;pointer-events:none}
+.px-cluster.sz-lg .px-num{font-size:14px}
+.px-cluster .px-nub{width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-top:7px solid var(--navy);margin-top:-2px;filter:drop-shadow(0 2px 1px rgba(0,30,90,.3))}
+.px-cluster.selected .px-badge{box-shadow:0 0 0 3px var(--gold),0 3px 8px rgba(0,30,90,.4)}
+.px-cluster:hover .px-badge,.px-cluster.hover .px-badge,.px-cluster.active .px-badge{transform:scale(1.12)}
+.px-cluster.active .px-badge{box-shadow:0 0 0 3px var(--gold),0 6px 14px rgba(0,30,90,.5)}
+/* Peer mini-map dots (dashboard) */
+.px-dotmark{width:12px;height:12px;border-radius:50%;background:var(--navy);border:1.5px solid #fff;box-shadow:0 1px 3px rgba(0,30,90,.4);opacity:.85;cursor:pointer;transition:transform .15s var(--ease-out),opacity .15s}
+.px-dotmark:hover{transform:scale(1.3);opacity:1}
+.px-dotmark.subject{width:18px;height:18px;background:var(--gold);border:2.5px solid var(--navy);opacity:1}
+
 /* ---- Respect users who prefer reduced motion ---- */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
@@ -589,6 +627,15 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
 
 <script>
 const GMAPS_KEY='AIzaSyAbuuXR2lkGck7cG94qS11CfWWHbLq8AlU';
+/* ── AdvancedMarkerElement requires a cloud Map ID ──────────────────────────
+   Setting a Map ID means Google renders the base map from a CLOUD style, so
+   the in-code Cresa style below is no longer applied by the browser. To keep
+   Cresa branding (and fix the zoom lag — cloud tiles are pre-styled server-
+   side), create a Map ID in Google Cloud Console, import the style from
+   cresa-map-style.cloud.json (shipped alongside this file), and paste the ID
+   here. Until then, 'DEMO_MAP_ID' renders Advanced Markers on Google's default
+   base map so nothing is broken. See MAP_UPGRADE.md for the 10-minute setup. */
+const GMAPS_MAP_ID='DEMO_MAP_ID';
 const MONTHS=['','Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
 const CHART_COLORS=['#001E5A','#FFB600','#2E6CC7','#C2410C','#059669','#7C3AED','#DB2777','#EA580C','#0891B2','#4F46E5'];
 const CLASS_ORDER={AA:1,A:2,B:3,C:4};
@@ -1479,7 +1526,10 @@ let userMovedMap=false;
 /* GOOGLE MAPS */
 function initMap(){
   // Cresa-styled base map: warm off-white land, navy roads, muted parks,
-  // hidden POIs — matches the lease comps prototype exactly.
+  // hidden POIs. NOTE: with a cloud Map ID set, the browser ignores this
+  // client-side style array — it is retained here only as the source of
+  // truth for the cloud style. Import cresa-map-style.cloud.json in the
+  // Google Cloud Console and attach it to your Map ID to reproduce this look.
   const cresaStyles = [
     { elementType: 'geometry', stylers: [{ color: '#F2F4F8' }] },
     { elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }] },
@@ -1510,6 +1560,8 @@ function initMap(){
   ];
   map=new google.maps.Map(document.getElementById('gmap'),{
     center:{lat:29.76,lng:-95.40},zoom:10,
+    // Cloud Map ID enables AdvancedMarkerElement + server-side styling.
+    mapId:GMAPS_MAP_ID,
     // Enable zoom control + greedy gestures: scroll-wheel zooms immediately
     // without needing ctrl/cmd held, and pinch-zoom on trackpad is direct.
     zoomControl:true,
@@ -1517,14 +1569,11 @@ function initMap(){
     gestureHandling:'greedy',
     // Position zoom control out of the way of the MAP/HYBRID toggle (top-left).
     zoomControlOptions:{position:google.maps.ControlPosition.RIGHT_BOTTOM},
-    // Pin min zoom so we don't accidentally zoom out to the whole world,
-    // which is expensive to re-render with a styled map type.
+    // Pin min zoom so we don't accidentally zoom out to the whole world.
     minZoom:6,maxZoom:20
   });
-  // Register the Cresa styled map type and use it as default.
-  const cresaMapType=new google.maps.StyledMapType(cresaStyles,{name:'Map'});
-  map.mapTypes.set('cresa',cresaMapType);
-  map.setMapTypeId('cresa');
+  // Base styling now comes from the cloud Map ID (see cresaStyles note above).
+  // The MAP/HYBRID toggle switches between the cloud-styled roadmap and hybrid.
   map.addListener('click',()=>{closeClusterPopover();closeDetail();});
   // Track whether the user has manually interacted with the viewport. Once
   // they have, plotMarkers stops calling fitBounds on filter changes.
@@ -1539,8 +1588,8 @@ function initMap(){
 
 function setMapType(type){
   if(!map)return;
-  // Toggle between Cresa-styled base ("Map") and Google Hybrid (satellite+labels).
-  map.setMapTypeId(type==='satellite'?'hybrid':'cresa');
+  // Toggle between the cloud-styled base ("Map") and Google Hybrid (satellite+labels).
+  map.setMapTypeId(type==='satellite'?'hybrid':'roadmap');
   document.getElementById('btnMapRoad').classList.toggle('active',type==='roadmap');
   document.getElementById('btnMapSat').classList.toggle('active',type==='satellite');
 }
@@ -1578,9 +1627,18 @@ let firmToGroupKey=new Map();     // firmId → "lat,lng" (so hover/highlight ca
 let clusterPopoverEl=null;
 let clusterPopoverOverlay=null;
 
+// AdvancedMarkerElement accessor. Resolved lazily (google is undefined until
+// the Maps script loads); plotMarkers only runs after initMap, so this is safe.
+function AMEclass(){ return (window.google&&google.maps&&google.maps.marker)?google.maps.marker.AdvancedMarkerElement:null; }
+
 function plotMarkers(firms){
   // DIFF rather than rebuild. Markers are cached per location group so
   // filter changes only touch the delta (groups entering/leaving the set).
+  const AME=AMEclass();
+  if(!AME){
+    console.error('[MAP] Advanced Markers library not available. Ensure the Maps script includes "&libraries=marker" and a valid Map ID (GMAPS_MAP_ID).');
+    return;
+  }
 
   // Close any open cluster popover — if the filter change removed the
   // building we were showing firms for, the popover would be orphaned.
@@ -1612,7 +1670,7 @@ function plotMarkers(firms){
 
   // Remove markers whose groups are no longer in the filter set.
   groupMarkerByKey.forEach((m,key)=>{
-    if(!wantedKeys.has(key)){m.setMap(null);groupMarkerByKey.delete(key);}
+    if(!wantedKeys.has(key)){m.map=null;groupMarkerByKey.delete(key);}
   });
 
   const bounds=new google.maps.LatLngBounds();
@@ -1626,18 +1684,18 @@ function plotMarkers(firms){
     const hasSelected=selectedInGroup.length>0;
     let m=groupMarkerByKey.get(key);
     if(m){
-      // Reuse existing marker — just update position in case coordinates
-      // shifted (rare, but free if the data refreshed).
-      m.setPosition(pos);
-      m.setMap(map);
+      // Reuse existing marker — update position (coords rarely shift) and, if
+      // the group flipped between single/cluster under the new filter, swap
+      // its DOM content so the visual matches.
+      m.position=pos; m._pos=pos; m.map=map;
+      if(m._isCluster!==isCluster){ m.content=makeMarkerEl(isCluster); m._isCluster=isCluster; }
     } else {
-      m=new google.maps.Marker({
-        position:pos,map,
-        icon:clusterIcon(isCluster,false,false,hasSelected),
+      m=new AME({
+        position:pos,map,content:makeMarkerEl(isCluster),gmpClickable:true,
         title:isCluster?group.firms.length+' firms at this building':group.firms[0].n,
-        zIndex:1,optimized:true
+        zIndex:1
       });
-      m._groupKey=key;
+      m._groupKey=key; m._pos=pos; m._isCluster=isCluster;
       m.addListener('click',()=>{
         // Read current state by key — don't close over the group object,
         // which gets rebuilt on every plotMarkers call.
@@ -1653,21 +1711,9 @@ function plotMarkers(firms){
       });
       groupMarkerByKey.set(key,m);
     }
-    // Icon + label state (re-applied every call since selection can change
-    // without the marker set changing).
-    m.setIcon(clusterIcon(isCluster,false,false,hasSelected));
-    if(isCluster){
-      m.setLabel({text:String(group.firms.length),color:'#fff',fontSize:'11px',fontWeight:'700'});
-      m.setZIndex(hasSelected?2000:1);
-    } else if(hasSelected){
-      // Single-firm selected — use the existing numbered-index pill.
-      const selIdx=[...selectedIds].indexOf(group.firms[0].id)+1;
-      m.setLabel({text:String(selIdx),color:'#001E5A',fontSize:'12px',fontWeight:'800'});
-      m.setZIndex(2000);
-    } else {
-      m.setLabel(null);
-      m.setZIndex(1);
-    }
+    // Paint selection / number / z-order (re-applied every call since selection
+    // can change without the marker set changing).
+    paintMarker(m,false,false);
   });
 
   // Keep legacy `markers` array in sync for code that still iterates it.
@@ -1692,30 +1738,42 @@ function getCurrentGroup(key){
   return {lat:firms[0].lat,lng:firms[0].lng,firms};
 }
 
-function clusterIcon(isCluster,isActive,isHovered,hasSelected){
+// Build a marker's DOM content. AdvancedMarkerElement renders whatever HTML we
+// give it, anchored bottom-center — so pins point at the coordinate with their
+// tip, and clusters point with a small nub. Nesting is deliberate: the outer
+// .px-marker owns the drop-in entrance, the inner .px-drop owns the hover
+// scale — keeping the two transforms on separate elements so they never fight.
+function makeMarkerEl(isCluster){
+  const el=document.createElement('div');
+  el.className='px-marker '+(isCluster?'px-cluster':'px-pin');
   if(isCluster){
-    // Cluster: larger navy filled circle. Gold RING (stroke) when selected,
-    // not gold fill — keeps the count label legible.
-    return {
-      path:google.maps.SymbolPath.CIRCLE,
-      fillColor:'#001E5A',
-      fillOpacity:0.95,
-      strokeColor:hasSelected?'#FFB600':'#fff',
-      strokeWeight:hasSelected?4:(isActive||isHovered?3:2),
-      scale:isActive||isHovered?15:13,
-      labelOrigin:new google.maps.Point(0,0),
-    };
+    el.innerHTML='<div class="px-drop"><div class="px-badge"><span class="px-num"></span></div><div class="px-nub"></div></div>';
+  }else{
+    el.innerHTML='<div class="px-drop"><svg class="px-pin-svg" viewBox="0 0 24 32" aria-hidden="true"><path d="M12 0C5.373 0 0 5.373 0 12c0 8.4 10.05 18.9 11.14 20.02a1.2 1.2 0 0 0 1.72 0C13.95 30.9 24 20.4 24 12 24 5.373 18.627 0 12 0z"/></svg><span class="px-dot"></span><span class="px-num"></span></div>';
   }
-  // Single-firm marker: unchanged — navy dot, gold fill on selection.
-  return {
-    path:google.maps.SymbolPath.CIRCLE,
-    fillColor:hasSelected?'#FFB600':'#001E5A',
-    fillOpacity:hasSelected?1:0.9,
-    strokeColor:hasSelected?'#001E5A':(isActive||isHovered?'#FFB600':'#fff'),
-    strokeWeight:hasSelected?2:(isActive||isHovered?3:1.5),
-    scale:hasSelected?11:(isActive||isHovered?10:7),
-    labelOrigin:new google.maps.Point(0,0),
-  };
+  return el;
+}
+
+// Paint a marker's live state onto its DOM content: selection ring/number,
+// cluster count + size tier, hover/active emphasis, and z-order. Replaces the
+// old setIcon/setLabel calls. isCluster vs single is read fresh from the group.
+function paintMarker(m,active,hovered){
+  const el=m.content; if(!el)return;
+  const s=getMarkerGroupState(m);
+  const numEl=el.querySelector('.px-num');
+  el.classList.toggle('selected',s.hasSelected);
+  el.classList.toggle('active',!!active);
+  el.classList.toggle('hover',!!hovered);
+  if(s.isCluster){
+    const n=s.group?s.group.firms.length:0;
+    if(numEl)numEl.textContent=n;
+    el.classList.toggle('sz-md',n>=4&&n<8);
+    el.classList.toggle('sz-lg',n>=8);
+  }else if(s.hasSelected&&s.group){
+    const selIdx=[...selectedIds].indexOf(s.group.firms[0].id)+1;
+    if(numEl)numEl.textContent=selIdx;
+  }else if(numEl){numEl.textContent='';}
+  m.zIndex=active?3000:(hovered?1500:(s.hasSelected?2000:1));
 }
 
 function openClusterPopover(marker,group){
@@ -1735,7 +1793,11 @@ function openClusterPopover(marker,group){
   };
   overlay.draw=function(){
     if(!clusterPopoverEl)return;
-    const pos=this.getProjection().fromLatLngToDivPixel(marker.getPosition());
+    // AdvancedMarkerElement exposes `.position` (a LatLng/LatLngLiteral) rather
+    // than getPosition(); we stash the plain literal on `_pos` at plot time.
+    const p=marker._pos||marker.position;
+    const latLng=(p&&typeof p.lat==='function')?p:new google.maps.LatLng(p.lat,p.lng);
+    const pos=this.getProjection().fromLatLngToDivPixel(latLng);
     clusterPopoverEl.style.position='absolute';
     clusterPopoverEl.style.left=pos.x+'px';
     clusterPopoverEl.style.top=pos.y+'px';
@@ -1834,23 +1896,8 @@ function getMarkerGroupState(m){
   return {isCluster,hasSelected,group:g};
 }
 
-// Reset a marker to its baseline (no hover, no highlight) icon + label.
-// Respects cluster vs single state so cluster markers keep their count.
-function resetMarkerIcon(m){
-  const s=getMarkerGroupState(m);
-  m.setIcon(clusterIcon(s.isCluster,false,false,s.hasSelected));
-  if(s.isCluster){
-    m.setLabel({text:String(s.group.firms.length),color:'#fff',fontSize:'11px',fontWeight:'700'});
-    m.setZIndex(s.hasSelected?2000:1);
-  } else if(s.hasSelected&&s.group){
-    const selIdx=[...selectedIds].indexOf(s.group.firms[0].id)+1;
-    m.setLabel({text:String(selIdx),color:'#001E5A',fontSize:'12px',fontWeight:'800'});
-    m.setZIndex(2000);
-  } else {
-    m.setLabel(null);
-    m.setZIndex(1);
-  }
-}
+// Reset a marker to its baseline (no hover, no highlight) state.
+function resetMarkerIcon(m){ paintMarker(m,false,false); }
 
 let highlightedMarkerId=null;
 function highlightMarker(firmId){
@@ -1858,19 +1905,15 @@ function highlightMarker(firmId){
   if(highlightedMarkerId!=null&&!selectedIds.has(highlightedMarkerId)){
     const prevKey=firmToGroupKey.get(highlightedMarkerId);
     const prev=prevKey?groupMarkerByKey.get(prevKey):null;
-    if(prev)resetMarkerIcon(prev);
+    if(prev)paintMarker(prev,false,false);
   }
   highlightedMarkerId=firmId;
   const firm=FIRMS[firmId];
   const key=firmToGroupKey.get(firmId);
   const m=key?groupMarkerByKey.get(key):null;
   if(m){
-    const s=getMarkerGroupState(m);
-    // Highlight: gold ring for clusters, gold fill for single markers.
-    // clusterIcon handles both — just flag isActive.
-    m.setIcon(clusterIcon(s.isCluster,true,false,s.hasSelected));
-    m.setZIndex(3000);
-    if(firm&&firm.lat&&firm.lng)map.panTo({lat:firm.lat,lng:firm.lng});
+    paintMarker(m,true,false);
+    if(firm&&firm.lat&&firm.lng&&map)map.panTo({lat:firm.lat,lng:firm.lng});
   }
 }
 
@@ -1878,7 +1921,7 @@ function clearMarkerHighlight(){
   if(highlightedMarkerId!=null&&!selectedIds.has(highlightedMarkerId)){
     const key=firmToGroupKey.get(highlightedMarkerId);
     const m=key?groupMarkerByKey.get(key):null;
-    if(m)resetMarkerIcon(m);
+    if(m)paintMarker(m,false,false);
   }
   highlightedMarkerId=null;
 }
@@ -1900,13 +1943,9 @@ function hoverMarker(firmId){
   if(firmId===highlightedMarkerId||selectedIds.has(firmId))return;
   const key=firmToGroupKey.get(firmId);
   const m=key?groupMarkerByKey.get(key):null;
-  if(m){
-    const s=getMarkerGroupState(m);
-    // Hover: gold ring via clusterIcon with isHovered=true. Works for both
-    // cluster markers (preserves count label) and single markers.
-    m.setIcon(clusterIcon(s.isCluster,false,true,s.hasSelected));
-    m.setZIndex(1500);
-  }
+  // Hover emphasis via the `hover` class — works for both clusters (keeps the
+  // count) and single pins, and animates through CSS.
+  if(m)paintMarker(m,false,true);
 }
 function clearMarkerHover(){hoverMarker(null);}
 
@@ -1920,20 +1959,12 @@ function updateMarkerSelections(){
   if(hoveredMarkerId!=null&&hoveredMarkerId!==highlightedMarkerId&&!selectedIds.has(hoveredMarkerId)){
     const k=firmToGroupKey.get(hoveredMarkerId);
     const m=k?groupMarkerByKey.get(k):null;
-    if(m){
-      const s=getMarkerGroupState(m);
-      m.setIcon(clusterIcon(s.isCluster,false,true,s.hasSelected));
-      m.setZIndex(1500);
-    }
+    if(m)paintMarker(m,false,true);
   }
   if(highlightedMarkerId!=null&&!selectedIds.has(highlightedMarkerId)){
     const k=firmToGroupKey.get(highlightedMarkerId);
     const m=k?groupMarkerByKey.get(k):null;
-    if(m){
-      const s=getMarkerGroupState(m);
-      m.setIcon(clusterIcon(s.isCluster,true,false,s.hasSelected));
-      m.setZIndex(3000);
-    }
+    if(m)paintMarker(m,true,false);
   }
 }
 
@@ -2667,21 +2698,24 @@ function openDashboard(f){
   const peerMapEl=document.getElementById('dashPeerMap');
   if(peerMapEl&&typeof google!=='undefined'){
     const peerMap=new google.maps.Map(peerMapEl,{
-      center:{lat:29.76,lng:-95.40},zoom:10,
-      zoomControl:true,mapTypeControl:false,streetViewControl:false,fullscreenControl:false,
-      styles:[{featureType:'poi',stylers:[{visibility:'off'}]}]
+      center:{lat:29.76,lng:-95.40},zoom:10,mapId:GMAPS_MAP_ID,
+      zoomControl:true,mapTypeControl:false,streetViewControl:false,fullscreenControl:false
     });
+    const AME=AMEclass();
+    // Small round dot content for the peer mini-map (Advanced Markers).
+    const dotEl=(subject)=>{const d=document.createElement('div');d.className='px-dotmark'+(subject?' subject':'');return d;};
     const bounds=new google.maps.LatLngBounds();
     // Subject firm - gold marker
     if(f.lat&&f.lng){
       const pos={lat:f.lat,lng:f.lng};bounds.extend(pos);
-      new google.maps.Marker({position:pos,map:peerMap,icon:{path:google.maps.SymbolPath.CIRCLE,scale:10,fillColor:'#FFB600',fillOpacity:1,strokeColor:'#001E5A',strokeWeight:2.5},title:f.n,zIndex:10});
+      if(AME)new AME({position:pos,map:peerMap,content:dotEl(true),title:f.n,zIndex:10});
     }
     // Same 15 closest peers as bubble chart - navy markers
     scatterPeers.forEach(p=>{
       if(!p.lat||!p.lng)return;
       const pos={lat:p.lat,lng:p.lng};bounds.extend(pos);
-      const m=new google.maps.Marker({position:pos,map:peerMap,icon:{path:google.maps.SymbolPath.CIRCLE,scale:6,fillColor:'#001E5A',fillOpacity:0.7,strokeColor:'#fff',strokeWeight:1},title:p.n});
+      if(!AME)return;
+      const m=new AME({position:pos,map:peerMap,content:dotEl(false),title:p.n,gmpClickable:true});
       m.addListener('click',()=>{openDashboard(FIRMS[p.id]);});
     });
     if(f.lat||scatterPeers.some(p=>p.lat))peerMap.fitBounds(bounds,{top:30,right:30,bottom:30,left:30});
@@ -4170,6 +4204,6 @@ document.getElementById('loginPassword').addEventListener('keydown',e=>{if(e.key
 document.getElementById('loginEmail').addEventListener('keydown',e=>{if(e.key==='Enter')document.getElementById('loginPassword').focus()});
 </script>
 
-<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbuuXR2lkGck7cG94qS11CfWWHbLq8AlU&callback=initMap"></script>
+<script async src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAbuuXR2lkGck7cG94qS11CfWWHbLq8AlU&libraries=marker&v=weekly&callback=initMap"></script>
 </body>
 </html>

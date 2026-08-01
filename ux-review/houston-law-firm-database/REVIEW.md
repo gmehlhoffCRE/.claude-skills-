@@ -100,9 +100,11 @@ Ordered by impact-to-effort. These are *suggestions* beyond what was implemented
    This is *the* signature premium-SaaS interaction and fits the keyboard work above.
 6. **Saved views / filter presets.** "Am Law 100 · Downtown · Expiring < 2 yrs" as a
    one-click chip. High value for repeat broker workflows; persists to localStorage.
-7. **Map marker upgrade to `AdvancedMarkerElement`.** GPU-accelerated markers +
-   smooth cluster transitions; also resolves the noted zoom latency (see README
-   "Known residual"). Consider a cloud `mapId` so tiles render pre-styled server-side.
+7. ~~**Map marker upgrade to `AdvancedMarkerElement`.**~~ ✅ **Done** — migrated to
+   GPU-accelerated DOM markers with upgraded animated pins/clusters, on a cloud
+   `mapId`. This also sets up the server-side tile styling that removes the zoom
+   latency. See **`MAP_UPGRADE.md`** for the required Google Cloud Console step
+   (create a Map ID + import `cresa-map-style.cloud.json`).
 8. **Dark mode.** A navy-forward dark theme reads as premium for evening/desk use and
    is straightforward given the token architecture already in place.
 
