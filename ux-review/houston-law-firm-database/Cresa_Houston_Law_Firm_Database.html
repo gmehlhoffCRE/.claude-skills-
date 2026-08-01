@@ -1527,36 +1527,42 @@ function initMap(){
   // client-side style array — it is retained here only as the source of
   // truth for the cloud style. Import cresa-map-style.cloud.json in the
   // Google Cloud Console and attach it to your Map ID to reproduce this look.
-  // Muted, low-contrast Cresa base: desaturated land/water, soft grey roads,
-  // and — critically — highways are no longer navy (they were competing with
-  // the navy markers). The map recedes so the pins/clusters carry the weight.
+  // Muted, low-contrast Cresa base with ALL points of interest hidden. Land and
+  // water are desaturated, roads are soft grey, and highways are no longer navy
+  // (they competed with the navy markers). Every POI category (business,
+  // attraction, medical, school, transit, etc.) is turned off; only a faint,
+  // unlabeled park fill remains for geographic orientation. The map recedes so
+  // the pins/clusters carry all the visual weight.
   const cresaStyles = [
     { elementType: 'geometry', stylers: [{ color: '#F3F4F6' }] },
-    { elementType: 'labels.text.fill', stylers: [{ color: '#8A93A8' }] },
+    { elementType: 'labels.text.fill', stylers: [{ color: '#98A0B0' }] },
     { elementType: 'labels.text.stroke', stylers: [{ color: '#FFFFFF' }, { weight: 3 }] },
     { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#D8DCE4' }, { weight: 0.7 }] },
-    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }, { weight: 500 }] },
-    { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#9AA2B4' }] },
-    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#EDEFF3' }] },
-    { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#F3F4F6' }] },
-    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#E3E8E2' }] },
-    { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#9BA89A' }] },
-    { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
-    { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
+    // Kill every point of interest (labels, icons, and footprints).
+    { featureType: 'poi', stylers: [{ visibility: 'off' }] },
     { featureType: 'transit', stylers: [{ visibility: 'off' }] },
+    { featureType: 'business', stylers: [{ visibility: 'off' }] },
+    // Re-introduce only a faint, unlabeled park fill for orientation.
+    { featureType: 'poi.park', elementType: 'geometry', stylers: [{ visibility: 'on' }, { color: '#E7EAE6' }] },
+    { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#DBDFE6' }, { weight: 0.6 }] },
+    { featureType: 'administrative.land_parcel', stylers: [{ visibility: 'off' }] },
+    { featureType: 'administrative.neighborhood', elementType: 'labels', stylers: [{ visibility: 'off' }] },
+    { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#6B7488' }, { weight: 500 }] },
+    { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#EEF0F3' }] },
+    { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#F3F4F6' }] },
     { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#FDFDFE' }] },
-    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#EBEEF3' }, { weight: 0.5 }] },
-    { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: '#E7EAF0' }] },
-    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#D2D8E2' }, { weight: 0.5 }] },
-    { featureType: 'road.highway.controlled_access', elementType: 'geometry.fill', stylers: [{ color: '#E1E5EC' }] },
-    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#8A93A8' }] },
+    { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#EDEFF3' }, { weight: 0.5 }] },
+    { featureType: 'road', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+    { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: '#EAECF1' }] },
+    { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#DEE1E8' }, { weight: 0.5 }] },
+    { featureType: 'road.highway.controlled_access', elementType: 'geometry.fill', stylers: [{ color: '#E6E9EF' }] },
+    { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#98A0B0' }] },
     { featureType: 'road.arterial', elementType: 'geometry.fill', stylers: [{ color: '#FDFDFE' }] },
-    { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#9AA2B4' }] },
-    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#A6AEBE' }] },
-    { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#DEE5EC' }] },
-    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#9AAABD' }] },
-    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#DEE5EC' }, { weight: 2 }] },
+    { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#A6AEBE' }] },
+    { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#B2B9C7' }] },
+    { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#E2E7EC' }] },
+    { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#A4B1C1' }] },
+    { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#E2E7EC' }, { weight: 2 }] },
   ];
   map=new google.maps.Map(document.getElementById('gmap'),{
     center:{lat:29.76,lng:-95.40},zoom:10,
