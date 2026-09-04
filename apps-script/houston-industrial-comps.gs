@@ -1014,6 +1014,106 @@ function repairEnrichedValues() {
   );
 }
 
+// -----------------------------------------------------------------------------
+// BUILDING DB DUPLICATE AUDIT
+//
+// The lookup index keeps the FIRST row for each address key, so when the
+// Buildings DB holds the same address more than once, later rows are ignored.
+// That only matters if the duplicates DISAGREE on a field we copy - identical
+// duplicates are harmless.
+//
+// Read-only. Reports, per matching tier, how many address keys are duplicated
+// and how many of those actually conflict.
+// -----------------------------------------------------------------------------
+
+function auditBuildingDuplicates() {
+  const ui = SpreadsheetApp.getUi();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.INDUSTRIAL_SHEET_NAME);
+  if (!sheet) { ui.alert("Sheet " + CONFIG.INDUSTRIAL_SHEET_NAME + " not found."); return; }
+
+  const cols = resolveCompCols_(sheet);
+  let bldg;
+  try { bldg = loadBuildingDb_(); }
+  catch (e) { ui.alert("Could not open building database: " + e.message); return; }
+
+  const pairs = resolvePairs_(cols, bldg);
+  if (!pairs.active.length) { ui.alert("No active mappings; nothing to compare."); return; }
+
+  // The payload is exactly what enrichment would copy, so two rows are
+  // equivalent when every field we would write is equal.
+  function payload(row) {
+    return pairs.active.map(function (p) {
+      const v = row[p.bldgCol - 1];
+      return isBlank_(v) ? "" : String(v).trim();
+    }).join("|");
+  }
+
+  const tiers = ["exact", "abbr", "suite", "dir"];
+  const groups = { exact: new Map(), abbr: new Map(), suite: new Map(), dir: new Map() };
+
+  for (let i = 1; i < bldg.data.length; i++) {
+    const addr = bldg.data[i][bldg.addressCol - 1];
+    if (!addr) continue;
+    const keys = buildLookupKeys_(addr);
+    tiers.forEach(function (t) {
+      if (!keys[t]) return;
+      if (!groups[t].has(keys[t])) groups[t].set(keys[t], []);
+      groups[t].get(keys[t]).push(i);
+    });
+  }
+
+  let msg = "Building DB duplicate audit - no changes made\n\n" +
+    "Rows: " + (bldg.data.length - 1) + "\n" +
+    "Comparing the " + pairs.active.length + " field(s) enrichment copies.\n\n";
+
+  const conflictSamples = [];
+  tiers.forEach(function (t) {
+    let dupKeys = 0, conflictKeys = 0, shadowed = 0;
+    groups[t].forEach(function (rowIdxs, key) {
+      if (rowIdxs.length < 2) return;
+      dupKeys++;
+      shadowed += rowIdxs.length - 1;
+      const seen = {};
+      rowIdxs.forEach(function (i) { seen[payload(bldg.data[i])] = true; });
+      if (Object.keys(seen).length > 1) {
+        conflictKeys++;
+        if (t === "dir" && conflictSamples.length < 6) {
+          conflictSamples.push({ key: key, rows: rowIdxs });
+        }
+      }
+    });
+    msg += t.toUpperCase() + " keys: " + groups[t].size +
+      " | duplicated: " + dupKeys +
+      " | of those CONFLICTING: " + conflictKeys +
+      " | shadowed rows: " + shadowed + "\n";
+  });
+
+  msg += "\n'Duplicated' = same address key on more than one building row.\n" +
+    "'Conflicting' = those rows disagree on at least one copied field, so which\n" +
+    "one wins changes the result. Duplicated-but-identical is harmless.\n";
+
+  if (conflictSamples.length) {
+    msg += "\nConflict samples (loosest tier):\n";
+    conflictSamples.forEach(function (c) {
+      msg += "\n  key: " + c.key + "\n";
+      c.rows.slice(0, 3).forEach(function (i) {
+        const row = bldg.data[i];
+        const bits = pairs.active.slice(0, 5).map(function (p) {
+          const v = row[p.bldgCol - 1];
+          return p.name + "=" + (isBlank_(v) ? "-" : String(v).trim());
+        });
+        msg += "    row " + (i + 1) + ": " + row[bldg.addressCol - 1] + "  [" + bits.join(", ") + "]\n";
+      });
+    });
+    msg += "\nFor these, the row nearest the TOP of the Buildings sheet wins.";
+  } else {
+    msg += "\nNo conflicting duplicates found - which row wins never changes the result.";
+  }
+
+  Logger.log(msg);
+  ui.alert(msg);
+}
+
 function addBuildingDbMenu() {
   SpreadsheetApp.getUi()
     .createMenu("Building DB")
@@ -1021,6 +1121,7 @@ function addBuildingDbMenu() {
     .addItem("Run Enrichment (writes to Industrial)", "enrichFromBuildingDB")
     .addSeparator()
     .addItem("Audit Mis-Mapped Values (no changes)", "auditEnrichedValues")
+    .addItem("Audit Duplicate Buildings (no changes)", "auditBuildingDuplicates")
     .addItem("Repair Mis-Mapped Values", "repairEnrichedValues")
     .addSeparator()
     .addItem("Clear ALL Enriched Values (last resort)", "clearEnrichedValues")
