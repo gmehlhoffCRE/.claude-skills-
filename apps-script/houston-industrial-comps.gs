@@ -800,13 +800,223 @@ function clearEnrichedValues() {
   ui.alert("Cleared " + targets.length + " column(s) plus the match stamp on " + n + " row(s).\n\nRun the pipeline to re-enrich.");
 }
 
+// -----------------------------------------------------------------------------
+// CORRUPTION AUDIT / TARGETED REPAIR
+//
+// When the Buildings tab was re-sorted, enrichment wrote the wrong field into
+// several columns (text into Latitude, a construction date into Landlord, and
+// so on). Re-running enrichment does NOT fix that: it only fills blank cells,
+// so a bad value is never overwritten.
+//
+// Every mis-mapped field has a distinct type signature, so bad cells can be
+// identified and cleared individually - leaving rows that were enriched
+// correctly before the schema change, and anything typed by hand, untouched.
+//
+// These are heuristics, not proof. Always run the audit (read-only) first and
+// eyeball the samples before running the repair.
+// -----------------------------------------------------------------------------
+
+function looksLikeDate_(v) {
+  if (v instanceof Date) return true;
+  const s = String(v).trim();
+  if (!s || !/\d/.test(s)) return false;
+  return /^\d{1,4}[-\/]\d{1,2}[-\/]\d{1,4}$/.test(s);
+}
+
+function isNumericish_(v) {
+  if (typeof v === "number") return isFinite(v);
+  const s = String(v).trim().replace(/[$,%\s,]/g, "");
+  return s !== "" && isFinite(Number(s));
+}
+
+function hasDigit_(v) {
+  return /\d/.test(String(v));
+}
+
+// A check returns true when the value is PLAUSIBLE for that column.
+// Blank always passes - a blank cell is not corruption.
+const FIELD_CHECKS = [
+  {
+    comp: "Latitude",
+    expect: "a number near 29-30 (was overwritten with Construction Material)",
+    ok: function (v) {
+      if (String(v).trim() === "NOT FOUND") return true;
+      const n = Number(v);
+      return isFinite(n) && n >= 20 && n <= 50;
+    },
+  },
+  {
+    comp: "Longitude",
+    expect: "a negative number near -95 (was overwritten with Cooling Redundancy)",
+    ok: function (v) {
+      if (String(v).trim() === "NOT FOUND") return true;
+      const n = Number(v);
+      return isFinite(n) && n >= -107 && n <= -88;
+    },
+  },
+  {
+    comp: "City",
+    expect: "text (was overwritten with Average Weighted Rent)",
+    ok: function (v) { return !isNumericish_(v) && !looksLikeDate_(v); },
+  },
+  {
+    comp: "State",
+    expect: "letters only (was overwritten with Building Operating Expenses)",
+    ok: function (v) { return /^[A-Za-z][A-Za-z .]{0,19}$/.test(String(v).trim()); },
+  },
+  {
+    comp: "Zip",
+    expect: "5 digits (was overwritten with Building Status)",
+    ok: function (v) { return /^\d{5}(-\d{4})?$/.test(String(v).trim()); },
+  },
+  {
+    comp: "Submarket",
+    expect: "text (was overwritten with Capacity - Critical IT kW)",
+    ok: function (v) { return !isNumericish_(v) && !looksLikeDate_(v); },
+  },
+  {
+    comp: "Landlord",
+    expect: "a company name (was overwritten with Construction Begin, a date)",
+    ok: function (v) { return !looksLikeDate_(v) && !isNumericish_(v); },
+  },
+  {
+    comp: "Clear Height",
+    expect: "a number (was overwritten with Collateral Type)",
+    ok: function (v) { return hasDigit_(v); },
+  },
+];
+
+// Scans the sheet and returns { findings, byField, checked } without writing.
+function scanForBadValues_(sheet, cols) {
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) return { findings: [], byField: {}, checked: [] };
+
+  const checked = FIELD_CHECKS.filter(function (c) { return cols.col(c.comp); });
+  const numRows = lastRow - 1;
+  const data = sheet.getRange(2, 1, numRows, cols.width).getValues();
+
+  const findings = [];
+  const byField = {};
+  for (let i = 0; i < numRows; i++) {
+    for (let k = 0; k < checked.length; k++) {
+      const chk = checked[k];
+      const c = cols.col(chk.comp);
+      const v = data[i][c - 1];
+      if (isBlank_(v) || String(v).trim() === "") continue;
+      if (chk.ok(v)) continue;
+      findings.push({ row: i + 2, col: c, field: chk.comp, value: v });
+      byField[chk.comp] = (byField[chk.comp] || 0) + 1;
+    }
+  }
+  return { findings: findings, byField: byField, checked: checked };
+}
+
+// Read-only. Reports what the repair would clear.
+function auditEnrichedValues() {
+  const ui = SpreadsheetApp.getUi();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.INDUSTRIAL_SHEET_NAME);
+  if (!sheet) { ui.alert("Sheet " + CONFIG.INDUSTRIAL_SHEET_NAME + " not found."); return; }
+
+  const cols = resolveCompCols_(sheet);
+  const scan = scanForBadValues_(sheet, cols);
+  const lastRow = sheet.getLastRow();
+
+  const badRows = new Set(scan.findings.map(function (f) { return f.row; }));
+  let msg = "Audit - no changes made\n\n" +
+    "Rows scanned: " + Math.max(lastRow - 1, 0) + "\n" +
+    "Columns checked: " + scan.checked.map(function (c) { return c.comp; }).join(", ") + "\n\n" +
+    "Suspect cells: " + scan.findings.length + " across " + badRows.size + " row(s)\n\n";
+
+  if (!scan.findings.length) {
+    msg += "Nothing looks mis-mapped. You still need to clear the '" + F.MATCH +
+      "' column so previously stamped rows get re-enriched.";
+    ui.alert(msg);
+    return;
+  }
+
+  msg += "By field:\n";
+  scan.checked.forEach(function (c) {
+    msg += "  " + c.comp + ": " + (scan.byField[c.comp] || 0) + "   (expects " + c.expect + ")\n";
+  });
+
+  msg += "\nSamples (first 3 per field):\n";
+  scan.checked.forEach(function (c) {
+    const ex = scan.findings.filter(function (f) { return f.field === c.comp; }).slice(0, 3);
+    if (!ex.length) return;
+    ex.forEach(function (f) {
+      msg += "  " + f.field + " row " + f.row + ": " + JSON.stringify(String(f.value)).slice(0, 60) + "\n";
+    });
+  });
+
+  msg += "\nThese are heuristics. Spot-check a few before running Repair.";
+  Logger.log(msg);
+  ui.alert(msg);
+}
+
+// Clears ONLY the cells that failed their type check, plus the whole
+// "Building DB Match" column so every row is re-enriched on the next run.
+// Rows enriched correctly before the schema change, and hand-typed values that
+// pass their check, are left alone.
+function repairEnrichedValues() {
+  const ui = SpreadsheetApp.getUi();
+  const sheet = SpreadsheetApp.getActiveSpreadsheet().getSheetByName(CONFIG.INDUSTRIAL_SHEET_NAME);
+  if (!sheet) { ui.alert("Sheet " + CONFIG.INDUSTRIAL_SHEET_NAME + " not found."); return; }
+
+  const cols = resolveCompCols_(sheet);
+  const lastRow = sheet.getLastRow();
+  if (lastRow < 2) { ui.alert("No data."); return; }
+
+  const scan = scanForBadValues_(sheet, cols);
+  const badRows = new Set(scan.findings.map(function (f) { return f.row; }));
+
+  const fieldLines = Object.keys(scan.byField).map(function (k) { return "  " + k + ": " + scan.byField[k]; });
+  const resp = ui.alert(
+    "Repair mis-mapped values?",
+    "Clears " + scan.findings.length + " suspect cell(s) across " + badRows.size + " row(s):\n" +
+      (fieldLines.length ? fieldLines.join("\n") : "  (none)") +
+      "\n\nAlso clears the entire '" + F.MATCH + "' column (" + (lastRow - 1) + " rows) so every " +
+      "row is re-enriched on the next run. That column is a script marker, not data.\n\n" +
+      "Everything else is left untouched. Continue?",
+    ui.ButtonSet.YES_NO
+  );
+  if (resp !== ui.Button.YES) { ui.alert("Cancelled."); return; }
+
+  // Clear failing cells column-wise: read the column, blank the bad rows, write once.
+  const byCol = {};
+  scan.findings.forEach(function (f) {
+    if (!byCol[f.col]) byCol[f.col] = [];
+    byCol[f.col].push(f.row);
+  });
+  const numRows = lastRow - 1;
+  Object.keys(byCol).forEach(function (colStr) {
+    const c = Number(colStr);
+    const range = sheet.getRange(2, c, numRows, 1);
+    const vals = range.getValues();
+    byCol[colStr].forEach(function (r) { vals[r - 2][0] = ""; });
+    range.setValues(vals);
+  });
+
+  sheet.getRange(2, requireCol_(cols, F.MATCH), numRows, 1).clearContent();
+  SpreadsheetApp.flush();
+
+  ui.alert(
+    "Repaired.\n\n" +
+    "Cleared " + scan.findings.length + " cell(s) and the " + F.MATCH + " stamp on " + numRows + " row(s).\n\n" +
+    "Next: Building DB > Preview Matches to sanity-check the match rate, then " +
+    "Comps Pipeline > Run Pipeline Now, then Geocoder > Retry NOT FOUND Rows."
+  );
+}
+
 function addBuildingDbMenu() {
   SpreadsheetApp.getUi()
     .createMenu("Building DB")
     .addItem("Preview Matches (no changes)", "previewEnrichment")
     .addItem("Run Enrichment (writes to Industrial)", "enrichFromBuildingDB")
     .addSeparator()
-    .addItem("Clear Enriched Values (destructive)", "clearEnrichedValues")
+    .addItem("Audit Mis-Mapped Values (no changes)", "auditEnrichedValues")
+    .addItem("Repair Mis-Mapped Values", "repairEnrichedValues")
+    .addSeparator()
+    .addItem("Clear ALL Enriched Values (last resort)", "clearEnrichedValues")
     .addToUi();
 }
 
