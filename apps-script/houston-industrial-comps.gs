@@ -79,7 +79,14 @@ const ENRICH_MAP = [
   { comp: "Longitude",            bldg: "Longitude" },
 
   // --- ownership ---
+  // Owner Name, not Leasing Company Name: the landlord is the owning entity,
+  // the leasing company is its agent.
   { comp: "Landlord",             bldg: "Owner Name" },
+
+  // Deliberately NOT mapped: OpEx <- "Building Operating Expenses".
+  // OpEx on a comp is a term of that specific lease; the building figure is a
+  // property-level average. Filling one from the other would present an
+  // estimate as a deal term. Leave OpEx blank unless it came off the deal.
 
   // --- building characteristics ---
   { comp: "Property Type",        bldg: "Property Type" },
