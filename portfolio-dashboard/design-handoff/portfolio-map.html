@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Rimkus Portfolio Map</title>
+<script src="https://unpkg.com/d3@7.9.0/dist/d3.min.js" integrity="sha384-CjloA8y00+1SDAUkjs099PVfnY2KmDC2BZnws9kh8D/lX1s46w6EPhpXdqMfjK6i" crossorigin="anonymous"></script>
+<script src="https://unpkg.com/topojson-client@3.1.0/dist/topojson-client.min.js" integrity="sha384-Ukv1p/xTma6P4/2bY5KzWBw+ydSpXmhCMtyciIQVDJ1RmOxtCYNMF1uXT9T63H67" crossorigin="anonymous"></script>
+<script src="portfolio-data.js"></script>
+<style>
+html,body{margin:0;height:100%;background:#F4F7FC;overflow:hidden;font-family:Arial,Helvetica,sans-serif}
+#map{width:100%;height:100%}
+.tip{position:absolute;pointer-events:none;background:#001E5A;color:#fff;padding:8px 11px;font-size:11.5px;line-height:1.45;box-shadow:0 6px 20px rgba(0,30,90,.25);display:none;z-index:10;max-width:240px}
+.tip b{font-size:12.5px;display:block;margin-bottom:2px}
+.tip .gold{color:#FFB600;font-weight:bold}
+.legend{position:absolute;left:12px;bottom:10px;background:rgba(255,255,255,.95);border:1px solid #E6E6E6;padding:8px 12px;display:flex;gap:12px;flex-wrap:wrap;font-size:10px;color:#595959;text-transform:uppercase;letter-spacing:.5px}
+.legend span{display:inline-flex;align-items:center;gap:5px;white-space:nowrap}
+.legend i{width:9px;height:9px;border-radius:50%;display:inline-block}
+.detail{position:absolute;top:12px;right:12px;width:288px;max-height:calc(100% - 24px);overflow:auto;background:#fff;border:1px solid #E6E6E6;box-shadow:0 10px 40px rgba(0,30,90,.18);display:none;z-index:20;padding:16px 16px 14px}
+.detail.open{display:block}
+.d-close{position:absolute;top:8px;right:8px;width:24px;height:24px;border:1px solid #E6E6E6;background:#fff;color:#595959;font-size:14px;line-height:1;cursor:pointer}
+.d-close:hover{color:#001E5A;border-color:#001E5A}
+.d-name{font-size:15px;font-weight:700;color:#001E5A;padding-right:24px;line-height:1.3}
+.d-addr{font-size:11px;color:#595959;margin-top:2px;margin-bottom:10px}
+.d-grid{display:grid;grid-template-columns:1fr 1fr;border-top:1px solid #EEF0F4}
+.d-field{padding:7px 0;border-bottom:1px solid #EEF0F4}
+.d-field:nth-child(even){padding-left:12px;border-left:1px solid #EEF0F4}
+.d-field:nth-child(odd){padding-right:12px}
+.d-label{font-size:9px;font-weight:700;color:#8A93A8;text-transform:uppercase;letter-spacing:.8px}
+.d-val{font-size:12.5px;font-weight:700;color:#1a1a1a;margin-top:1px}
+.d-note{font-size:11px;color:#595959;line-height:1.5;margin-top:10px;background:#F4F7FC;padding:8px 10px;display:none}
+.d-note b{color:#001E5A;font-size:9px;text-transform:uppercase;letter-spacing:.8px;display:block;margin-bottom:2px}
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div class="tip" id="tip"></div>
+<div class="legend" id="legend"></div>
+<div class="detail" id="detail">
+  <button class="d-close" id="dClose">&#215;</button>
+  <div class="d-name" id="dName"></div>
+  <div class="d-addr" id="dAddr"></div>
+  <div class="d-grid" id="dGrid"></div>
+  <div class="d-note" id="dNote"></div>
+</div>
+<script>
+const COLORS={"West":"#0056DA","Southeast":"#FF8200","South Central":"#001E5A","Northeast":"#243E8C","Canada":"#595959","International":"#FFB600"};
+const el=document.getElementById('map'),tip=document.getElementById('tip');
+const legend=document.getElementById('legend');
+legend.innerHTML=Object.entries(COLORS).map(([k,c])=>`<span><i style="background:${c}"></i>${k}</span>`).join('');
+const fmtM=n=>n>=1e6?'$'+(n/1e6).toFixed(2)+'M':'$'+Math.round(n/1e3)+'K';
+const fmtD=d=>d?d.toLocaleDateString('en-US',{month:'short',year:'numeric',timeZone:'UTC'}):'MTM';
+fetch('https://cdn.jsdelivr.net/npm/world-atlas@2.0.2/countries-110m.json').then(r=>r.json()).then(topo=>{
+  const world=topojson.feature(topo,topo.objects.countries);
+  function draw(){
+    el.innerHTML='';
+    const w=el.clientWidth,h=el.clientHeight;
+    const proj=d3.geoNaturalEarth1();
+    proj.fitExtent([[6,-h*0.14],[w-6,h*1.02]],world); // crop most of Antarctica
+    const path=d3.geoPath(proj);
+    const svg=d3.select(el).append('svg').attr('width',w).attr('height',h);
+    svg.append('g').selectAll('path').data(world.features.filter(f=>f.properties.name!=='Antarctica')).join('path')
+      .attr('d',path).attr('fill','#E6E6E6').attr('stroke','#fff').attr('stroke-width',.6);
+    const r=d3.scaleSqrt().domain([0,d3.max(RIMKUS_DATA,d=>d.sf)]).range([2.5,17]);
+    svg.append('g').selectAll('circle').data([...RIMKUS_DATA].sort((a,b)=>b.sf-a.sf)).join('circle')
+      .attr('cx',d=>proj([d.lng,d.lat])[0]).attr('cy',d=>proj([d.lng,d.lat])[1])
+      .attr('r',d=>r(d.sf)).attr('fill',d=>COLORS[d.region]).attr('fill-opacity',.78)
+      .attr('stroke',d=>d.status==='Active'?'#FFB600':'#fff').attr('stroke-width',d=>d.status==='Active'?2:1)
+      .style('cursor','pointer')
+      .on('click',(e,d)=>{ openDetail(d); e.stopPropagation(); })
+      .on('mousemove',(e,d)=>{
+        tip.style.display='block';
+        tip.innerHTML=`<b>${d.city}, ${d.st}</b>${d.addr}<br>${d.seg} · ${d.type} · ${d.sf.toLocaleString()} SF<br>AGR ${fmtM(d.agr)} · Expires <span class="gold">${fmtD(d.expDate)}</span>${d.status==='Active'?'<br><span class="gold">ACTIVE TRANSACTION</span>':''}`;
+        const tw=tip.offsetWidth;
+        tip.style.left=Math.min(e.clientX+14,w-tw-10)+'px';
+        tip.style.top=Math.max(e.clientY-14-tip.offsetHeight,6)+'px';
+      })
+      .on('mouseleave',()=>tip.style.display='none');
+  }
+  draw();
+  window.addEventListener('resize',draw);
+});
+const detail=document.getElementById('detail');
+function openDetail(d){
+  document.getElementById('dName').textContent=d.city+', '+d.st;
+  document.getElementById('dAddr').textContent=d.addr;
+  const psf=d.psf?'$'+d.psf.toFixed(2):'\u2014';
+  const fields=[['Operating Segment',d.seg],['Region',d.region],['Property Type',d.type],['Lease Type',d.leaseType],['Rentable SF',d.sf.toLocaleString()],['Expires',fmtD(d.expDate)],['Annual Gross Rent','$'+d.agr.toLocaleString()],['Rent / SF',psf],['Transaction',d.status==='Active'?'Active':'None']];
+  document.getElementById('dGrid').innerHTML=fields.map(([l,v])=>`<div class="d-field"><div class="d-label">${l}</div><div class="d-val">${v}</div></div>`).join('');
+  const n=document.getElementById('dNote');
+  if(d.note){n.style.display='block';n.innerHTML='<b>Cresa Note</b>'+d.note;}else{n.style.display='none';}
+  detail.classList.add('open');
+}
+document.getElementById('dClose').onclick=()=>detail.classList.remove('open');
+document.addEventListener('click',e=>{ if(!detail.contains(e.target)&&e.target.tagName!=='circle') detail.classList.remove('open'); });
+</script>
+</body>
+</html>
