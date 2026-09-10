@@ -1,0 +1,6 @@
+# Python bytecode, generated whenever a skill's helper script runs
+__pycache__/
+*.py[cod]
+
+# Editor and OS noise
+.DS_Store
