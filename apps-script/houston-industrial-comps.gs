@@ -320,6 +320,13 @@ function runPipeline() {
     try { runBatchGeocode_({ silent: true, rows: newRows, retryNotFound: false }); }
     catch (e) { Logger.log("Auto-geocode error: " + e.message); }
 
+    // Push straight to the dashboard instead of waiting for the publisher's own
+    // tick, which would add up to 10 more minutes on top of this run.
+    if (PUBLISH_AFTER_PIPELINE) {
+      try { publishNow_({ silent: true }); }
+      catch (e) { Logger.log("Auto-publish error: " + e.message); }
+    }
+
     ss.toast("Processed " + newRows.length + " new row(s).", "Pipeline", 4);
   } finally {
     lock.releaseLock();
@@ -366,6 +373,7 @@ function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu("Comps Pipeline")
     .addItem("Run Pipeline Now (Dedupe > Enrich > Geocode)", "runPipeline")
+    .addItem("Publish to Dashboard Now", "publishToDashboardNow")
     .addSeparator()
     .addItem("Validate Schema (no changes)", "validateSchema")
     .addItem("Remove Duplicates (with preview)", "removeDuplicates")
@@ -1012,6 +1020,100 @@ function repairEnrichedValues() {
     "Next: Building DB > Preview Matches to sanity-check the match rate, then " +
     "Comps Pipeline > Run Pipeline Now, then Geocoder > Retry NOT FOUND Rows."
   );
+}
+
+// =============================================================================
+// PUBLISH TO DASHBOARD (on demand)
+//
+// The dashboard reads Firebase, NOT this sheet. FirebasePublisher.gs pushes the
+// sheet into Firebase on its own 10-minute trigger, so a hand edit is invisible
+// until the next tick. This runs that same push immediately.
+//
+// The 10-minute cadence is left alone - this is purely an extra trigger for it.
+// =============================================================================
+
+// Name of the publish function in FirebasePublisher.gs. Leave "auto" to probe
+// the candidates below; set it explicitly once you know the real name.
+const PUBLISHER_FN = "auto";
+const PUBLISHER_FN_CANDIDATES = [
+  "publishToFirebase", "publishNow", "publishDataset", "publishComps",
+  "syncToFirebase", "firebasePublish", "runPublisher", "publishAll", "publish",
+];
+
+// Push to the dashboard at the end of runPipeline too, so a Slack-submitted
+// comp does not wait for the pipeline tick AND then the publisher tick.
+const PUBLISH_AFTER_PIPELINE = true;
+
+function globalScope_() {
+  if (typeof globalThis !== "undefined") return globalThis;
+  return (function () { return this; })();
+}
+
+// Finds the publisher function by name. Returns null when FirebasePublisher.gs
+// is missing from the project or its function is named something unexpected.
+function resolvePublisher_() {
+  const g = globalScope_();
+  const names = PUBLISHER_FN === "auto" ? PUBLISHER_FN_CANDIDATES : [PUBLISHER_FN];
+  for (let i = 0; i < names.length; i++) {
+    if (typeof g[names[i]] === "function") return { name: names[i], fn: g[names[i]] };
+  }
+  return null;
+}
+
+// Does the work. No locking - callers decide, so runPipeline (which already
+// holds the script lock) can call this without re-acquiring it.
+function publishNow_(opts) {
+  const silent = opts && opts.silent;
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+
+  const found = resolvePublisher_();
+  if (!found) {
+    const msg = "Could not find the publisher function.\n\n" +
+      (PUBLISHER_FN === "auto"
+        ? "Tried: " + PUBLISHER_FN_CANDIDATES.join(", ") + "\n\n" +
+          "Open FirebasePublisher.gs, find the function its trigger runs, and set\n" +
+          'PUBLISHER_FN to that name.'
+        : 'PUBLISHER_FN is set to "' + PUBLISHER_FN + '", which does not exist in this project.') +
+      "\n\nIf FirebasePublisher.gs is missing from the file list entirely, that is\n" +
+      "the real problem - the dashboard has had no updates since it went away.";
+    Logger.log(msg);
+    if (!silent) SpreadsheetApp.getUi().alert(msg);
+    return false;
+  }
+
+  const started = Date.now();
+  try {
+    found.fn();
+  } catch (e) {
+    const msg = "Publish failed in " + found.name + "():\n\n" + e.message;
+    Logger.log(msg);
+    if (!silent) SpreadsheetApp.getUi().alert(msg);
+    else ss.toast("Publish failed: " + e.message, "Dashboard", 8);
+    return false;
+  }
+
+  const secs = Math.round((Date.now() - started) / 100) / 10;
+  const stamp = Utilities.formatDate(new Date(), Session.getScriptTimeZone(), "h:mm:ss a");
+  Logger.log("Published via " + found.name + "() in " + secs + "s at " + stamp);
+  ss.toast("Pushed to dashboard at " + stamp + " (" + secs + "s)", "Dashboard", 5);
+  return true;
+}
+
+// Menu item and the function to assign to an in-sheet button.
+function publishToDashboardNow() {
+  const ui = SpreadsheetApp.getUi();
+  const lock = LockService.getScriptLock();
+  // Waits rather than failing: a manual click during the enrichment run should
+  // publish once that finishes, not silently do nothing.
+  if (!lock.tryLock(60000)) {
+    ui.alert("The pipeline is still running. Wait a moment and click again.");
+    return;
+  }
+  try {
+    publishNow_({ silent: false });
+  } finally {
+    lock.releaseLock();
+  }
 }
 
 // -----------------------------------------------------------------------------
