@@ -16,6 +16,11 @@
   --paper: #FFFFFF;        /* card / surface white */
   --paper-2: #F4F7FC;      /* Cresa blue-softer — subtle layer */
   --paper-3: #E8EFF8;      /* Cresa blue-soft — input/photo bg */
+  /* Corner radius scale — one intentional 3-step system (pills/circles excluded) */
+  --r-xs: 3px;   /* micro: swatches, tiny tags */
+  --r-sm: 6px;   /* controls, inputs, table cells, bars */
+  --r-md: 8px;   /* cards, photos, tiles */
+  --r-lg: 8px;   /* modals, panels, hero */
   --paper-card: #FFFFFF;   /* cards are white */
   --bg: #F6F7FB;           /* page background — cool blue-tinted off-white */
 
@@ -244,7 +249,7 @@ body {
   gap: 4px;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 3px;
 }
 .topbar-tab {
@@ -253,7 +258,7 @@ body {
   gap: 6px;
   height: 28px;
   padding: 0 10px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   border: 1px solid transparent;
   background: transparent;
   color: var(--ink-2);
@@ -279,7 +284,7 @@ body {
   padding: 0 5px;
   background: var(--bg);
   border: 1px solid var(--rule);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 10.5px;
   font-weight: 700;
@@ -308,7 +313,7 @@ body {
   border: 1px solid var(--rule);
   background: var(--paper-card);
   color: var(--ink-2);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 12px;
   font-weight: 600;
@@ -393,7 +398,7 @@ body {
   background: var(--paper-card);
   border: 1px solid var(--rule);
   padding: 3px 10px;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   color: var(--ink-2);
   font-size: 11px;
   font-weight: 600;
@@ -435,7 +440,7 @@ body {
   background: var(--paper-2);
   border: 1px solid var(--rule);
   padding: 1px 7px;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   color: var(--ink-3);
   letter-spacing: 0.3px;
 }
@@ -506,7 +511,7 @@ body {
   letter-spacing: -0.1px;
   height: 34px;
   padding: 0 14px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   display: inline-flex;
   align-items: center;
@@ -560,7 +565,7 @@ body {
   align-items: center;
   gap: 5px;
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   font-family: var(--mono);
   font-size: 10px;
   letter-spacing: 0.06em;
@@ -607,7 +612,7 @@ body {
   grid-template-columns: 112px 1fr auto;
   gap: 14px;
   padding: 12px;
-  border-radius: 10px;
+  border-radius: var(--r-md);
   border: 1px solid var(--rule);
   background: var(--paper-card);
   margin-bottom: 10px;
@@ -629,7 +634,7 @@ body {
 .pc-photo {
   position: relative;
   height: 100px;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   overflow: hidden;
   background: var(--paper-3);
 }
@@ -637,7 +642,7 @@ body {
   position: absolute;
   top: 6px; left: 6px;
   width: 22px; height: 22px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   background: var(--accent);
   color: #fff;
   display: grid; place-items: center;
@@ -833,7 +838,7 @@ body {
   bottom: 18px; left: 18px;
   background: var(--paper);
   border: 1px solid var(--rule);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   padding: 12px 14px;
   font-family: var(--mono);
   font-size: 10px;
@@ -844,7 +849,7 @@ body {
   box-shadow: var(--shadow-1);
 }
 .map-legend .legend-row { display: flex; align-items: center; gap: 8px; color: var(--ink-2); }
-.map-legend .legend-dot { width: 9px; height: 9px; border-radius: 50%; }
+.map-legend .legend-dot { width: 10px; height: 10px; border-radius: 3px; }
 
 .map-attribution {
   position: absolute;
@@ -855,7 +860,7 @@ body {
   background: var(--paper);
   border: 1px solid var(--rule);
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   letter-spacing: 0.06em;
   text-transform: uppercase;
 }
@@ -870,7 +875,7 @@ body {
   gap: 4px;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 3px;
   box-shadow: var(--shadow-1);
 }
@@ -879,7 +884,7 @@ body {
   align-items: center;
   height: 28px;
   padding: 0 12px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   border: 1px solid transparent;
   background: transparent;
   color: var(--ink-2);
@@ -907,7 +912,7 @@ body {
   position: absolute;
   inset: 0;
   width: 100%; height: 100%;
-  background: #F2F4F8; /* matches CRESA_STYLES base land color while tiles load */
+  background: #F1F4F9; /* matches CRESA_STYLES base land color while tiles load */
 }
 /* Pins are rendered as HTML via google.maps.OverlayView. The overlay
    positions the wrapper at the pin's lat/lng — our existing .map-pin
@@ -923,7 +928,7 @@ body {
   display: grid;
   place-items: center;
   text-align: center;
-  background: #F2F4F8;
+  background: #F1F4F9;
   padding: 20px;
   z-index: 1;
 }
@@ -939,12 +944,12 @@ body {
 /* Google Maps zoom-control restyling to match the Cresa surface system */
 .cresa-gmap button[aria-label*="Zoom"],
 .cresa-gmap .gm-bundled-control button {
-  border-radius: 6px !important;
+  border-radius: var(--r-sm) !important;
 }
 .cresa-gmap .gmnoprint > div {
   background: var(--paper-card) !important;
   box-shadow: var(--shadow-1) !important;
-  border-radius: 6px !important;
+  border-radius: var(--r-sm) !important;
   border: 1px solid var(--rule) !important;
 }
 
@@ -954,7 +959,7 @@ body {
   padding: 12px 16px;
   background: var(--gold-soft);
   border: 1px solid var(--gold);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -985,7 +990,7 @@ body {
   gap: 6px;
   height: 28px;
   padding: 0 12px;
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   background: var(--paper-card);
   border: 1px solid var(--rule);
   font-family: var(--sans);
@@ -1082,7 +1087,7 @@ body {
   align-items: center;
   gap: 4px;
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   background: var(--paper);
   padding: 2px;
 }
@@ -1093,7 +1098,7 @@ body {
   padding: 7px 11px;
   cursor: pointer;
   color: var(--ink-2);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
 }
 .detail-nav-pager button:hover { background: var(--paper-2); }
 .detail-nav-pager .counter { padding: 0 14px; color: var(--ink-3); font-size: 12.5px; }
@@ -1152,13 +1157,13 @@ body {
 .carousel {
   position: relative;
   aspect-ratio: 16/9;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   overflow: hidden;
   background: var(--paper-2);
   height: 100%;
 }
 .detail-map {
-  border-radius: 12px;
+  border-radius: var(--r-md);
   overflow: hidden;
   position: relative;
   background: var(--paper-2);
@@ -1206,12 +1211,12 @@ body {
   text-transform: uppercase;
   background: var(--paper);
   padding: 4px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   z-index: 3;
 }
 
 .detail-map {
-  border-radius: 12px;
+  border-radius: var(--r-md);
   overflow: hidden;
   position: relative;
   background: var(--paper-2);
@@ -1251,7 +1256,7 @@ body {
   gap: 1px;
   background: var(--rule);
   border: 1px solid var(--rule);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   overflow: hidden;
 }
 .info-cell {
@@ -1284,7 +1289,7 @@ body {
 /* Available spaces */
 .space-card {
   border: 1px solid var(--rule);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   margin-bottom: 12px;
   background: var(--paper);
   overflow: hidden;
@@ -1345,7 +1350,7 @@ body {
 }
 .floorplan {
   aspect-ratio: 4/3;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   overflow: hidden;
   background: var(--paper-2);
   border: 1px solid var(--rule);
@@ -1399,7 +1404,7 @@ body {
 }
 .comment-input {
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 9px 12px;
   font-family: var(--sans);
   min-width: 0;
@@ -1470,7 +1475,7 @@ body {
   width: 100%;
   max-width: 200px;
   aspect-ratio: 16/10;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   overflow: hidden;
   margin: 0 auto;
 }
@@ -1535,7 +1540,7 @@ body {
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.5px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   transition: background 0.12s, color 0.12s, border-color 0.12s;
 }
@@ -1640,7 +1645,7 @@ body {
   gap: 8px;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 8px 12px;
   width: 320px;
   color: var(--ink-3);
@@ -1700,7 +1705,7 @@ body {
   height: 18px;
   padding: 0 5px;
   background: var(--bg);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 10.5px;
   font-weight: 700;
@@ -1820,7 +1825,7 @@ body {
 /* Card-level structure ─────────────────────────────────────────────── */
 .survey-card {
   border: 1px solid var(--rule);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   padding: 18px;
   background: var(--paper-card);
   cursor: pointer;
@@ -1960,7 +1965,7 @@ body {
   align-items: center;
   gap: 4px;
   padding: 3px 8px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 10px;
   font-weight: 700;
@@ -2035,7 +2040,7 @@ body {
 .eliminated-section {
   margin: 28px 28px 0;
   border: 1px dashed var(--rule);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   padding: 14px 18px;
 }
 .eliminated-section summary {
@@ -2156,7 +2161,7 @@ body {
   align-items: center;
   padding: 12px 14px;
   border: 1px solid var(--rule);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   background: var(--paper);
   cursor: pointer;
   transition: all 0.12s ease;
@@ -2166,7 +2171,7 @@ body {
 .doc-tile:hover { border-color: var(--ink-4); background: var(--paper-2); }
 .doc-icon {
   width: 40px; height: 40px;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   background: var(--rose-tint);
   color: var(--rose);
   display: grid; place-items: center;
@@ -2213,7 +2218,7 @@ body {
 }
 .lightbox-card {
   background: var(--paper);
-  border-radius: 14px;
+  border-radius: var(--r-lg);
   width: min(1100px, 100%);
   max-height: 90vh;
   overflow: hidden;
@@ -2234,7 +2239,7 @@ body {
   padding: 22px;
   background: var(--paper-2);
 }
-.lightbox-body .placeholder { aspect-ratio: 16/10; border-radius: 6px; }
+.lightbox-body .placeholder { aspect-ratio: 16/10; border-radius: var(--r-sm); }
 .lightbox-foot {
   padding: 12px 22px;
   border-top: 1px solid var(--rule);
@@ -2260,7 +2265,7 @@ body {
 }
 .wizard {
   background: var(--paper-card);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   width: 100%;
   max-width: 920px;
   max-height: calc(100vh - 80px);
@@ -2293,7 +2298,7 @@ body {
   height: 32px;
   display: grid;
   place-items: center;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   color: var(--ink-3);
   transition: background .15s, color .15s;
 }
@@ -2412,7 +2417,7 @@ body {
   appearance: none;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 10px 12px;
   font-family: var(--sans);
   font-size: 13px;
@@ -2468,7 +2473,7 @@ body {
   padding: 12px 14px;
   background: var(--paper-2);
   border: 1px solid var(--rule-2);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 12.5px;
   color: var(--ink-2);
@@ -2496,7 +2501,7 @@ body {
   gap: 8px;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 9px 12px;
   color: var(--ink-3);
 }
@@ -2514,7 +2519,7 @@ body {
   appearance: none;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 9px 12px;
   font-family: var(--sans);
   font-size: 12.5px;
@@ -2541,7 +2546,7 @@ body {
   padding: 14px;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   transition: border-color .15s, box-shadow .15s, background .15s;
 }
@@ -2558,7 +2563,7 @@ body {
   width: 20px;
   height: 20px;
   border: 1.5px solid var(--rule);
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   display: grid;
   place-items: center;
   background: var(--paper-card);
@@ -2631,7 +2636,7 @@ body {
 }
 .review-section {
   border: 1px solid var(--rule-2);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   overflow: hidden;
 }
 .review-section-head {
@@ -2656,7 +2661,7 @@ body {
   padding: 0 6px;
   background: var(--navy);
   color: #fff;
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 10.5px;
   font-weight: 700;
@@ -2717,7 +2722,7 @@ body {
   padding: 12px 18px;
   background: var(--navy);
   color: #fff;
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   box-shadow: 0 10px 30px rgba(0, 30, 90, 0.3);
   font-family: var(--sans);
   font-size: 13px;
@@ -2866,7 +2871,7 @@ body {
 }
 .tour-card {
   border: 1px solid var(--rule);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   padding: 20px 22px;
   background: var(--paper-card);
   box-shadow: var(--shadow-1);
@@ -2956,7 +2961,7 @@ body {
   align-items: center;
   padding: 12px 16px;
   border: 1px solid var(--rule);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   background: var(--paper-card);
   transition: border-color .15s, background .15s;
 }
@@ -2996,7 +3001,7 @@ body {
   margin-top: 14px;
   padding: 12px 14px;
   background: var(--paper-2);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 12px;
   color: var(--ink-2);
@@ -3093,7 +3098,7 @@ body {
 }
 .itinerary-map {
   position: relative;
-  border-radius: 12px;
+  border-radius: var(--r-md);
   overflow: hidden;
   box-shadow: var(--shadow-1);
   border: 1px solid var(--rule);
@@ -3111,7 +3116,7 @@ body {
   padding: 12px 14px;
   background: rgba(255, 182, 0, 0.08);
   border: 1px solid rgba(255, 182, 0, 0.3);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 12.5px;
   color: var(--ink-2);
@@ -3155,7 +3160,7 @@ body {
 .stop-body {
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   padding: 14px 16px;
   box-shadow: var(--shadow-1);
 }
@@ -3263,7 +3268,7 @@ body {
   gap: 8px;
   padding: 8px 12px;
   background: var(--paper-2);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 12px;
   color: var(--ink-2);
@@ -3346,7 +3351,7 @@ body {
   height: 18px;
   padding: 0 5px;
   background: rgba(255, 255, 255, 0.2);
-  border-radius: 9px;
+  border-radius: var(--r-sm);
   font-family: var(--sans);
   font-size: 10.5px;
   font-weight: 700;
@@ -3365,7 +3370,7 @@ body {
   padding: 14px 18px;
   background: var(--paper-card);
   border: 1px solid var(--rule-2);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   margin-bottom: 18px;
 }
 .conf-panel-summary {
@@ -3491,7 +3496,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
 .counter-banner {
   background: rgba(255, 182, 0, 0.08);
   border: 1px solid rgba(255, 182, 0, 0.3);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   padding: 12px 14px;
   margin-bottom: 12px;
 }
@@ -3551,7 +3556,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   padding: 10px;
   border: 0;
   background: transparent;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   text-align: left;
   cursor: pointer;
   transition: background 0.15s;
@@ -3630,7 +3635,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
 .email-subject { font-weight: 700; color: var(--navy); }
 .email-body-wrap {
   border: 1px solid var(--rule);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   background: var(--paper-card);
   overflow: hidden;
 }
@@ -3670,7 +3675,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   max-width: 820px;
   max-height: calc(100vh - 64px);
   background: var(--paper-card);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -3702,7 +3707,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   flex: 1;
   background: #FAFAFC;
   border: 1px solid #D5D5DD;
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 5px 12px;
   font-family: var(--mono);
   font-size: 11.5px;
@@ -3719,7 +3724,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   background: transparent;
   width: 24px;
   height: 24px;
-  border-radius: 4px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   color: var(--ink-3);
   display: grid;
@@ -3773,7 +3778,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
 .rep-view-card {
   background: var(--paper-2);
   border: 1px solid var(--rule-2);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   padding: 16px 20px;
   margin-bottom: 24px;
 }
@@ -3816,7 +3821,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
 .rep-view-counter {
   background: var(--paper-2);
   border: 1px solid var(--rule-2);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   padding: 18px 20px;
   display: flex;
   flex-direction: column;
@@ -3826,7 +3831,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   appearance: none;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 10px 12px;
   font-family: var(--sans);
   font-size: 13px;
@@ -3908,7 +3913,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   margin-top: 14px;
   padding: 14px;
   background: var(--paper-2);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   flex-wrap: wrap;
 }
 .email-send-actions {
@@ -4035,7 +4040,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   padding: 20px 24px;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 12px;
+  border-radius: var(--r-md);
   box-shadow: var(--shadow-1);
 }
 .plan-tour-cta-icon {
@@ -4098,7 +4103,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   padding: 12px 16px;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
   cursor: pointer;
   transition: border-color 0.15s, background 0.15s;
   align-items: center;
@@ -4161,7 +4166,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   gap: 12px;
   padding: 12px 14px;
   background: var(--paper-2);
-  border-radius: 8px;
+  border-radius: var(--r-sm);
 }
 
 /* Form textarea (broker note in plan wizard) */
@@ -4169,7 +4174,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   appearance: none;
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   padding: 10px 12px;
   font-family: var(--sans);
   font-size: 13px;
@@ -4188,7 +4193,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
 .past-tour {
   background: var(--paper-card);
   border: 1px solid var(--rule);
-  border-radius: 10px;
+  border-radius: var(--r-md);
   overflow: hidden;
   margin-bottom: 8px;
   transition: box-shadow 0.15s;
@@ -4343,7 +4348,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
   margin-top: 6px;
   padding: 8px 12px;
   background: var(--paper-2);
-  border-radius: 6px;
+  border-radius: var(--r-sm);
   letter-spacing: -0.1px;
   line-height: 1.4;
 }
@@ -4351,7 +4356,7 @@ button.conf-pill:hover { filter: brightness(0.96); }
 
 /* === PORTAL v2 additions (real assets replace the demo's placeholders) === */
 .real-photo { width: 100%; height: 100%; object-fit: cover; display: block; }
-.lightbox-body .real-photo { object-fit: contain; max-height: 72vh; border-radius: 6px; background: var(--paper); }
+.lightbox-body .real-photo { object-fit: contain; max-height: 72vh; border-radius: var(--r-sm); background: var(--paper); }
 .pc-stat-stack div { line-height: 1.35; }
 .vote-tally { display: inline-flex; gap: 6px; align-items: center; flex: none; }
 .vote-tally .vt { display: inline-flex; align-items: center; gap: 3px; font-family: var(--mono); font-size: 10px;
@@ -4401,7 +4406,7 @@ a:hover{ color:var(--link); }
 .topbar{ display:block; }
 .topbar::before{ content:none; }
 .topbar-inner{
-  max-width:var(--shell-max); margin:0 auto; height:58px; padding:0 36px;
+  max-width:var(--shell-max); margin:0 auto; height:58px; padding:0 40px;
   display:flex; align-items:center; justify-content:space-between; box-sizing:border-box;
 }
 .brand{ gap:14px; }
@@ -4429,7 +4434,7 @@ a:hover{ color:var(--link); }
 }
 .topbar-tab .count{
   margin-left:7px; min-width:16px; height:16px; padding:0 4px; font-size:10px;
-  background:var(--paper-2); border:1px solid var(--rule); color:var(--ink-3); border-radius:8px;
+  background:var(--paper-2); border:1px solid var(--rule); color:var(--ink-3); border-radius:var(--r-sm);
 }
 .topbar-tab.active .count{ background:var(--navy); color:#fff; border-color:var(--navy); }
 /* avatar → 30px navy circle */
@@ -4442,32 +4447,41 @@ a:hover{ color:var(--link); }
 /* ───────── Page header block ───────── */
 .survey-header{
   max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box;
-  padding:30px 36px 20px; border-bottom:0; background:transparent;
+  padding:34px 40px 26px; border-bottom:0; background:transparent;
 }
 .survey-header .eyebrow{
   font-size:10.5px; font-weight:700; letter-spacing:2.2px; text-transform:uppercase;
   color:var(--bright-blue); margin-bottom:8px;
 }
 .survey-title{
-  font-size:40px; line-height:1; letter-spacing:-1.6px; font-weight:700; color:var(--navy);
+  /* Matches the building-detail page title (.detail-name-lg) for consistent
+     header sizing across every view. */
+  font-size:30px; line-height:1.08; letter-spacing:-0.8px; font-weight:700; color:var(--navy);
   margin:0;
 }
 .survey-meta{
-  font-size:13px; color:var(--ink-4); font-weight:400; margin-top:8px; letter-spacing:0;
+  font-size:13px; color:var(--ink-4); font-weight:400; margin-top:10px; letter-spacing:0;
 }
 .survey-meta .dot{ background:var(--ink-4); }
 .survey-meta .live-dot{ background:var(--green); }
 
 /* ───────── List controls (Sort + Spread|Gallery) ───────── */
 .list-controls{ display:flex; gap:10px; align-items:center; flex:none; padding-bottom:4px; }
+/* Compare "Reorder" dropdown — reorders columns and saves the order app-wide. */
+.sort-select-wrap{ display:inline-flex; align-items:center; gap:8px; }
+.sort-select-label{ font-family:var(--sans); font-size:12px; font-weight:700; color:var(--ink-3); letter-spacing:-.1px; }
+.sort-select{ appearance:none; -webkit-appearance:none; font-family:var(--sans); font-size:12px; font-weight:600; color:var(--navy); background-color:var(--paper-card); border:1px solid var(--rule); border-radius:var(--r-sm); padding:8px 32px 8px 12px; cursor:pointer; letter-spacing:-.1px;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23001E5A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 10px center; background-size:13px; }
+.sort-select:hover{ border-color:var(--ink-4); }
+.sort-select:focus-visible{ outline:none; border-color:var(--navy); box-shadow:0 0 0 3px rgba(0,30,90,.10); }
 .sortchip,.mapchip{
-  border:1px solid var(--rule); border-radius:6px; padding:8px 14px;
+  border:1px solid var(--rule); border-radius:var(--r-sm); padding:8px 14px;
   font-size:11.5px; font-weight:700; color:var(--ink-2); cursor:pointer; user-select:none;
   background:#fff; white-space:nowrap;
 }
 .sortchip:hover,.mapchip:hover{ border-color:var(--navy); }
 .mapchip.on{ background:var(--navy); color:#fff; border-color:var(--navy); }
-.seg{ display:flex; border:1px solid var(--rule); border-radius:6px; overflow:hidden; }
+.seg{ display:flex; border:1px solid var(--rule); border-radius:var(--r-sm); overflow:hidden; }
 .seg-btn{
   padding:8px 14px; font-size:11.5px; font-weight:700; cursor:pointer; user-select:none;
   background:#fff; color:var(--ink-4); border:0; white-space:nowrap;
@@ -4501,24 +4515,25 @@ a:hover{ color:var(--link); }
   transition:background .12s;
 }
 .property-card:hover{ background:var(--paper-2); border-color:var(--rule); box-shadow:none; }
-.property-card.selected{ background:var(--paper-2); box-shadow:none; border-color:var(--rule); }
+.property-card.selected{ background:var(--paper-2); box-shadow:inset 3px 0 0 var(--gold); border-color:var(--rule); }
 .property-card.passed{ opacity:.45; }
-.pc-ghostnum{
-  font-size:40px; font-weight:700; color:var(--rule); letter-spacing:-2px; line-height:.85;
-  align-self:flex-start;
+.pc-pin{
+  width:30px; height:30px; align-self:flex-start; margin-top:2px; justify-self:center;
+  display:inline-grid; place-items:center; border-radius:var(--r-sm);
+  background:var(--navy); color:#fff; font-size:13px; font-weight:800; letter-spacing:0;
 }
 .pc-photo{
-  width:170px; height:120px; border-radius:8px; align-self:flex-start;
-  background:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 9px,#EFF4FB 9px,#EFF4FB 18px);
+  width:170px; height:120px; border-radius:var(--r-sm); align-self:flex-start;
+  background:var(--paper-3); border:1px solid var(--rule); overflow:hidden;
 }
 .pc-photo .pc-num{ display:none; }
 .pc-photo .placeholder{
-  background:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 9px,#EFF4FB 9px,#EFF4FB 18px);
+  background:var(--paper-3);
   color:var(--ink-4); font-size:9px; letter-spacing:1.2px; font-weight:700;
 }
 .pc-badge{
   position:absolute; top:10px; left:10px; font-size:9.5px; font-weight:700;
-  border-radius:4px; padding:3px 8px; letter-spacing:.6px; z-index:3;
+  border-radius:var(--r-sm); padding:3px 8px; letter-spacing:.6px; z-index:3;
 }
 .pc-badge.short{ background:var(--gold); color:var(--navy); }
 .pc-badge.pass{ background:var(--rule); color:var(--ink-3); }
@@ -4546,15 +4561,43 @@ a:hover{ color:var(--link); }
   margin-bottom:0; order:2; margin-top:2px; white-space:nowrap;
 }
 .pc-stat-val{
-  font-size:15px; font-weight:700; color:var(--ink-2); letter-spacing:0; white-space:nowrap;
+  font-size:14px; font-weight:700; color:var(--navy); letter-spacing:0; white-space:nowrap;
   order:1;
 }
-.pc-stat-val.pc-stat-stack > div{ font-size:15px; }
+.pc-stat-val.pc-stat-stack > div{ font-size:14px; }
 .pc-actions{
   flex-direction:column; align-items:flex-end; justify-content:center; gap:8px; align-self:center;
 }
 .pc-actions .btn.ghost.sm{ display:none; }        /* row is clickable; drop chevron */
 .pc-actions .vote-group{ border-color:var(--rule); }
+/* Rent leads by position; all values share one uniform type treatment */
+.pc-stats > .pc-stat-primary{ flex:1.4; }
+/* Hover labels on the shortlist / remove thumbs. The vote pill clips its own
+   overflow (rounded corners), so the tooltip lives on the non-clipped parent
+   and swaps its text via :has(). */
+.pc-actions{ position:relative; }
+.pc-actions::after{
+  content:''; position:absolute; bottom:calc(100% + 8px); left:50%; transform:translateX(-50%);
+  background:var(--navy); color:#fff; font-size:10.5px; font-weight:700; letter-spacing:.2px;
+  padding:4px 9px; border-radius:var(--r-sm); white-space:nowrap; pointer-events:none;
+  opacity:0; transition:opacity .12s; z-index:20; box-shadow:0 6px 16px -6px rgba(0,0,0,.4);
+}
+.pc-actions::before{
+  content:''; position:absolute; bottom:calc(100% + 3px); left:50%; transform:translateX(-50%);
+  border:5px solid transparent; border-top-color:var(--navy); opacity:0; transition:opacity .12s; pointer-events:none; z-index:20;
+}
+.pc-actions:has(.vote-btn.up:hover)::after{ content:'Shortlist'; opacity:1; }
+.pc-actions:has(.vote-btn.down:hover)::after{ content:'Remove'; opacity:1; }
+.pc-actions:has(.vote-btn:hover)::before{ opacity:1; }
+/* Survey summary strip — at-a-glance, scales to any property count */
+.survey-summary{ display:flex; flex-wrap:wrap; margin-top:18px; border:1px solid var(--rule); border-radius:var(--r-md); background:var(--paper); overflow:hidden; }
+.survey-summary .ss-item{ flex:1; min-width:128px; padding:11px 18px; border-right:1px solid var(--rule); }
+.survey-summary .ss-item:last-child{ border-right:0; }
+.survey-summary .ss-val{ font-size:18px; font-weight:800; color:var(--navy); letter-spacing:-.4px; white-space:nowrap; }
+.survey-summary .ss-val span{ font-size:11px; font-weight:600; color:var(--ink-4); letter-spacing:0; }
+.survey-summary .ss-label{ font-size:9px; font-weight:700; letter-spacing:1px; text-transform:uppercase; color:var(--ink-4); margin-top:3px; }
+.survey-summary .ss-short.empty .ss-val{ font-weight:700; }
+.survey-summary .ss-nudge{ font-size:12px; font-weight:700; color:var(--gold-ink, #B4820A); white-space:nowrap; }
 
 /* ───────── Gallery ───────── */
 .gallery-scroll{ flex:1; min-width:0; overflow-y:auto; }
@@ -4564,7 +4607,7 @@ a:hover{ color:var(--link); }
 .gallery-grid.cols3{ grid-template-columns:repeat(3,1fr); }
 .gallery-grid.cols2{ grid-template-columns:repeat(2,1fr); }
 .gallery-tile{
-  border-radius:9px; overflow:hidden; position:relative; height:250px; cursor:pointer;
+  border-radius:var(--r-sm); overflow:hidden; position:relative; height:250px; cursor:pointer;
   background:repeating-linear-gradient(45deg,#DCE6F5,#DCE6F5 9px,#E6EEF9 9px,#E6EEF9 18px);
   transition:box-shadow .15s;
 }
@@ -4581,31 +4624,52 @@ a:hover{ color:var(--link); }
 .gallery-cap-price.short{ color:var(--gold); }
 .gallery-cap-sub{ font-size:10.5px; color:rgba(255,255,255,.75); margin-top:1px; }
 .gallery-badge{
-  position:absolute; top:12px; left:12px; font-size:9.5px; font-weight:700; border-radius:4px; padding:3px 8px; z-index:2;
+  position:absolute; top:12px; left:12px; font-size:9.5px; font-weight:700; border-radius:var(--r-sm); padding:3px 8px; z-index:2;
 }
 .gallery-badge.short{ background:var(--gold); color:var(--navy); }
 .gallery-badge.pass{ background:var(--rule); color:var(--ink-3); }
 
 /* ───────── Map pins (design semantics) ───────── */
+/* Numbered navy squares — same badge as the property-card / commute pins */
 .map-pin-body{
-  width:26px; height:26px; border-radius:50%; background:#fff; border:2px solid var(--navy);
-  box-shadow:0 2px 6px rgba(0,30,90,.15);
+  width:28px; height:28px; border-radius:var(--r-sm); background:var(--navy); border:none;
+  box-shadow:0 2px 6px rgba(0,30,90,.28);
 }
-.map-pin-num{ color:var(--navy); font-family:var(--mono); font-size:11px; font-weight:700; }
+.map-pin-num{ color:#fff; font-family:var(--sans); font-size:12px; font-weight:800; }
 .map-pin.short .map-pin-body{
   background:var(--navy); border:none; box-shadow:0 0 0 3px var(--gold),0 3px 8px rgba(0,30,90,.3);
 }
 .map-pin.short .map-pin-num{ color:#fff; }
 .map-pin.selected .map-pin-body{
-  width:26px; height:26px; background:var(--navy); border:none;
-  box-shadow:0 0 0 3px var(--gold),0 3px 8px rgba(0,30,90,.3);
+  width:30px; height:30px; background:var(--gold); border:none;
+  box-shadow:0 3px 10px rgba(0,30,90,.35);
 }
-.map-pin.selected .map-pin-num{ color:#fff; }
-.map-pin:hover .map-pin-body{ transform:scale(1.2); }
+.map-pin.selected .map-pin-num{ color:var(--navy); }
+.map-pin:hover .map-pin-body{ transform:scale(1.12); }
+/* Hover card: photo thumbnail + name + address */
+.map-pin-card{
+  position:absolute; bottom:calc(100% + 10px); left:50%;
+  transform:translateX(-50%) translateY(5px);
+  width:204px; background:#fff; border:1px solid var(--rule); border-radius:var(--r-md);
+  box-shadow:0 14px 34px -10px rgba(0,30,90,.4); overflow:hidden;
+  opacity:0; pointer-events:none; transition:opacity .14s ease, transform .14s ease; z-index:30;
+}
+.map-pin:hover .map-pin-card{ opacity:1; transform:translateX(-50%) translateY(0); }
+.map-pin-card::after{
+  content:''; position:absolute; top:100%; left:50%; transform:translateX(-50%);
+  border:6px solid transparent; border-top-color:#fff;
+}
+.map-pin-card .mpc-photo{ height:106px; background:var(--paper-3); }
+.map-pin-card .mpc-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+.map-pin-card .mpc-photo-ph{ display:grid; place-items:center; color:var(--ink-4); font-size:9px; letter-spacing:1.2px; font-weight:700; text-transform:uppercase; }
+.map-pin-card .mpc-body{ padding:9px 12px 11px; }
+.map-pin-card .mpc-name{ font-size:13px; font-weight:800; color:var(--navy); letter-spacing:-.2px; line-height:1.2; }
+.map-pin-card .mpc-addr{ font-size:11px; color:var(--ink-3); margin-top:3px; line-height:1.35; }
+.map-pin-card .mpc-sub{ font-size:9.5px; font-weight:500; letter-spacing:0; color:var(--ink-4); margin-top:2px; }
 
 /* ───────── Detail ───────── */
 .detail{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px; }
-.route-fixed{ overflow-y:auto; }
+.route-fixed{ overflow:hidden; }   /* detail page scrolls inside .detail-cols, not here */
 .detail-grid{ display:block; gap:0; margin-top:0; }
 .detail-main{ overflow:visible; padding:0 0 30px; }
 .detail-aside{
@@ -4626,7 +4690,7 @@ a:hover{ color:var(--link); }
 
 /* action buttons (Shortlist / Pass / Share) */
 .act-btn{
-  font-size:12px; font-weight:700; border-radius:8px; padding:10px 18px; cursor:pointer; user-select:none;
+  font-size:12px; font-weight:700; border-radius:var(--r-sm); padding:10px 18px; cursor:pointer; user-select:none;
   border:1px solid var(--rule); background:#fff; color:var(--ink-3); display:inline-flex; align-items:center; gap:6px;
   white-space:nowrap;
 }
@@ -4637,13 +4701,13 @@ a:hover{ color:var(--link); }
 
 /* hero split */
 .media-grid{ grid-template-columns:1.55fr 1fr; gap:14px; height:290px; margin:0 0 0; align-items:stretch; }
-.carousel{ aspect-ratio:auto; height:100%; border-radius:10px; background:repeating-linear-gradient(45deg,#DCE6F5,#DCE6F5 11px,#E8EFF8 11px,#E8EFF8 22px); }
+.carousel{ aspect-ratio:auto; height:100%; border-radius:var(--r-md); background:repeating-linear-gradient(45deg,#DCE6F5,#DCE6F5 11px,#E8EFF8 11px,#E8EFF8 22px); }
 .carousel .placeholder{ background:repeating-linear-gradient(45deg,#DCE6F5,#DCE6F5 11px,#E8EFF8 11px,#E8EFF8 22px); color:var(--ink-4); letter-spacing:1.6px; font-size:10px; font-weight:700; }
 .carousel-arrow{ width:32px; height:32px; background:#fff; border:0; box-shadow:0 2px 8px rgba(0,30,90,.15); color:var(--navy); }
 .carousel-arrow:hover{ background:var(--navy); color:#fff; }
 .carousel-arrow svg{ width:14px; height:14px; }
-.carousel-label{ background:rgba(11,22,48,.8); color:#fff; border-radius:12px; padding:4px 10px; font-family:var(--mono); letter-spacing:0; font-weight:700; }
-.detail-map{ border-radius:10px; min-height:0; height:100%; background:#EDF2F7; border:0; }
+.carousel-label{ background:rgba(11,22,48,.8); color:#fff; border-radius:var(--r-md); padding:4px 10px; font-family:var(--mono); letter-spacing:0; font-weight:700; }
+.detail-map{ border-radius:var(--r-md); min-height:0; height:100%; background:#EDF2F7; border:0; }
 
 /* gold stat band */
 .stat-band{ display:flex; align-items:center; padding:16px 0; border-bottom:1px solid var(--rule-2); margin-top:20px; }
@@ -4660,13 +4724,13 @@ a:hover{ color:var(--link); }
 .showmore:hover{ color:var(--link); }
 
 /* sections in single-column detail */
-.detail-main .section{ margin-bottom:22px; }
+.detail-main .section{ margin-bottom:28px; }
 .section-head{ border-bottom:0; padding-bottom:0; margin-bottom:10px; align-items:baseline; }
 .section-title{ font-size:16px; font-weight:700; letter-spacing:-.3px; text-transform:none; color:var(--navy); }
 .section-title .count{ color:var(--ink-4); font-weight:700; }
 
 /* suites table */
-.suites-table{ border:1px solid var(--rule-2); border-radius:10px; overflow:hidden; margin-bottom:8px; }
+.suites-table{ border:1px solid var(--rule-2); border-radius:var(--r-md); overflow:hidden; margin-bottom:8px; }
 .suites-head,.suites-row{ display:flex; align-items:center; padding:12px 18px; }
 .suites-head{ background:var(--paper-2); font-size:10.5px; font-weight:700; color:var(--ink-4); letter-spacing:.4px; text-transform:uppercase; }
 .suites-row{ font-size:12.5px; border-top:1px solid var(--rule-2); }
@@ -4687,11 +4751,17 @@ a:hover{ color:var(--link); }
 .detail-main .legacy-hide{ display:none !important; }
 
 /* ───────── Compare — data matrix ───────── */
-.compare-wrap{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:24px 36px 40px; overflow-x:auto; }
-.compare-table{ border:1px solid var(--rule); border-radius:10px; border-collapse:separate; border-spacing:0; overflow:hidden; }
+.compare-wrap{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 40px 40px; overflow-x:auto; }
+/* No overflow:hidden here — it would trap position:sticky so the name band
+   couldn't pin to the scroll wrap. Corners are rounded on the end cells instead. */
+.compare-table{ border:1px solid var(--rule); border-radius:var(--r-md); border-collapse:separate; border-spacing:0; }
+.compare-table thead tr:first-child th:first-child{ border-top-left-radius:10px; }
+.compare-table thead tr:first-child th:last-child{ border-top-right-radius:10px; }
+.compare-table tbody tr:last-child td:first-child{ border-bottom-left-radius:10px; }
+.compare-table tbody tr:last-child td:last-child{ border-bottom-right-radius:10px; }
 .compare-table th,.compare-table td{
   border:0; border-bottom:1px solid var(--rule-2); border-right:1px solid var(--rule-2);
-  padding:12px 16px; vertical-align:middle; text-align:left;
+  padding:14px 16px; vertical-align:middle; text-align:left;
   font-size:12px; color:#2A2A2A; font-weight:600; background:#fff;
   font-variant-numeric:tabular-nums;
 }
@@ -4711,7 +4781,7 @@ a:hover{ color:var(--link); }
 .compare-table tbody tr:nth-child(odd) .compare-row-label{ background:var(--paper-2) !important; color:#6B6B6B !important; }
 .compare-table tbody tr:hover .compare-row-label{ background:var(--paper-3) !important; }
 .compare-table thead th{ background:#fff; text-align:left; }
-.compare-photo{ width:200px; max-width:100%; height:132px; border-radius:8px; overflow:hidden; background:var(--paper-3); margin:0 auto 0 0; }
+.compare-photo{ width:200px; max-width:100%; height:132px; border-radius:var(--r-sm); overflow:hidden; background:var(--paper-3); margin:0 auto 0 0; }
 .compare-photo .real-photo{ object-fit:cover; width:100%; height:100%; }
 /* Navy band spanning the full header row (name + address) — anchors the table */
 .compare-name-row th{ background:var(--navy) !important; text-align:left; padding:12px 16px; border-right:0 !important; vertical-align:top; }
@@ -4727,7 +4797,7 @@ a:hover{ color:var(--link); }
 .compare-foot a{ font-size:12px; font-weight:700; color:var(--link); cursor:pointer; }
 
 /* ───────── Buttons / badges ───────── */
-.btn{ background:var(--navy); border-color:var(--navy); border-radius:6px; font-size:12.5px; font-weight:700; }
+.btn{ background:var(--navy); border-color:var(--navy); border-radius:var(--r-sm); font-size:12.5px; font-weight:700; }
 .btn:hover{ background:var(--navy-light); border-color:var(--navy-light); }
 .btn.subtle{ background:#fff; border-color:var(--rule); color:var(--ink-2); }
 .btn.subtle:hover{ border-color:var(--navy); color:var(--navy); background:#fff; }
@@ -4740,40 +4810,49 @@ a:hover{ color:var(--link); }
 
 
 /* ══════════ V2 DETAIL — "Airy Broadsheet" ══════════ */
-.detail-v2{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px 40px; }
-.detail-titlebar{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:26px 0 20px; }
-.detail-pills{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
-.dpill{ font-size:12px; font-weight:700; padding:6px 14px; border-radius:16px; background:var(--gold); color:var(--navy); white-space:nowrap; }
+.detail-v2{ max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 40px;
+  height:100%; display:flex; flex-direction:column; }
+.detail-titlebar{ display:flex; justify-content:space-between; align-items:flex-start; gap:24px; padding:18px 0 16px; flex:none; }
+.detail-pills{ display:flex; gap:8px; margin-bottom:10px; flex-wrap:wrap; }
+.dpill{ font-size:12px; font-weight:700; padding:6px 14px; border-radius:var(--r-lg); background:var(--gold); color:var(--navy); white-space:nowrap; }
 .dpill.gold{ background:#FFF3D6; color:var(--gold-ink); }
-.detail-name-lg{ font-size:32px; line-height:1.08; letter-spacing:-0.8px; font-weight:700; color:var(--navy); margin:0; }
-.detail-v2 .detail-addr{ font-size:20px; color:var(--ink-3); margin-top:10px; }
+.detail-name-lg{ font-size:30px; line-height:1.08; letter-spacing:-0.8px; font-weight:700; color:var(--navy); margin:0; }
+.detail-v2 .detail-addr{ font-size:18px; color:var(--ink-3); margin-top:6px; }
 .detail-summary{ display:flex; flex-wrap:wrap; align-items:center; gap:10px; margin-top:14px; font-size:13.5px; color:var(--ink-3); font-weight:500; letter-spacing:-.1px; }
 .detail-summary strong{ color:var(--navy); font-weight:700; }
 .detail-summary .sep{ color:var(--ink-4); }
 .detail-titlebar{ align-items:stretch; }
 .detail-title-actions{ display:flex; flex-direction:column; align-items:flex-end; justify-content:space-between; gap:12px; flex:none; padding-top:0; }
-.detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:8px; }
+.detail-title-actions .act-btn{ padding:12px 26px; font-size:13px; border-radius:var(--r-sm); }
 /* "Map" button pairs with the submarket pill — same height, font size & weight */
-.return-map-btn{ display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:16px; border:1px solid rgba(0,30,90,.18); background:var(--accent-tint); color:var(--navy); font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:-.1px; cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), color .15s, border-color .15s, transform .1s; }
+.return-map-btn{ display:inline-flex; align-items:center; gap:6px; padding:6px 14px; border-radius:var(--r-lg); border:1px solid rgba(0,30,90,.18); background:var(--accent-tint); color:var(--navy); font-family:var(--sans); font-size:12px; font-weight:700; letter-spacing:-.1px; cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), color .15s, border-color .15s, transform .1s; }
 .return-map-btn svg{ width:13px; height:13px; }
 .return-map-btn:hover{ background:var(--navy); border-color:var(--navy); color:#fff; }
 .return-map-btn:active{ transform:translateY(1px); }
 .hdr-pager{ align-items:center; }
 .hdr-counter{ padding:0 12px; font-size:12.5px; font-weight:600; color:var(--ink-2); white-space:nowrap; }
 .detail-title-actions .hdr-pill{ display:inline-flex; align-items:center; justify-content:center; padding:8px 12px; }
-.detail-rule{ height:1px; background:var(--rule); margin:0 0 28px; }
-.detail-cols{ display:grid; grid-template-columns:310px minmax(0,1fr) 500px; gap:40px; align-items:start; }
+/* The title block (name/address) and this divider stay OUT of the scroll region
+   — only .detail-cols scrolls (see .detail-v2 / .route-fixed below). A tall page
+   would otherwise promote the whole scroller to a compositing layer, and on
+   fractional-DPI displays a 1px line inside a composited scroller stops snapping
+   to the device grid and washes out to invisible (isolating just the line onto
+   its own layer did not help — the fractional offset comes from the scroller).
+   Kept outside the scroller, the divider paints on the normal pixel-snapped path. */
+.detail-rule{ height:1px; background:var(--rule); margin:0 0 24px; flex:none; }
+.detail-cols{ display:grid; grid-template-columns:310px minmax(0,1fr) 420px; gap:40px; align-items:start;
+  flex:1; min-height:0; overflow-y:auto; overflow-x:hidden; padding-bottom:40px; }
 /* Right column is the pinned action rail — decision + comments + documents in
    one panel. Sticky so it stays visible; scrolls internally if it runs long. */
-.detail-right{ position:sticky; top:16px; align-self:start; min-height:0; max-height:calc(100vh - 190px); overflow-y:auto;
-  border:1px solid var(--rule); border-radius:14px; background:var(--paper-card); box-shadow:var(--shadow-1); }
+.detail-right{ position:sticky; top:0; align-self:start; min-height:0; max-height:calc(100vh - 174px); overflow-y:auto;
+  border:1px solid var(--rule); border-radius:var(--r-lg); background:var(--paper-card); box-shadow:none; }
 .detail-right .rail-block{ padding:16px 18px; border-bottom:1px solid var(--rule-2); }
 .detail-right .rail-block:last-child{ border-bottom:0; }
 .detail-right .rail-label{ font-size:9.5px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:#6B6B6B; margin-bottom:10px; }
 .detail-right .section{ margin-bottom:0; }
 .detail-right .docs-grid{ grid-template-columns:1fr; }
 /* Vote block — clear full-width segmented button control */
-.detail-right .vote-group{ display:flex; width:100%; margin-top:2px; border:1px solid var(--rule); border-radius:10px; overflow:hidden; box-shadow:var(--shadow-1); background:#fff; }
+.detail-right .vote-group{ display:flex; width:100%; margin-top:2px; border:1px solid var(--rule); border-radius:var(--r-md); overflow:hidden; box-shadow:var(--shadow-1); background:#fff; }
 .detail-right .vote-btn{ flex:1; justify-content:center; padding:12px 10px; font-size:13px; font-weight:600; color:var(--ink-2); }
 .detail-right .vote-btn:hover{ background:var(--paper-2); color:var(--navy); }
 .detail-right .vote-btn + .vote-btn{ border-left:1px solid var(--rule); }
@@ -4789,8 +4868,40 @@ a:hover{ color:var(--link); }
 
 /* Suites — a simple single-row-per-suite table below the photo. Neutral
    palette, no heavy navy accents; light header, hairline rows. */
-.detail-suites{ margin-top:30px; }
-.suite-table-wrap{ margin-top:16px; border:1px solid var(--rule); border-radius:12px; overflow:auto; box-shadow:var(--shadow-1); background:#fff; }
+.detail-suites{ margin-top:36px; }
+/* Rows open a full-detail popup; hint shows only when columns are condensed. */
+.suite-table .st-row{ cursor:pointer; }
+.suite-hint{ display:none; font-size:11px; font-weight:600; color:var(--ink-3); letter-spacing:-.1px; margin:-4px 0 10px; }
+/* Suite detail popup — all data points for one space, incl. the condensed ones. */
+.suite-modal-card{ width:min(520px,100%); }
+.suite-modal-body{ padding:22px; background:var(--paper-2); }
+.suite-modal-grid{ display:grid; grid-template-columns:1fr 1fr; gap:1px; background:var(--rule); border:1px solid var(--rule); border-radius:var(--r-md); overflow:hidden; }
+.sm-cell{ background:var(--paper-card); padding:13px 16px; }
+.sm-l{ font-size:9px; font-weight:700; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-4); margin-bottom:5px; }
+.sm-v{ font-size:15px; font-weight:700; color:var(--navy); letter-spacing:-.2px; }
+/* Custom-order popup — draggable list with up/down arrows. */
+.reorder-card{ width:min(460px,100%); }
+.reorder-body{ padding:18px 20px; background:var(--paper-2); }
+/* Quick-sort preset chips at the top of the popup. */
+.reorder-presets{ display:flex; flex-wrap:wrap; gap:6px; margin-bottom:14px; }
+.reorder-preset{ appearance:none; font-family:var(--sans); font-size:11.5px; font-weight:600; letter-spacing:-.1px; color:var(--ink-2); background:var(--paper-card); border:1px solid var(--rule); border-radius:999px; padding:6px 12px; cursor:pointer; transition:background .12s, border-color .12s, color .12s; }
+.reorder-preset:hover{ border-color:var(--ink-4); }
+.reorder-preset.on{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.reorder-hint{ font-size:12px; color:var(--ink-3); margin:0 2px 12px; letter-spacing:-.1px; }
+.reorder-list{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+.reorder-item{ display:flex; align-items:center; gap:12px; padding:10px 12px; background:var(--paper-card); border:1px solid var(--rule); border-radius:var(--r-md); cursor:grab; transition:border-color .12s, box-shadow .12s, opacity .12s; }
+.reorder-item:hover{ border-color:var(--ink-4); }
+.reorder-item.dragging{ opacity:.4; cursor:grabbing; }
+.reorder-item.dragover{ border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+.reorder-grip{ color:var(--ink-4); font-size:13px; line-height:1; letter-spacing:-1px; flex:none; }
+.reorder-num{ flex:none; width:22px; height:22px; display:inline-grid; place-items:center; border-radius:var(--r-sm); background:var(--navy); color:#fff; font-size:11px; font-weight:700; }
+.reorder-name{ flex:1; min-width:0; font-size:13px; font-weight:700; color:var(--navy); letter-spacing:-.1px; display:flex; flex-direction:column; gap:1px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reorder-addr{ font-size:11px; font-weight:500; color:var(--ink-3); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.reorder-arrows{ flex:none; display:flex; gap:4px; }
+.reorder-arrow{ width:26px; height:26px; display:inline-grid; place-items:center; border:1px solid var(--rule); background:var(--paper-card); color:var(--navy); border-radius:var(--r-sm); cursor:pointer; font-size:10px; line-height:1; transition:background .12s, border-color .12s; }
+.reorder-arrow:hover{ background:var(--paper-2); border-color:var(--ink-4); }
+.reorder-arrow:disabled{ opacity:.3; cursor:default; }
+.suite-table-wrap{ margin-top:16px; border:1px solid var(--rule); border-radius:var(--r-md); overflow:auto; box-shadow:none; background:#fff; }
 .suite-table{ width:100%; border-collapse:collapse; table-layout:fixed; font-size:12px; font-variant-numeric:tabular-nums; }
 .suite-table thead th{ text-align:left; padding:10px 11px; background:var(--paper-2); color:#6B6B6B; font-weight:700; font-size:9px; letter-spacing:.4px; text-transform:uppercase; white-space:normal; border-bottom:1px solid var(--rule); }
 /* Wider first three columns, tighter toward the right for even data spacing */
@@ -4803,14 +4914,15 @@ a:hover{ color:var(--link); }
 .suite-table th:nth-child(7){ width:10%; }
 .suite-table th:nth-child(8){ width:12%; }
 .suite-table th:nth-child(9){ width:6%; }
-.suite-table tbody td{ padding:16px 11px; border-bottom:1px solid var(--rule-2); color:#2A2A2A; font-weight:600; white-space:nowrap; vertical-align:middle; }
+.suite-table tbody td{ padding:16px 13px; border-bottom:1px solid var(--rule-2); color:#2A2A2A; font-weight:600; white-space:nowrap; vertical-align:middle; }
 .suite-table tbody tr:last-child td{ border-bottom:0; }
-.suite-table tbody tr:hover td{ background:var(--paper-2); }
+.suite-table tbody tr:nth-child(even) td{ background:var(--paper-2); }  /* faint zebra — matches the compare table */
+.suite-table tbody tr:hover td{ background:var(--paper-3); }
 .st-suite{ white-space:nowrap; }
 .st-name{ font-weight:600; color:#2A2A2A; font-size:12px; }
 .st-sf{ font-weight:600; color:#6B6B6B; font-size:12px; margin-left:10px; }
 .st-plan-col{ text-align:right; width:52px; }
-.st-plan{ display:inline-grid; place-items:center; width:30px; height:30px; border-radius:7px; border:1px solid rgba(0,30,90,.18); background:var(--accent-tint); color:var(--navy); cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), border-color .15s, color .15s, transform .1s; }
+.st-plan{ display:inline-grid; place-items:center; width:30px; height:30px; border-radius:var(--r-sm); border:1px solid rgba(0,30,90,.18); background:var(--accent-tint); color:var(--navy); cursor:pointer; box-shadow:var(--shadow-1); transition:background .15s var(--ease), border-color .15s, color .15s, transform .1s; }
 .st-plan:hover{ background:var(--navy); border-color:var(--navy); color:#fff; }
 .st-plan:active{ transform:translateY(1px); }
 .st-plan svg{ width:15px; height:15px; }
@@ -4821,7 +4933,7 @@ a:hover{ color:var(--link); }
   .suite-table{ table-layout:auto; }
   .suite-table thead{ display:none; }
   .suite-table, .suite-table tbody, .suite-table tr, .suite-table td{ display:block; width:auto; }
-  .suite-table tr{ border:1px solid var(--rule); border-radius:12px; background:#fff; box-shadow:var(--shadow-1); padding:4px 16px 8px; margin-bottom:12px; }
+  .suite-table tr{ border:1px solid var(--rule); border-radius:var(--r-md); background:#fff; box-shadow:var(--shadow-1); padding:4px 16px 8px; margin-bottom:12px; }
   .suite-table tbody tr:hover td{ background:transparent; }
   .suite-table td{ display:flex; justify-content:space-between; align-items:center; gap:16px; text-align:right !important; padding:10px 0 !important; border-bottom:1px solid var(--rule-2); white-space:normal; }
   .suite-table td:last-child{ border-bottom:0; }
@@ -4837,38 +4949,44 @@ a:hover{ color:var(--link); }
 .spec-list{ display:flex; flex-direction:column; gap:22px; }
 .spec-groups{ display:flex; flex-direction:column; gap:22px; }
 .spec-group-label{ font-size:9.5px; font-weight:700; letter-spacing:.6px; text-transform:uppercase; color:var(--navy); margin-bottom:12px; padding-bottom:6px; border-bottom:1px solid var(--rule-2); }
-.spec-group .spec-list{ gap:20px; }
+.spec-group .spec-list{ gap:26px; }
 /* Vote buttons use the UI font (Inter), not the mono face */
 .vote-btn{ font-family:var(--sans); letter-spacing:0; }
 .spec-row{ display:flex; gap:12px; align-items:flex-start; }
 .spec-row svg{ width:20px; height:20px; flex:none; margin-top:1px; }
-.spec-row .sv{ font-size:15px; font-weight:700; color:var(--navy); line-height:1.2; }
+.spec-row .sv{ font-size:14px; font-weight:700; color:var(--navy); line-height:1.2; }
 .spec-row .sl{ font-size:11px; color:var(--ink-4); margin-top:2px; }
-.mini-map{ margin:0 0 24px; border-radius:10px; overflow:hidden; position:relative; height:160px;
+.mini-map{ margin:0 0 24px; border-radius:var(--r-md); overflow:hidden; position:relative; height:180px;
   background:#E8EFF8; background-image:radial-gradient(#D4DEEE 1px,transparent 1px); background-size:16px 16px; }
 .mini-map .mm-pin{ position:absolute; left:34%; top:46%; transform:translate(-50%,-50%);
-  width:26px; height:26px; border-radius:50%; background:var(--navy); box-shadow:0 0 0 3px var(--gold);
-  display:grid; place-items:center; color:#fff; font-size:11px; font-weight:700; }
+  width:28px; height:28px; border-radius:var(--r-sm); background:var(--navy); box-shadow:0 2px 6px rgba(0,30,90,.28);
+  display:grid; place-items:center; color:#fff; font-family:var(--sans); font-size:12px; font-weight:800; }
 .mini-map .mm-label{ position:absolute; bottom:10px; right:12px; font-size:9px; letter-spacing:1.2px; color:var(--ink-4); font-weight:700; }
 
 /* center */
 .hero-row{ display:flex; gap:12px; align-items:stretch; }
-.hero-row .detail-hero{ flex:1; min-width:0; max-width:none; }
-.detail-hero{ border-radius:16px; overflow:hidden; position:relative; height:420px; max-width:720px; display:grid; place-items:center;
+/* Hero stays roughly the same size (capped); extra center width goes to the
+   secondary photos, which flex-grow wider. */
+.hero-row .detail-hero{ flex:1 1 520px; min-width:0; max-width:880px; }
+.detail-hero{ border-radius:var(--r-lg); overflow:hidden; position:relative; height:420px; max-width:720px; display:grid; place-items:center;
   background:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 11px,#EFF4FB 11px,#EFF4FB 22px); }
 .detail-hero .real-photo{ width:100%; height:100%; object-fit:cover; }
 .detail-hero .hero-ph{ font-size:11px; letter-spacing:1.6px; color:var(--ink-4); font-weight:700; }
 /* Bottom gradient scrim so the photo counter stays legible on any image */
 .detail-hero::after{ content:''; position:absolute; left:0; right:0; bottom:0; height:120px; background:linear-gradient(to top, rgba(8,16,36,.55), rgba(8,16,36,0)); pointer-events:none; z-index:1; }
 .detail-hero .hero-counter{ z-index:2; background:transparent; box-shadow:none; color:#fff; font-weight:700; }
+/* Shortlist/pass pill over the hero (upper-left) — mirrors the map/list badge. */
+.detail-hero .hero-badge{ position:absolute; top:14px; left:14px; z-index:3; display:inline-flex; align-items:center; gap:5px; font-size:11px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; padding:5px 11px; border-radius:var(--r-sm); box-shadow:var(--shadow-2); }
+.detail-hero .hero-badge.short{ background:var(--gold); color:var(--navy); }
+.detail-hero .hero-badge.pass{ background:rgba(14,18,32,.72); color:#fff; }
 .hero-nav{ position:absolute; top:50%; transform:translateY(-50%); width:34px; height:34px; border-radius:50%;
   background:#fff; box-shadow:0 2px 8px rgba(0,30,90,.15); display:grid; place-items:center; color:var(--navy); cursor:pointer; border:0; }
 .hero-nav:hover{ background:var(--navy); color:#fff; }
 .hero-nav.prev{ left:14px; } .hero-nav.next{ right:14px; }
-.hero-counter{ position:absolute; bottom:14px; right:14px; background:#fff; border-radius:16px; padding:7px 14px;
+.hero-counter{ position:absolute; bottom:14px; right:14px; background:#fff; border-radius:var(--r-lg); padding:7px 14px;
   font-size:11px; font-weight:700; color:var(--navy); box-shadow:0 2px 8px rgba(0,30,90,.12); }
-.thumbstrip{ display:flex; flex-direction:column; gap:10px; width:142px; flex:none; margin-top:0; }
-.thumb{ flex:1; min-height:0; border-radius:10px; border:2px solid transparent; cursor:pointer; overflow:hidden;
+.thumbstrip{ display:flex; flex-direction:column; gap:10px; width:auto; flex:1 1 160px; min-width:128px; max-width:200px; margin-top:0; }
+.thumb{ flex:1; min-height:0; border-radius:var(--r-md); border:2px solid transparent; cursor:pointer; overflow:hidden;
   background-image:repeating-linear-gradient(45deg,#E8EFF8,#E8EFF8 8px,#EFF4FB 8px,#EFF4FB 16px); }
 .thumb.on{ border-color:var(--navy); }
 .thumb .real-photo{ width:100%; height:100%; object-fit:cover; }
@@ -4878,14 +4996,14 @@ a:hover{ color:var(--link); }
 
 /* right rail — suite cards */
 .detail-right{ display:flex; flex-direction:column; gap:16px; }
-.suite-card{ border:1px solid var(--rule); border-radius:14px; background:#fff; box-shadow:var(--shadow-1); overflow:hidden; }
+.suite-card{ border:1px solid var(--rule); border-radius:var(--r-lg); background:#fff; box-shadow:var(--shadow-1); overflow:hidden; }
 /* Navy header bar — suite name + SF (white, inverted) + floor-plan icon */
 .suite-cardhead{ display:flex; justify-content:space-between; align-items:center; gap:12px; background:var(--navy); color:#fff; padding:11px 16px; }
 .sch-id{ display:flex; align-items:center; gap:12px; min-width:0; }
 .sch-name{ font-size:14px; font-weight:700; color:#fff; letter-spacing:-.1px; }
 .sch-sf{ font-size:14px; font-weight:700; color:#fff; opacity:.9; white-space:nowrap;
   border-left:1px solid rgba(255,255,255,.28); padding-left:12px; }
-.sch-plan{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:6px; background:rgba(255,255,255,.16); color:#fff; cursor:pointer; transition:background .15s var(--ease); }
+.sch-plan{ display:inline-grid; place-items:center; width:28px; height:28px; border-radius:var(--r-sm); background:rgba(255,255,255,.16); color:#fff; cursor:pointer; transition:background .15s var(--ease); }
 .sch-plan:hover{ background:rgba(255,255,255,.30); }
 .sch-plan svg{ width:15px; height:15px; }
 /* One rent row: Base / OpEx / Total / Monthly — all same size */
@@ -4899,21 +5017,46 @@ a:hover{ color:var(--link); }
 /* header pager + tabs-in-detail */
 .hdr-pager{ display:flex; gap:8px; }
 .hdr-pill{ appearance:none; border:1px solid var(--rule); background:#fff; color:var(--ink-3); font-size:12.5px;
-  font-weight:700; padding:8px 16px; border-radius:8px; cursor:pointer; white-space:nowrap; }
+  font-weight:700; padding:8px 16px; border-radius:var(--r-sm); cursor:pointer; white-space:nowrap; }
 .hdr-pill:hover{ border-color:var(--navy); color:var(--navy); }
 
 /* extra sections (docs + comments) below the 3-col block */
 .detail-extra{ margin-top:44px; display:grid; grid-template-columns:1fr 1fr; gap:44px; align-items:start; }
 .detail-extra .section{ margin-bottom:0; }
+/* Smaller laptops: hide the secondary-photo rail (hero becomes a full-width
+   carousel via its own arrows + counter), trim type/spacing, and shorten the
+   hero so the whole page fits with far less scrolling. The suite table drops its
+   secondary columns instead of shrinking — full details open in a popup when a
+   space is clicked. */
+@media (max-width:1600px){
+  .thumbstrip{ display:none; }
+  .hero-row .detail-hero{ flex:1 1 auto; max-width:none; }
+  .detail-hero{ height:360px; }
+  .detail-cols{ gap:30px; grid-template-columns:280px minmax(0,1fr) 380px; }
+  .detail-name-lg{ font-size:26px; }
+  .detail-v2 .detail-addr{ font-size:16px; }
+  .spec-row .sv{ font-size:13px; }
+  .spec-row .sl{ font-size:10.5px; }
+  .spec-groups{ gap:18px; }
+  .spec-group .spec-list{ gap:18px; }
+  .spec-row svg{ width:18px; height:18px; }
+  .mini-map{ height:148px; margin-bottom:18px; }
+  .detail-titlebar{ padding:10px 0 10px; }
+  .detail-rule{ margin:0 0 14px; }
+  .detail-suites{ margin-top:22px; }
+  /* Condense the table: hide secondary columns; they live in the popup. */
+  .suite-table .st-hide-sm{ display:none; }
+  .suite-hint{ display:block; }
+}
 @media (max-width:1100px){ .detail-cols{ grid-template-columns:1fr; } .detail-extra{ grid-template-columns:1fr; } .detail-right{ position:static; max-height:none; overflow:visible; padding-right:0; } }
 
 
 /* ══════════ COMMUTE (design 3a — table-first matrix) ══════════ */
-.commute-wrap{ display:flex; flex-direction:column; flex:1; min-height:0; max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 36px; }
+.commute-wrap{ display:flex; flex-direction:column; flex:1; min-height:0; max-width:var(--shell-max); margin:0 auto; width:100%; box-sizing:border-box; padding:0 40px; }
 .commute-head{ display:flex; justify-content:space-between; align-items:center; padding:4px 0 16px; gap:16px; flex-wrap:wrap; }
 .commute-head .eyebrow{ font-size:10.5px; font-weight:700; letter-spacing:2.2px; color:var(--bright-blue); text-transform:uppercase; }
 .commute-controls{ display:flex; gap:10px; align-items:center; }
-.commute-empty{ border:1px dashed var(--rule); border-radius:12px; background:var(--paper-2); padding:20px 22px; margin-bottom:14px; }
+.commute-empty{ border:1px dashed var(--rule); border-radius:var(--r-md); background:var(--paper-2); padding:20px 22px; margin-bottom:14px; }
 .commute-empty-icon{ font-size:20px; }
 .commute-empty-title{ font-size:15px; font-weight:700; color:var(--navy); margin:6px 0 4px; }
 .commute-empty-body{ font-size:12.5px; color:var(--ink-3); line-height:1.55; max-width:820px; }
@@ -4921,24 +5064,213 @@ a:hover{ color:var(--link); }
 .commute-scroll{ flex:1; min-width:640px; overflow-y:auto; }
 .commute-table{ width:100%; border-collapse:separate; border-spacing:0; }
 .commute-table thead th{ text-align:left; font-size:9px; letter-spacing:1.2px; text-transform:uppercase; color:var(--ink-4); font-weight:700; padding:16px 14px 10px; border-bottom:1px solid var(--rule); position:sticky; top:0; background:var(--bg); z-index:1; }
-.commute-table th.c-bldg{ width:42%; } .commute-table th.c-dist{ width:26%; }
+.commute-table th.c-bldg{ width:34%; } .commute-table th.c-dist{ width:24%; }
 .commute-table tbody tr{ cursor:pointer; }
 .commute-table tbody tr:hover td{ background:var(--paper-2); }
 .commute-table tbody tr.best td{ background:var(--shortlist-tint); }
 .commute-table td{ padding:14px; border-bottom:1px solid var(--rule-2); vertical-align:middle; font-size:13px; color:var(--ink-2); }
 .commute-cell-bldg{ display:flex; align-items:center; gap:14px; }
-.commute-photo{ width:56px; height:42px; border-radius:6px; overflow:hidden; flex:none; background:var(--paper-3); }
+.commute-photo{ width:56px; height:42px; border-radius:var(--r-sm); overflow:hidden; flex:none; background:var(--paper-3); }
 .commute-photo .placeholder{ font-size:9px; }
 .commute-name{ font-size:14px; font-weight:700; color:var(--navy); display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
 .commute-sub{ font-size:11px; color:var(--ink-4); margin-top:2px; }
-.best-tag{ font-size:8.5px; font-weight:700; letter-spacing:.5px; color:var(--gold-ink); background:#FFF3D6; padding:2px 7px; border-radius:4px; }
+.best-tag{ font-size:8.5px; font-weight:700; letter-spacing:.5px; color:var(--gold-ink); background:#FFF3D6; padding:2px 7px; border-radius:var(--r-sm); }
 .commute-table td.c-num{ font-size:15px; font-weight:700; color:var(--navy); }
 .commute-table td.c-num.dash{ color:var(--ink-4); font-weight:400; }
-.dist-bar{ display:flex; height:8px; border-radius:4px; overflow:hidden; background:var(--rule-2); width:100%; max-width:230px; }
-.dist-bar span{ display:block; height:100%; }
+.dist-bar{ display:flex; height:22px; border-radius:var(--r-sm); overflow:hidden; background:var(--rule-2); width:100%; max-width:none; }
+.dist-bar span{ display:flex; align-items:center; justify-content:center; height:100%; min-width:0; overflow:hidden; font-size:10.5px; font-weight:800; color:#fff; letter-spacing:-.2px; }
+.dist-bar span:nth-child(3){ color:var(--navy); }
 .commute-legend{ display:flex; gap:18px; align-items:center; padding:14px; font-size:11px; color:var(--ink-4); flex-wrap:wrap; }
 .commute-legend i{ display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:middle; }
 .commute-src{ margin-left:auto; }
+
+/* ── Commute v2 ── */
+.commute-wrap{ overflow-y:auto; padding-bottom:40px; }
+.commute-head{ padding:6px 0 14px; }
+.commute-controls{ flex-wrap:wrap; gap:16px 32px; align-items:center; }
+/* Quick comparison strip — auto-shown when a current office (survey or manual) is set */
+.commute-quickcmp{ display:flex; align-items:center; gap:18px 24px; flex-wrap:wrap; margin:0 0 18px; padding:12px 16px; background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--r-md); }
+.cqc-head{ display:flex; flex-direction:column; gap:2px; }
+.cqc-title{ font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--navy); }
+.cqc-sub{ font-size:11.5px; color:var(--ink-4); }
+.cqc-chips{ display:flex; gap:10px; flex-wrap:wrap; margin-left:auto; }
+.cqc-chip{ display:inline-flex; align-items:center; gap:8px; background:var(--paper-card); border:1px solid var(--rule); border-radius:999px; padding:6px 13px; font-size:12px; }
+.cqc-chip b{ color:var(--navy); font-weight:700; }
+.cqc-chip em{ font-style:normal; font-weight:800; }
+.cqc-chip em.g{ color:var(--green); } .cqc-chip em.r{ color:var(--rose); }
+.cm-field{ display:inline-flex; align-items:center; gap:8px; font-family:var(--sans); font-size:12px; font-weight:700; color:var(--ink-3); letter-spacing:-.1px; }
+.cm-field select, .cm-zip{ appearance:none; font-family:var(--sans); font-size:12px; font-weight:600; color:var(--navy); background:var(--paper-card); border:1px solid var(--rule); border-radius:var(--r-sm); padding:7px 11px; cursor:pointer; }
+.cm-field select{ padding-right:26px; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23001E5A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 9px center; background-size:12px; }
+.cm-zip{ width:96px; cursor:text; }
+.cm-slider input[type=range]{ width:120px; accent-color:var(--navy); }
+.cm-slider b{ color:var(--navy); font-size:12px; min-width:48px; }
+.cm-cur{ display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--navy); background:var(--accent-tint); border:1px solid rgba(0,30,90,.18); border-radius:999px; padding:5px 6px 5px 12px; }
+.cm-cur button{ border:0; background:rgba(0,30,90,.10); color:var(--navy); width:18px; height:18px; border-radius:50%; cursor:pointer; font-size:10px; line-height:1; }
+/* Stat tiles */
+.commute-stats{ display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin:2px 0 18px; }
+.cm-tile{ border:1px solid var(--rule); border-radius:var(--r-md); background:var(--paper-card); padding:16px 18px; }
+.cm-tile-l{ font-size:10px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); margin-bottom:8px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.cm-tile-v{ font-size:24px; font-weight:800; color:var(--navy); letter-spacing:-.6px; line-height:1.05; }
+.cm-tile-v .cm-unit{ font-size:12px; font-weight:700; color:var(--ink-4); }
+.cm-tile-s{ font-size:11.5px; color:var(--ink-3); margin-top:6px; }
+.cm-good{ color:var(--green); font-weight:700; }
+.cm-bad{ color:var(--rose); font-weight:700; }
+/* Body split: table + map */
+.commute-body{ display:grid; grid-template-columns:minmax(0,1fr) 860px; gap:28px; align-items:start; }
+.commute-scroll{ min-width:0; overflow:visible; }
+.commute-table thead th{ position:static; background:transparent; padding:8px 9px 10px; }
+.commute-table td{ padding:20px 9px; }
+.commute-table td.c-num.soft{ font-weight:600; color:var(--ink-3); font-size:13px; }
+.commute-table tbody tr.sel td{ background:var(--accent-tint); }
+.cm-pin{ width:26px; height:26px; flex:none; display:inline-grid; place-items:center; border-radius:var(--r-sm); background:var(--navy); color:#fff; font-size:12px; font-weight:800; }
+.commute-table td.c-act{ text-align:right; }
+.link-btn{ border:0; background:transparent; color:var(--link); font-family:var(--sans); font-size:12px; font-weight:700; cursor:pointer; }
+.commute-src{ font-size:11px; color:var(--ink-4); padding:12px 4px 0; margin-left:0; }
+/* Map */
+.commute-map{ position:sticky; top:8px; }
+.cm-svg{ width:100%; height:auto; border:1px solid var(--rule); border-radius:var(--r-md); display:block; background:#EEF3FA; }
+.cm-empty{ display:grid; place-items:center; height:300px; color:var(--ink-4); }
+.cm-legend{ display:flex; gap:16px; flex-wrap:wrap; padding:10px 2px 0; font-size:11px; color:var(--ink-3); }
+.cm-legend i{ display:inline-block; width:10px; height:10px; border-radius:50%; margin-right:6px; vertical-align:middle; }
+/* Head-to-head */
+.commute-h2h{ margin-top:24px; border:1px solid var(--rule); border-radius:var(--r-lg); background:var(--paper-card); padding:18px 20px; }
+.cm-h2h-head{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; margin-bottom:14px; }
+.cm-h2h-head h3{ margin:0; font-size:13px; font-weight:800; letter-spacing:.3px; text-transform:uppercase; color:var(--navy); }
+.cm-h2h-picks{ display:inline-flex; align-items:center; gap:10px; }
+.cm-h2h-picks select{ appearance:none; font-family:var(--sans); font-size:12px; font-weight:700; color:var(--navy); background:var(--paper-card); border:1px solid var(--rule); border-radius:var(--r-sm); padding:7px 26px 7px 11px; cursor:pointer; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23001E5A' stroke-width='2.2'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 9px center; background-size:12px; }
+.cm-vs{ font-size:11px; font-weight:700; color:var(--ink-4); text-transform:uppercase; }
+.cm-h2h-row{ display:grid; grid-template-columns:230px 1fr 96px; align-items:center; gap:16px; margin-bottom:16px; }
+.cm-h2h-lbl{ font-size:12.5px; font-weight:600; color:var(--ink-2); }
+.cm-h2h-track{ height:18px; background:var(--paper-2); border-radius:var(--r-sm); overflow:hidden; }
+.cm-h2h-fill{ height:100%; border-radius:var(--r-sm); }
+.cm-h2h-fill.good{ background:var(--navy); } .cm-h2h-fill.mid{ background:#9AA3B2; } .cm-h2h-fill.bad{ background:var(--gold); }
+.cm-h2h-cnt{ font-size:13px; font-weight:800; color:var(--navy); text-align:right; }
+.cm-h2h-cnt span{ font-size:11px; font-weight:600; color:var(--ink-4); }
+.cm-h2h-summary{ margin-top:22px; padding-top:18px; border-top:1px solid var(--rule); font-size:13px; line-height:1.55; color:var(--ink-2); }
+.cm-h2h-summary b{ color:var(--navy); }
+/* Per-person modal */
+.cm-people-card{ width:min(560px,100%); }
+.cm-people-body{ max-height:60vh; overflow:auto; padding:0 22px; }
+.cm-people-table{ width:100%; border-collapse:collapse; font-size:13px; }
+.cm-people-table thead th{ position:sticky; top:0; background:var(--paper-card); text-align:left; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-4); font-weight:700; padding:10px 14px; border-bottom:1px solid var(--rule); }
+.cm-people-table td{ padding:10px 14px; border-bottom:1px solid var(--rule-2); color:var(--ink-2); }
+.cm-people-table th:first-child, .cm-people-table td:first-child{ padding-left:0; }
+.cm-people-table th:last-child, .cm-people-table td:last-child{ padding-right:0; }
+.cm-people-table td.cm-p-i{ color:var(--ink-4); }
+.cm-people-table td.cm-p-m{ font-weight:800; color:var(--navy); }
+.cm-people-table td.cm-good{ color:var(--green); font-weight:700; }
+.cm-people-table td.cm-bad{ color:var(--rose); font-weight:700; }
+.cm-people-table tbody tr:nth-child(even) td{ background:var(--paper-2); }   /* faint zebra — matches suite & compare tables */
+.cm-people-table th.cm-sort{ cursor:pointer; user-select:none; white-space:nowrap; }
+.cm-people-table th.cm-sort:hover{ color:var(--navy); }
+.cm-dot{ display:inline-block; width:9px; height:9px; border-radius:50%; }
+.cm-dot.good{ background:var(--navy); } .cm-dot.mid{ background:#0056DA; } .cm-dot.far{ background:var(--gold); }
+/* Head-to-head selector box (controls bar) */
+.cm-h2h-box{ display:inline-flex; align-items:center; gap:8px; padding:5px 6px 5px 14px; border:1px solid var(--rule); border-radius:999px; background:var(--paper-card); }
+.cm-h2h-t{ font-size:9.5px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--ink-4); white-space:nowrap; }
+.cm-h2h-box select{ appearance:none; font-family:var(--sans); font-size:12px; font-weight:700; color:var(--navy); background:var(--paper-card); border:1px solid var(--rule); border-radius:var(--r-sm); padding:6px 24px 6px 10px; cursor:pointer; max-width:150px; text-overflow:ellipsis; background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23001E5A' stroke-width='2.2'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 8px center; background-size:11px; }
+/* Avg-drive unit in table */
+.cm-min{ font-size:11px; font-weight:700; color:var(--ink-4); }
+/* Per-building detail popup */
+.cm-detail-stats{ display:grid; grid-template-columns:repeat(4,1fr); gap:12px; padding:16px 22px; }
+.cm-ds{ border:1px solid var(--rule); border-radius:var(--r-md); background:var(--paper-2); padding:12px 14px; }
+.cm-ds .l{ font-size:9.5px; font-weight:700; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); margin-bottom:6px; }
+.cm-ds .v{ font-size:22px; font-weight:800; color:var(--navy); letter-spacing:-.5px; line-height:1; }
+.cm-ds .v span{ font-size:11px; font-weight:700; color:var(--ink-4); }
+.cm-ds .s{ font-size:10.5px; color:var(--ink-3); margin-top:6px; line-height:1.3; }
+/* Head-to-head popup */
+.cm-h2h-card{ width:min(620px,100%); }
+.cm-h2h-modal-body{ padding:6px 0 4px; }
+.cm-h2h-modal-body .cm-h2h-row{ grid-template-columns:minmax(0,1.1fr) 1.4fr 92px; }
+@media (max-width:640px){ .cm-detail-stats{ grid-template-columns:repeat(2,1fr); } }
+/* ── Commute v3: color mode, larger map, checkbox compare, address marker ── */
+.commute-mapcol{ position:sticky; top:8px; display:flex; flex-direction:column; gap:10px; }
+.commute-mapcol .commute-map{ position:static; }
+.cm-map-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; }
+.cm-map-title{ font-size:11px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:var(--ink-4); }
+.cm-colorseg .seg-btn{ font-size:11px; padding:5px 11px; }
+.cm-legend-mark{ display:inline-flex; align-items:center; gap:6px; }
+.cm-legend-mark svg{ vertical-align:middle; }
+/* Per-employee hover tooltip on the map */
+.cm-svg-wrap{ position:relative; }
+.cm-emp-tip{ position:absolute; z-index:6; transform:translate(-50%,calc(-100% - 12px)); width:184px; background:var(--navy); color:#fff; border-radius:var(--r-md); padding:10px 12px; box-shadow:0 10px 26px -8px rgba(0,0,0,.5); pointer-events:none; font-family:var(--sans); }
+.cm-emp-tip.below{ transform:translate(-50%,14px); }
+.cm-emp-tip::after{ content:''; position:absolute; left:50%; bottom:-6px; transform:translateX(-50%); border:6px solid transparent; border-top-color:var(--navy); }
+.cm-emp-tip.below::after{ bottom:auto; top:-6px; border-top-color:transparent; border-bottom-color:var(--navy); }
+.cm-tip-zip{ font-size:11.5px; font-weight:800; letter-spacing:.3px; margin-bottom:7px; }
+.cm-tip-row{ display:flex; justify-content:space-between; gap:14px; font-size:11.5px; margin-top:3px; color:rgba(255,255,255,.82); }
+.cm-tip-row b{ color:#fff; font-weight:800; }
+.cm-tip-row b.g{ color:#7FE0B0; } .cm-tip-row b.r{ color:#FF9B9B; }
+.cm-tip-band{ display:flex; align-items:center; gap:6px; font-size:10.5px; color:rgba(255,255,255,.72); margin-top:8px; padding-top:8px; border-top:1px solid rgba(255,255,255,.18); }
+.cm-tip-band i{ width:9px; height:9px; border-radius:50%; display:inline-block; flex:none; }
+/* address input for existing office */
+.cm-addr-in{ width:200px; font-family:var(--sans); font-size:12px; font-weight:600; color:var(--navy); background:var(--paper-card); border:1px solid var(--rule); border-radius:var(--r-sm); padding:7px 11px; }
+/* Roster upload */
+.cm-upload-btn{ white-space:nowrap; }
+.cm-roster-tag{ display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:700; color:var(--navy); background:var(--accent-tint); border:1px solid rgba(0,30,90,.18); border-radius:999px; padding:5px 6px 5px 12px; }
+.cm-roster-tag button{ border:0; background:rgba(0,30,90,.10); color:var(--navy); width:18px; height:18px; border-radius:50%; cursor:pointer; font-size:10px; line-height:1; }
+.cm-upload-card{ width:min(560px,100%); }
+.cm-upload-body{ padding:20px 22px 6px; }
+.cm-up-sec{ margin-bottom:20px; }
+.cm-up-label{ font-size:12px; font-weight:800; color:var(--navy); margin-bottom:4px; }
+.cm-up-hint{ font-size:11.5px; color:var(--ink-4); line-height:1.45; margin-bottom:10px; }
+.cm-up-file{ display:inline-flex; align-items:center; gap:10px; margin-bottom:10px; cursor:pointer; }
+.cm-up-file input[type=file]{ display:none; }
+.cm-up-file span{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:700; color:var(--navy); background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--r-sm); padding:8px 12px; }
+.cm-up-file:hover span{ border-color:var(--navy); }
+.cm-up-file em{ font-style:normal; font-size:11.5px; color:var(--ink-4); }
+.cm-up-text{ width:100%; box-sizing:border-box; font-family:var(--mono); font-size:12px; color:var(--navy); background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--r-sm); padding:10px 12px; resize:vertical; line-height:1.55; }
+.cm-up-text:focus{ outline:none; border-color:var(--navy); background:var(--paper); }
+.cm-up-count{ font-size:11.5px; font-weight:700; color:var(--ink-3); margin-top:8px; }
+.cm-up-office{ width:100%; box-sizing:border-box; }
+.cm-up-actions{ display:flex; align-items:center; gap:10px; padding:14px 22px; border-top:1px solid var(--rule); flex-wrap:wrap; }
+.cm-up-note{ font-size:11px; color:var(--ink-4); flex:1; min-width:180px; }
+.cm-cur svg{ vertical-align:middle; }
+/* table select bar + checkboxes */
+.cm-tablebar{ display:flex; align-items:center; justify-content:space-between; gap:12px; min-height:32px; padding:2px 4px 8px; }
+.cm-selhint{ font-size:12px; color:var(--ink-4); }
+.cm-selhint.on{ color:var(--ink-2); } .cm-selhint b{ color:var(--navy); }
+.cm-selactions{ display:inline-flex; gap:8px; align-items:center; }
+.commute-table th.c-chk{ width:34px; padding-left:8px; padding-right:0; }
+.commute-table td.c-chk{ padding-left:8px; padding-right:0; }
+.cm-check{ display:inline-flex; cursor:pointer; position:relative; align-items:center; }
+.cm-check input{ position:absolute; opacity:0; width:18px; height:18px; margin:0; cursor:pointer; }
+.cm-check span{ width:18px; height:18px; border:1.5px solid var(--rule); border-radius:var(--r-sm); background:var(--paper-card); display:inline-block; position:relative; transition:background .12s,border-color .12s; }
+.cm-check input:checked + span{ background:var(--navy); border-color:var(--navy); }
+.cm-check input:checked + span::after{ content:''; position:absolute; left:5px; top:1.5px; width:5px; height:9px; border:solid #fff; border-width:0 2px 2px 0; transform:rotate(45deg); }
+.cm-check input:focus-visible + span{ box-shadow:0 0 0 3px var(--accent-tint); }
+.commute-table tbody tr.ticked td{ background:var(--accent-tint); }
+.commute-table tbody tr.ticked td.c-chk{ box-shadow:inset 3px 0 0 var(--navy); }
+/* two-building comparison popup */
+.cm-cmp-card{ width:min(760px,100%); }
+.cm-cmp-card .lightbox-head{ padding:22px 28px; }
+.cm-detail-seg{ display:inline-flex; margin-bottom:20px; }
+.cm-detail-seg .seg-btn{ font-size:12px; padding:7px 16px; }
+.cm-detail-note{ margin-top:14px; padding:16px 18px; background:var(--paper-2); border:1px solid var(--rule); border-radius:var(--r-md); font-size:12.5px; line-height:1.5; color:var(--ink-3); }
+.cm-detail-note b{ color:var(--navy); }
+.cm-emp-filter{ display:flex; align-items:center; gap:14px; margin-bottom:6px; }
+.cm-emp-count{ font-size:11.5px; color:var(--ink-4); font-weight:600; }
+.cm-cmp-card .cm-detail-stats{ padding:0 0 4px; }
+.cm-cmp-body{ padding:22px 28px 28px; max-height:74vh; overflow:auto; }
+.cm-cmp-table{ width:100%; border-collapse:collapse; font-size:13px; }
+.cm-cmp-table thead th{ text-align:left; font-size:9px; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-4); font-weight:700; padding:4px 12px 14px; border-bottom:1px solid var(--rule); }
+.cm-cmp-table thead th:first-child{ width:30%; }
+.cm-cmp-table td{ padding:16px 12px; border-bottom:1px solid var(--rule-2); color:var(--ink-2); }
+.cm-cmp-table th:first-child, .cm-cmp-table td:first-child{ padding-left:0; }
+.cm-cmp-table th:last-child, .cm-cmp-table td:last-child{ padding-right:0; }
+.cm-cmp-table td.cm-cmp-m{ font-weight:700; color:var(--navy); }
+.cm-cmp-table td.cm-cmp-win{ font-weight:800; color:var(--navy); }
+.cm-cmp-d{ color:var(--ink-3); font-size:12px; white-space:nowrap; } .cm-cmp-d b{ color:var(--navy); }
+.cm-cmp-sec{ font-size:10px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; color:var(--ink-4); margin:30px 0 18px; padding-top:24px; border-top:1px solid var(--rule); }
+.cm-cmp-distrow{ display:grid; grid-template-columns:150px minmax(0,1fr) 96px; align-items:center; gap:16px; margin-bottom:16px; }
+.cm-cmp-distname{ font-size:12.5px; font-weight:700; color:var(--navy); }
+.cm-cmp-distbar{ max-width:none; height:20px; }
+.cm-cmp-distpct{ font-size:12px; font-weight:700; color:var(--navy); text-align:right; }
+.cm-cmp-distlegend{ display:flex; gap:16px; font-size:11px; color:var(--ink-4); margin:18px 0 2px; flex-wrap:wrap; }
+.cm-cmp-distlegend i{ display:inline-block; width:10px; height:10px; border-radius:2px; margin-right:6px; vertical-align:middle; }
+@media (max-width:1560px){ .commute-body{ grid-template-columns:minmax(0,1fr) 720px; } }
+@media (max-width:1360px){ .commute-body{ grid-template-columns:minmax(0,1fr) 600px; } }
+@media (max-width:1100px){ .commute-body{ grid-template-columns:1fr; } .commute-map, .commute-mapcol{ position:static; } .commute-stats{ grid-template-columns:1fr; } .cm-h2h-row{ grid-template-columns:150px 1fr 72px; } .cm-cmp-distrow{ grid-template-columns:120px minmax(0,1fr) 80px; } }
 
 /* ══════════════════════════════════════════════════════════════════════
    POLISH LAYER — appended last so it wins the cascade.
@@ -5006,7 +5338,7 @@ a:hover{ color:var(--link); }
 :where(button, a, input, select, textarea, summary, [tabindex]):focus-visible {
   outline: 2px solid var(--accent);
   outline-offset: 2px;
-  border-radius: 5px;
+  border-radius: var(--r-sm);
 }
 .comment-input:focus-visible, .home-search input:focus-visible { outline: none; }
 
@@ -5020,14 +5352,106 @@ a:hover{ color:var(--link); }
 .compare-table thead th { position: sticky; top: 0; z-index: 2; }
 .compare-row-label { box-shadow: 1px 0 0 var(--rule); }
 
-/* Compare view — larger, consistent table typography. Data cells, the left
-   axis labels, and the Shortlist/Pass row all share the same UI font (Inter)
-   so nothing reads as a different typeface. */
-.compare-table th, .compare-table td { font-size: 14px; }
+/* Compare view — table typography matched to the building-detail availability
+   (suite) table: 12px data cells, same UI font (Inter) throughout. */
+.compare-table th, .compare-table td { font-size: 12px; }
 .compare-table .compare-row-label { font-family: var(--sans) !important; font-size: 12px !important; }
 .compare-table .vote-btn { font-family: var(--sans); font-size: 13px; }
-.compare-name { font-size: 15px; }
-.compare-addr { font-size: 12px; }
+.compare-name { font-size: 13px; }
+.compare-addr { font-size: 10.5px; }
+
+/* Top-left corner (empty cell above the row labels, in the photo row) reads as a
+   stray gray box next to the first property's photo — make it blank. */
+.compare-table thead tr:first-child .compare-row-label{
+  background:transparent !important; box-shadow:none !important;
+  border-right-color:transparent !important; border-bottom-color:transparent !important;
+}
+/* Vote (shortlist / remove) moved into the navy name band — compact icon-only
+   buttons that read on the dark background. */
+.compare-name-row .compare-namecell-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.compare-name-row .compare-nameblock{ min-width:0; }
+.compare-name-row .vote-group{ flex:none; background:rgba(255,255,255,0.12); border-color:rgba(255,255,255,0.30); }
+.compare-name-row .vote-btn{ color:#fff; padding:5px 8px; }
+.compare-name-row .vote-btn:hover{ background:rgba(255,255,255,0.16); color:#fff; }
+.compare-name-row .vote-btn + .vote-btn{ border-left-color:rgba(255,255,255,0.30); }
+.compare-name-row .vote-btn.up.active, .compare-name-row .vote-btn.down.active{ background:var(--gold); color:var(--navy); }
+.compare-name-row .vote-btn svg{ width:14px; height:14px; }
+
+/* ── Compare matrix — decision-support upgrades ── */
+/* The wrap becomes the vertical scroll region so the navy name band can pin. */
+.compare-wrap{ flex:1; min-height:0; overflow:auto; }
+/* Photos a touch shorter; grabbable for drag-to-reorder. */
+.compare-photo{ height:112px; position:relative; cursor:grab; }
+.compare-photo:active{ cursor:grabbing; }
+/* A dashed "grab box" + handle appears on hover to signal drag-to-reorder. */
+.compare-photo:hover{ outline:2px dashed rgba(0,30,90,.35); outline-offset:-2px; }
+.compare-photo .cp-drag{ position:absolute; top:6px; left:6px; display:inline-flex; align-items:center; gap:4px; padding:3px 7px; font-size:9px; font-weight:800; letter-spacing:.4px; text-transform:uppercase; color:var(--navy); background:rgba(255,255,255,.94); border:1px dashed var(--navy); border-radius:var(--r-sm); opacity:0; transition:opacity .15s var(--ease); pointer-events:none; box-shadow:var(--shadow-1); }
+.compare-photo:hover .cp-drag{ opacity:1; }
+.cp-grip{ font-size:11px; line-height:1; letter-spacing:-1px; }
+/* Shortlist/pass pill on the photo (upper-left) — matches the map & detail hero.
+   Hidden on hover so it doesn't collide with the drag cue. */
+.compare-photo .cp-badge{ position:absolute; top:8px; left:8px; z-index:4; display:inline-flex; align-items:center; gap:4px; font-size:9px; font-weight:800; letter-spacing:.5px; text-transform:uppercase; padding:3px 8px; border-radius:var(--r-sm); box-shadow:var(--shadow-1); transition:opacity .15s var(--ease); }
+.compare-photo .cp-badge.short{ background:var(--gold); color:var(--navy); }
+.compare-photo .cp-badge.pass{ background:rgba(14,18,32,.72); color:#fff; }
+.compare-photo:hover .cp-badge{ opacity:0; }
+.compare-photo .cp-view{ position:absolute; left:0; right:0; bottom:0; padding:14px 10px 6px; font-size:11px; font-weight:700; color:#fff; text-align:center; background:linear-gradient(transparent, rgba(0,30,90,.72)); opacity:0; transition:opacity .15s var(--ease); pointer-events:none; }
+.compare-photo:hover .cp-view{ opacity:1; }
+.compare-photo .cp-colbar{ position:absolute; top:6px; right:6px; display:flex; gap:3px; opacity:0; transition:opacity .15s var(--ease); }
+.compare-photo:hover .cp-colbar{ opacity:1; }
+.cp-act{ width:22px; height:22px; display:inline-grid; place-items:center; border:0; border-radius:var(--r-sm); background:rgba(255,255,255,.94); color:var(--navy); font-size:14px; line-height:1; cursor:pointer; box-shadow:var(--shadow-1); }
+.cp-act:hover{ background:#fff; }
+.cp-act.cp-remove{ color:var(--rose); font-size:11px; }
+.cp-act.cp-remove:hover{ background:var(--rose); color:#fff; }
+/* Drag feedback: dragged column dims, drop-target column gets a gold outline. */
+.compare-table th.col-dragging .compare-photo{ opacity:.4; outline:none; }
+.compare-table th.col-dragover .compare-photo{ outline:2px solid var(--gold); outline-offset:-2px; }
+/* Section subheaders — Building Info / Economics. Both rows are styled the same;
+   the :nth-child(n) bump beats the zebra's odd-row row-label rule so the first
+   section (an odd tbody row) doesn't render differently from the rest. */
+.compare-table tbody tr.compare-grouprow td{ background:#EEF2F8 !important; font-size:10px; font-weight:800; letter-spacing:1.2px; text-transform:uppercase; color:var(--navy) !important; padding:7px 16px; }
+.compare-table tbody tr.compare-grouprow:nth-child(n) .compare-row-label{ background:#EEF2F8 !important; color:var(--navy) !important; box-shadow:none !important; }
+/* Faint vertical dividers between columns + full-row hover (not group rows). */
+.compare-table td, .compare-table th{ border-right:1px solid var(--rule-2); }
+.compare-table td:last-child, .compare-table th:last-child{ border-right:0; }
+.compare-table tbody tr:not(.compare-grouprow):hover td{ background:var(--paper-3) !important; }
+/* Pin the navy name band; let the photo row scroll away above it. */
+.compare-table thead tr:first-child th{ position:static; }
+.compare-table thead tr.compare-name-row th{ position:sticky; top:0; z-index:3; }
+.compare-table thead tr.compare-name-row .compare-row-label{ z-index:4; }
+/* Shortlisted column — faint gold, with the zebra striping preserved. */
+.compare-photo.shortlisted-top{ box-shadow: inset 0 0 0 2px var(--gold); }
+.compare-name-row th.compare-namecell.is-short{ box-shadow: inset 0 3px 0 var(--gold); }
+.compare-table tbody tr:nth-child(odd) td.is-short{ background:rgba(255,182,0,.06) !important; }
+.compare-table tbody tr:nth-child(even) td.is-short{ background:rgba(255,182,0,.13) !important; }
+.compare-table tbody tr:hover td.is-short{ background:rgba(255,182,0,.22) !important; }
+/* Passed / downvoted column — text grayed so it recedes but stays legible. */
+.compare-table tbody td.is-down{ color:var(--ink-4) !important; }
+.compare-name-row th.is-down .compare-name{ color:rgba(255,255,255,.55); }
+.compare-name-row th.is-down .compare-addr{ color:rgba(255,255,255,.40); }
+.compare-foot a{ cursor:pointer; }
+
+/* ── Compare toolbar (differences / baseline / add / export) ── */
+.compare-toolbar{ display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:12px; padding:0 0 14px; }
+.compare-toolbar .ctb-group{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+.ctb-chip{ appearance:none; font-family:var(--sans); font-size:12px; font-weight:600; letter-spacing:-.1px; color:var(--ink-2); background:var(--paper-card); border:1px solid var(--rule); border-radius:999px; padding:7px 13px; cursor:pointer; transition:background .12s, border-color .12s, color .12s; }
+.ctb-chip:hover{ border-color:var(--ink-4); }
+.ctb-chip.on{ background:var(--navy); border-color:var(--navy); color:#fff; }
+.ctb-field{ display:inline-flex; align-items:center; gap:7px; font-family:var(--sans); font-size:12px; font-weight:700; color:var(--ink-3); letter-spacing:-.1px; }
+.ctb-field select{ appearance:none; -webkit-appearance:none; font-family:var(--sans); font-size:12px; font-weight:600; color:var(--navy); background-color:var(--paper-card); border:1px solid var(--rule); border-radius:var(--r-sm); padding:7px 28px 7px 11px; cursor:pointer;
+  background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23001E5A' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'><path d='M6 9l6 6 6-6'/></svg>"); background-repeat:no-repeat; background-position:right 9px center; background-size:12px; }
+.ctb-field select:hover{ border-color:var(--ink-4); }
+.ctb-legend{ display:inline-flex; align-items:center; gap:6px; font-family:var(--sans); font-size:11px; font-weight:600; color:var(--ink-3); }
+.ctb-dot{ width:7px; height:7px; border-radius:50%; background:var(--gold); box-shadow:0 0 0 2px rgba(255,182,0,.25); }
+/* Best-in-row cell (tenant-favorable) — bold + a small gold dot. */
+.compare-table td.cell-best .cell-val{ font-weight:800; color:var(--navy); }
+.compare-table td.cell-best .cell-val::after{ content:'●'; color:var(--gold); font-size:7px; vertical-align:middle; margin-left:6px; position:relative; top:-1px; }
+/* Delta vs. baseline. */
+.cell-delta{ display:block; font-size:10px; font-weight:700; margin-top:3px; letter-spacing:-.1px; }
+.cell-delta.good{ color:var(--green); }
+.cell-delta.bad{ color:var(--ink-4); }
+.base-tag{ display:inline-block; margin-left:6px; font-size:8px; font-weight:800; letter-spacing:.6px; text-transform:uppercase; color:var(--gold); background:rgba(255,182,0,.16); border-radius:3px; padding:1px 5px; vertical-align:middle; }
+/* Screen-reader-only (table caption). */
+.sr-only{ position:absolute !important; width:1px; height:1px; padding:0; margin:-1px; overflow:hidden; clip:rect(0,0,0,0); white-space:nowrap; border:0; }
 
 /* Respect reduced-motion preferences */
 @media (prefers-reduced-motion: reduce) {
@@ -5151,6 +5575,7 @@ function adaptRecord(sid, rec) {
     status:         rec.status || 'draft',
     updated_at:     rec.updatedAt || rec.snapshotAt || null,
     city_state:     cfg.cityState || '',
+    current_address: cfg.currentAddress || rec.currentAddress || '',
     matrixView:     cfg.matrixView || { rows: [], cells: {} },
     brokers: [
       cfg.broker1Name && { name: cfg.broker1Name, title: cfg.broker1Title, email: cfg.broker1Email, phone: cfg.broker1Phone, initials: initialsOf(cfg.broker1Name) },
@@ -5238,6 +5663,7 @@ const PREVIEW_RECORD = {
   updatedAt: { toDate: () => new Date() },
   cfg: {
     clientName: 'Acme Co', cityState: 'Houston, Texas',
+    currentAddress: '1000 Louisiana St, Houston, TX 77002',   // client's existing office (from intake) — auto-loads the commute comparison
     propertyProfile: 'office', docType: 'survey',
     broker1Name: 'Grant Mehlhoff', broker1Title: 'Advisor', broker1Email: 'gmehlhoff@cresa.com', broker1Phone: '713 555 0100',
     matrixView: {
@@ -5602,8 +6028,8 @@ function VoteGroup({ vote, onVote, size = 'sm' }) {
 
 // Vote-status badge for broker view
 function VoteBadge({ vote }) {
-  if (vote === 'up') return <span className="badge interested"><Icon.ThumbUp width="11" height="11"/> Shortlisted</span>;
-  if (vote === 'down') return <span className="badge passed"><Icon.ThumbDown width="11" height="11"/> Discarded</span>;
+  if (vote === 'up') return <span className="badge interested"><Icon.ThumbUp width="11" height="11"/> Shortlist</span>;
+  if (vote === 'down') return <span className="badge passed"><Icon.ThumbDown width="11" height="11"/> Remove</span>;
   return <span className="badge novote">No vote yet</span>;
 }
 
@@ -5624,33 +6050,43 @@ Object.assign(window, { Icon, Placeholder, VoteGroup, VoteBadge, CRESA_LOGO });
 
 // Exact cresaStyles array — copied verbatim from the Cresa reference file
 // so the base map renders identically.
+// Cresa blue-hued base map — duplicated from the Cresa Houston Law Firm Database
+// so both apps share one map look (blue-grey land, blue water, quiet roads that
+// fill in on zoom, strong city labels, POI clutter hidden, muted parks).
 const CRESA_STYLES = [
-  { elementType: 'geometry', stylers: [{ color: '#F2F4F8' }] },
+  { elementType: 'geometry', stylers: [{ color: '#F1F4F9' }] },
   { elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }] },
   { elementType: 'labels.text.stroke', stylers: [{ color: '#FFFFFF' }, { weight: 3 }] },
   { elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
-  { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#C6CDD9' }, { weight: 0.8 }] },
-  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#2B3350' }, { weight: 600 }] },
-  { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }] },
-  { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#EBEEF4' }] },
-  { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#F2F4F8' }] },
-  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#D8E2D6' }] },
-  { featureType: 'poi.park', elementType: 'labels.text.fill', stylers: [{ color: '#5A7562' }] },
   { featureType: 'poi', elementType: 'labels', stylers: [{ visibility: 'off' }] },
   { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
   { featureType: 'transit', stylers: [{ visibility: 'off' }] },
-  { featureType: 'road', elementType: 'geometry.fill', stylers: [{ color: '#FFFFFF' }] },
-  { featureType: 'road', elementType: 'geometry.stroke', stylers: [{ color: '#E4E8F0' }, { weight: 0.5 }] },
-  { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: '#D6DDEA' }] },
-  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#001E5A' }, { weight: 0.6 }] },
-  { featureType: 'road.highway.controlled_access', elementType: 'geometry.fill', stylers: [{ color: '#C9D2E2' }] },
-  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#001E5A' }] },
-  { featureType: 'road.arterial', elementType: 'geometry.fill', stylers: [{ color: '#FFFFFF' }] },
-  { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#2B3350' }] },
-  { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#5A6580' }] },
-  { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#C9D9EC' }] },
-  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#001E5A' }] },
-  { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#C9D9EC' }, { weight: 2 }] },
+  { featureType: 'poi.park', elementType: 'geometry', stylers: [{ color: '#DCE6DC' }] },
+  { featureType: 'administrative', elementType: 'geometry.stroke', stylers: [{ color: '#BAC3D2' }, { weight: 0.7 }] },
+  { featureType: 'administrative.country', elementType: 'geometry.stroke', stylers: [{ color: '#8A96AE' }, { weight: 1.4 }] },
+  { featureType: 'administrative.province', elementType: 'geometry.stroke', stylers: [{ color: '#9AA6BC' }, { weight: 1.1 }] },
+  { featureType: 'administrative.province', elementType: 'labels.text.fill', stylers: [{ color: '#7A8398' }] },
+  { featureType: 'administrative.locality', elementType: 'labels', stylers: [{ visibility: 'on' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.fill', stylers: [{ color: '#1E2A47' }] },
+  { featureType: 'administrative.locality', elementType: 'labels.text.stroke', stylers: [{ color: '#FFFFFF' }, { weight: 3.5 }] },
+  { featureType: 'administrative.neighborhood', elementType: 'labels.text.fill', stylers: [{ color: '#8A93A8' }] },
+  { featureType: 'landscape.natural', elementType: 'geometry', stylers: [{ color: '#E9EDF5' }] },
+  { featureType: 'landscape.man_made', elementType: 'geometry', stylers: [{ color: '#F1F4F9' }] },
+  { featureType: 'road', elementType: 'labels.icon', stylers: [{ visibility: 'off' }] },
+  { featureType: 'road.local', elementType: 'geometry.fill', stylers: [{ color: '#FFFFFF' }] },
+  { featureType: 'road.local', elementType: 'geometry.stroke', stylers: [{ color: '#E4E8F1' }, { weight: 0.35 }] },
+  { featureType: 'road.local', elementType: 'labels.text.fill', stylers: [{ color: '#8A93A8' }] },
+  { featureType: 'road.arterial', elementType: 'geometry.fill', stylers: [{ color: '#EDF0F7' }] },
+  { featureType: 'road.arterial', elementType: 'geometry.stroke', stylers: [{ color: '#E7EBF3' }, { weight: 0.2 }] },
+  { featureType: 'road.arterial', elementType: 'labels.text.fill', stylers: [{ color: '#6B7488' }] },
+  { featureType: 'road.highway', elementType: 'geometry.fill', stylers: [{ color: '#DEE3EF' }] },
+  { featureType: 'road.highway', elementType: 'geometry.stroke', stylers: [{ color: '#93A0BE' }, { weight: 0.4 }] },
+  { featureType: 'road.highway.controlled_access', elementType: 'geometry.fill', stylers: [{ color: '#D2DAE8' }] },
+  { featureType: 'road.highway.controlled_access', elementType: 'geometry.stroke', stylers: [{ color: '#8492B2' }, { weight: 0.5 }] },
+  { featureType: 'road.highway', elementType: 'labels.text.fill', stylers: [{ color: '#5A6A92' }] },
+  { featureType: 'water', elementType: 'geometry.fill', stylers: [{ color: '#C6D8EC' }] },
+  { featureType: 'water', elementType: 'labels.text.fill', stylers: [{ color: '#3A5488' }] },
+  { featureType: 'water', elementType: 'labels.text.stroke', stylers: [{ color: '#C6D8EC' }, { weight: 2 }] },
 ];
 
 // Custom OverlayView class that renders an arbitrary HTML element at a lat/lng.
@@ -5678,6 +6114,9 @@ function makeHtmlMarkerClass(google) {
       if (this._handlers.onDblClick) {
         div.addEventListener('dblclick', (e) => { e.stopPropagation(); this._handlers.onDblClick(); });
       }
+      // Raise the hovered marker so its info card sits above neighbouring pins.
+      div.addEventListener('mouseenter', () => { div.style.zIndex = '999'; });
+      div.addEventListener('mouseleave', () => { div.style.zIndex = '2'; });
       this._div = div;
       this.getPanes().overlayMouseTarget.appendChild(div);
     }
@@ -5705,10 +6144,15 @@ function makeHtmlMarkerClass(google) {
   };
 }
 
-function pinHtml(idx, isSelected, name, isShort) {
+function pinHtml(idx, isSelected, name, isShort, address, submarket, photoUrl) {
   const cls = 'map-pin' + (isShort ? ' short' : '') + (isSelected ? ' selected' : '');
-  const title = String(name || '').replace(/"/g, '&quot;');
-  return `<div class="${cls}" title="${title}"><div class="map-pin-body"><span class="map-pin-num">${idx + 1}</span></div></div>`;
+  const esc = (s) => String(s || '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  const nm = esc(name), addr = esc(address), sub = esc(submarket);
+  const photo = photoUrl
+    ? `<div class="mpc-photo"><img src="${esc(photoUrl)}" alt="" loading="lazy"></div>`
+    : `<div class="mpc-photo mpc-photo-ph">Exterior photo</div>`;
+  const card = `<div class="map-pin-card">${photo}<div class="mpc-body"><div class="mpc-name">${nm}</div>${addr ? `<div class="mpc-addr">${addr}</div>` : ''}${sub ? `<div class="mpc-sub">${sub}</div>` : ''}</div></div>`;
+  return `<div class="${cls}">${card}<div class="map-pin-body"><span class="map-pin-num">${idx + 1}</span></div></div>`;
 }
 
 function MapView({ buildings, selectedId, onSelect, onOpen, statuses, mode }) {
@@ -5744,8 +6188,8 @@ function MapView({ buildings, selectedId, onSelect, onOpen, statuses, mode }) {
     if (!apiReady || !containerRef.current || mapRef.current) return;
     const google = window.google;
     const map = new google.maps.Map(containerRef.current, {
-      center: { lat: 29.755, lng: -95.43 },
-      zoom: 11,
+      center: { lat: 29.76, lng: -95.40 },
+      zoom: 10,
       zoomControl: true,
       mapTypeControl: false,
       streetViewControl: false,
@@ -5793,7 +6237,8 @@ function MapView({ buildings, selectedId, onSelect, onOpen, statuses, mode }) {
       seen.add(b.id);
       const isSelected = b.id === selectedId;
       const isShort = statuses && statuses[b.id] && statuses[b.id].vote === 'up';
-      const html = pinHtml(i, isSelected, b.name, isShort);
+      const photoUrl = (b.photos && b.photos[0]) ? cdnImg(b.photos[0], 240) : '';
+      const html = pinHtml(i, isSelected, b.name, isShort, b.address, b.submarket, photoUrl);
       const position = new google.maps.LatLng(b.lat, b.lng);
 
       let marker = markersRef.current[b.id];
@@ -5852,8 +6297,8 @@ function MapView({ buildings, selectedId, onSelect, onOpen, statuses, mode }) {
       )}
       <div className="map-legend">
         <div className="legend-row" style={{fontWeight:700, color:'var(--navy)', letterSpacing:'1px'}}>LEGEND</div>
-        <div className="legend-row"><span className="legend-dot" style={{background:'#fff', border:'2px solid var(--navy)'}}/> Candidate</div>
-        <div className="legend-row"><span className="legend-dot" style={{background:'var(--navy)', boxShadow:'0 0 0 2px var(--gold)'}}/> Shortlisted</div>
+        <div className="legend-row"><span className="legend-dot" style={{background:'var(--navy)'}}/> Candidate</div>
+        <div className="legend-row"><span className="legend-dot" style={{background:'var(--navy)', boxShadow:'0 0 0 2px var(--gold)'}}/> Shortlist</div>
       </div>
     </div>
   );
@@ -5912,23 +6357,23 @@ function PropertyCard({ building, idx, status, selected, matrixView, interactive
       onClick={() => onOpen(building.id)}
       onMouseEnter={() => onSelect(building.id)}
     >
-      <div className="pc-ghostnum">{String(idx + 1).padStart(2, '0')}</div>
+      <div className="pc-pin">{idx + 1}</div>
       <div className="pc-photo" style={{ position: 'relative' }}>
         <Photo src={building.photos[0]} w={640} label="Exterior photo" />
-        {shortlisted && <span className="pc-badge short">★ SHORTLISTED</span>}
-        {passed && <span className="pc-badge pass">PASSED</span>}
+        {shortlisted && <span className="pc-badge short">★ SHORTLIST</span>}
+        {passed && <span className="pc-badge pass">REMOVE</span>}
       </div>
       <div className="pc-body">
         <div className="pc-name">{building.name}</div>
         <div className="pc-addr">{[building.address, building.submarket].filter(Boolean).join(' · ')}</div>
         <div className="pc-stats">
-          <div>
-            <div className="pc-stat-val">{sfRange}</div>
-            <div className="pc-stat-label">SF</div>
+          <div className="pc-stat-primary">
+            <div className="pc-stat-val">{rent || '—'}</div>
+            <div className="pc-stat-label">Asking rent</div>
           </div>
           <div>
-            <div className="pc-stat-val">{rent || '—'}</div>
-            <div className="pc-stat-label">Total Asking Rent</div>
+            <div className="pc-stat-val">{sfRange}</div>
+            <div className="pc-stat-label">Size · SF</div>
           </div>
           <div>
             <div className="pc-stat-val">{avail || '—'}</div>
@@ -5954,7 +6399,7 @@ function GalleryTile({ building, idx, status, cols, onOpen, onSelect }) {
     <div className={'gallery-tile' + (passed ? ' passed' : '')}
          onClick={() => onOpen(building.id)} onMouseEnter={() => onSelect(building.id)}>
       {shortlisted && <span className="gallery-badge short">★ SHORTLIST</span>}
-      {passed && <span className="gallery-badge pass">PASSED</span>}
+      {passed && <span className="gallery-badge pass">REMOVE</span>}
       {building.photos[0] && <img className="real-photo" src={cdnImg(building.photos[0], 640)} alt="" loading="lazy" />}
       <div className="gallery-cap">
         <div className="gallery-cap-top">
@@ -6070,6 +6515,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
   const [draft, setDraft] = React.useState('');
   const [showMore, setShowMore] = React.useState(false);
   const [lightbox, setLightbox] = React.useState(null); // {label, url, sub}
+  const [suiteModal, setSuiteModal] = React.useState(null); // full data for one space
   const status = statuses[building.id] || {};
   const idx = allBuildings.findIndex(b => b.id === building.id);
   const photos = building.photos.filter(Boolean);
@@ -6216,6 +6662,8 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
         <div className="detail-center">
           <div className="hero-row">
             <div className="detail-hero">
+              {status.vote === 'up' && <span className="hero-badge short">★ Shortlist</span>}
+              {status.vote === 'down' && <span className="hero-badge pass">Remove</span>}
               {photos.length > 0
                 ? <img className="real-photo" src={cdnImg(photos[photoIdx], 1400)} alt={building.name} />
                 : <span className="hero-ph">HERO PHOTO</span>}
@@ -6237,17 +6685,18 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
           {/* ── suites — reformatted as a 2-up grid below the photo ── */}
           <div className="detail-suites">
             <div className="section-head"><h3 className="section-title">Available spaces <span className="count">({building.spaces.length})</span></h3></div>
+            <div className="suite-hint">Select a space to see all details →</div>
             <div className="suite-table-wrap">
               <table className="suite-table">
                 <thead>
                   <tr>
                     <th>Suite</th>
                     <th>Premises SF</th>
-                    <th>Base Rent/SF</th>
-                    <th>Est. OpEx/SF</th>
+                    <th className="st-hide-sm">Base Rent/SF</th>
+                    <th className="st-hide-sm">Est. OpEx/SF</th>
                     <th>Total Rent/SF</th>
                     <th>Monthly Rent</th>
-                    <th>Lease Type</th>
+                    <th className="st-hide-sm">Lease Type</th>
                     <th>Term</th>
                     <th className="st-plan-col" aria-label="Floor plan"></th>
                   </tr>
@@ -6265,21 +6714,23 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                       ? '$' + Math.round(perSf * sfN / 12).toLocaleString('en-US')
                       : (s.total || s.rate || '—');
                     const dealType = s.dealType || 'Direct';
-                    const openPlan = () => setLightbox({ label: `${s.suite || 'Space ' + (i + 1)} floor plan · ${building.name}`, url: s.floorplan, sub: [s.suite, s.sf && `${s.sf} SF`, s.rate].filter(Boolean).join(' · ') });
+                    const suiteName = s.suite || `Suite ${i + 1}`;
+                    const openPlan = () => setLightbox({ label: `${suiteName} floor plan · ${building.name}`, url: s.floorplan, sub: [s.suite, s.sf && `${s.sf} SF`, s.rate].filter(Boolean).join(' · ') });
+                    const openSuite = () => setSuiteModal({ suite: suiteName, sf: s.sf, rate: s.rate, opex: s.opex, total: s.total, monthly, dealType, term: s.term, available: s.available, floorplan: s.floorplan });
                     return (
-                      <tr key={s.key || i}>
+                      <tr key={s.key || i} className="st-row" onClick={openSuite} title="View all details">
                         <td className="st-suite" data-label="Suite">
-                          <span className="st-name">{s.suite || `Suite ${i + 1}`}</span>
+                          <span className="st-name">{suiteName}</span>
                         </td>
                         <td data-label="Premises SF">{s.sf || '—'}</td>
-                        <td data-label="Base Rent/SF">{s.rate || '—'}</td>
-                        <td data-label="Est. OpEx/SF">{s.opex || '—'}</td>
+                        <td data-label="Base Rent/SF" className="st-hide-sm">{s.rate || '—'}</td>
+                        <td data-label="Est. OpEx/SF" className="st-hide-sm">{s.opex || '—'}</td>
                         <td data-label="Total Rent/SF">{s.total || '—'}</td>
                         <td data-label="Monthly Rent">{monthly}</td>
-                        <td data-label="Lease Type">{dealType}</td>
+                        <td data-label="Lease Type" className="st-hide-sm">{dealType}</td>
                         <td data-label="Term">{s.term || '—'}</td>
                         <td className="st-plan-col" data-label="Floor plan">
-                          <span className="st-plan" title="Open floor plan" role="button" aria-label="Open floor plan" onClick={openPlan}>
+                          <span className="st-plan" title="Open floor plan" role="button" aria-label="Open floor plan" onClick={(e) => { e.stopPropagation(); openPlan(); }}>
                             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M9 3v18M3 9h6M15 21V9M15 15h6"/></svg>
                           </span>
                         </td>
@@ -6362,7 +6813,7 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
               </div>
               <div style={{display:'flex', gap:8}}>
                 {lightbox.url && <a className="btn subtle sm" href={lightbox.url} target="_blank" rel="noopener"><Icon.Download width="12" height="12"/> Open original</a>}
-                <button className="btn ghost sm" onClick={() => setLightbox(null)}><Icon.X width="14" height="14"/></button>
+                <button className="btn ghost sm" onClick={() => setLightbox(null)}>✕</button>
               </div>
             </div>
             <div className="lightbox-body">
@@ -6375,6 +6826,41 @@ function PropertyDetail({ building, allBuildings, statuses, comments, brokers, i
                 <span className="mono-tag">{lightbox.sub}</span>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {suiteModal && (
+        <div className="lightbox" onClick={() => setSuiteModal(null)}>
+          <div className="lightbox-card suite-modal-card" onClick={(e) => e.stopPropagation()}>
+            <div className="lightbox-head">
+              <div>
+                <div className="mono-tag">Available space</div>
+                <div style={{fontSize:20, marginTop:2, fontWeight:700, color:'var(--navy)'}}>{suiteModal.suite}</div>
+              </div>
+              <button className="btn ghost sm" onClick={() => setSuiteModal(null)}>✕</button>
+            </div>
+            <div className="suite-modal-body">
+              <div className="suite-modal-grid">
+                {[
+                  ['Premises SF', suiteModal.sf],
+                  ['Total Rent/SF', suiteModal.total],
+                  ['Base Rent/SF', suiteModal.rate],
+                  ['Est. OpEx/SF', suiteModal.opex],
+                  ['Monthly Rent', suiteModal.monthly],
+                  ['Lease Type', suiteModal.dealType],
+                  ['Term', suiteModal.term],
+                  ['Availability', suiteModal.available],
+                ].map(([l, v], k) => (
+                  <div className="sm-cell" key={k}><div className="sm-l">{l}</div><div className="sm-v">{v || '—'}</div></div>
+                ))}
+              </div>
+            </div>
+            <div className="lightbox-foot" style={{display:'flex', justifyContent:'flex-end'}}>
+              <button className="btn subtle sm" onClick={() => { const s = suiteModal; setSuiteModal(null); setLightbox({ label: `${s.suite} floor plan · ${building.name}`, url: s.floorplan, sub: [s.suite, s.sf && `${s.sf} SF`].filter(Boolean).join(' · ') }); }}>
+                View floor plan
+              </button>
+            </div>
           </div>
         </div>
       )}
@@ -6464,112 +6950,620 @@ window.ActivityTimeline = ActivityTimeline;
 // time by the SAME registry functions that print the PDF matrix. This view
 // cannot disagree with the document in the client's inbox. The demo's
 // hardcoded row list (incl. TI and the fabricated commute row) is gone.
-function CommuteView({ buildings, statuses, survey, onOpen }) {
-  const [peak, setPeak] = React.useState('am');   // am | off
-  const cData = (b) => (b.commute && (b.commute[peak] || b.commute)) || null;
-  const hasData = buildings.some(b => { const c = cData(b); return c && c.avg; });
-  const geocoded = survey && survey.commute && survey.commute.employeesGeocoded;
-  const num = (s) => { const m = String(s || '').match(/[\d.]+/); return m ? parseFloat(m[0]) : NaN; };
+// ─────────────────────────────────────────────────────────────────────────
+// Commute analysis. In preview we synthesize a deterministic employee roster
+// (home ZIP centroids around Houston) and estimate door-to-door drive minutes
+// from distance × a peak-dependent effective speed. In production the roster is
+// the broker-uploaded home ZIPs and the minutes come from Google Distance Matrix
+// — every stat/visual below is data-driven and swaps straight over.
+const COMMUTE_ZIPS = [
+  ['77002',29.758,-95.368,3],['77006',29.742,-95.390,3],['77007',29.773,-95.411,3],
+  ['77008',29.799,-95.411,2],['77019',29.755,-95.409,2],['77025',29.689,-95.434,3],
+  ['77027',29.740,-95.447,2],['77056',29.746,-95.467,3],['77024',29.769,-95.519,3],
+  ['77079',29.779,-95.590,3],['77042',29.740,-95.556,2],['77082',29.715,-95.600,2],
+  ['77094',29.776,-95.680,2],['77450',29.743,-95.737,3],['77494',29.742,-95.830,2],
+  ['77384',30.200,-95.500,2],['77381',30.167,-95.503,2],['77573',29.508,-95.090,2],
+  ['77584',29.556,-95.350,2],['77489',29.610,-95.470,2],['77477',29.630,-95.570,2],
+  ['77070',29.975,-95.560,2],['77339',30.050,-95.180,2],['77546',29.533,-95.220,1],
+];
+const ZIP_COORDS = {}; COMMUTE_ZIPS.forEach(z => { ZIP_COORDS[z[0]] = { lat: z[1], lng: z[2] }; });
+const COMMUTE_DEPTS = ['Engineering', 'Sales', 'Operations', 'Finance', 'Marketing', 'Executive'];
+const DEPT_COLORS = { Engineering: '#4E79A7', Sales: '#F28E2B', Operations: '#59A14F', Finance: '#B07AA1', Marketing: '#E15759', Executive: '#C9A227' };
+const DEPT_PALETTE = ['#4E79A7', '#F28E2B', '#59A14F', '#B07AA1', '#E15759', '#C9A227', '#76B7B2', '#FF9DA7', '#9C755F', '#BAB0AC'];
+const deptColorOf = (name, list) => DEPT_COLORS[name] || DEPT_PALETTE[(list && list.indexOf(name) >= 0 ? list.indexOf(name) : 0) % DEPT_PALETTE.length] || '#8896B0';
+// Parse an uploaded/pasted roster: one employee per line, each with a ZIP and an
+// optional team (any column that isn't the street address). Preview maps by ZIP
+// centroid; production geocodes the full address exactly.
+const parseRosterText = (text) => {
+  const lines = String(text || '').split(/\r?\n/).map(l => l.trim()).filter(Boolean);
+  const out = [];
+  lines.forEach((line, i) => {
+    const zm = line.match(/\b(\d{5})\b/);
+    if (!zm) return;
+    const zip = zm[1];
+    const parts = line.split(/[\t,;|]/).map(s => s.trim()).filter(Boolean);
+    let dept = '';
+    for (const p of parts) {
+      if (/\d{5}/.test(p) || /^\d/.test(p)) continue;
+      if (/[a-zA-Z]/.test(p) && p.length <= 28 && !/\b(st|ave|blvd|rd|dr|ln|hwy|pkwy|ste|fl)\b|suite|floor|houston|texas|,\s*tx|^tx$/i.test(p)) { dept = p; break; }
+    }
+    const c = ZIP_COORDS[zip];
+    const jx = (((i * 2654435761) >>> 0) % 1000) / 1000 - 0.5;
+    const jy = (((i * 40503 + 17) >>> 0) % 1000) / 1000 - 0.5;
+    out.push({ id: 'up' + i, zip, dept, lat: (c ? c.lat : 29.758) + jx * 0.03, lng: (c ? c.lng : -95.368) + jy * 0.03, approx: !c });
+  });
+  return out;
+};
+const COMMUTE_ROSTER = (function () {
+  let seed = 20260803; const rnd = () => (seed = (seed * 1103515245 + 12345) & 0x7fffffff) / 0x7fffffff;
+  const pool = []; COMMUTE_ZIPS.forEach((z, i) => { for (let k = 0; k < z[3]; k++) pool.push(i); });
+  const out = [];
+  for (let i = 0; i < 52; i++) {
+    const z = COMMUTE_ZIPS[pool[Math.floor(rnd() * pool.length)]];
+    out.push({ id: 'emp' + i, zip: z[0], lat: z[1] + (rnd() - 0.5) * 0.028, lng: z[2] + (rnd() - 0.5) * 0.028, dept: COMMUTE_DEPTS[Math.floor(rnd() * COMMUTE_DEPTS.length)] });
+  }
+  return out;
+})();
+const COMMUTE_SPEED = { am: 24, pm: 21, off: 34 };
+function commuteHav(a, b) {
+  const R = 3958.8, d2r = Math.PI / 180;
+  const dLat = (b.lat - a.lat) * d2r, dLng = (b.lng - a.lng) * d2r;
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * d2r) * Math.cos(b.lat * d2r) * Math.sin(dLng / 2) ** 2;
+  return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
+}
+function commuteMinutes(emp, place, peak) {
+  if (!place || !Number.isFinite(place.lat)) return NaN;
+  const mi = commuteHav(emp, place);
+  return Math.max(6, Math.round(mi / (COMMUTE_SPEED[peak] || 26) * 60 + 5 + Math.min(mi, 4)));
+}
+function commuteBand(m, t) { if (!Number.isFinite(m)) return 'na'; if (m <= t) return 'good'; if (m <= t + 15) return 'mid'; return 'far'; }
 
-  let rows = buildings.map((b, i) => ({ b, i, c: cData(b) }));
-  if (hasData) rows = rows.slice().sort((x, y) => (num(x.c && x.c.avg) || 1e9) - (num(y.c && y.c.avg) || 1e9));
-  const bestId = hasData ? rows[0].b.id : null;
-  const mappable = buildings.filter(b => Number.isFinite(b.lat) && Number.isFinite(b.lng));
-
+// Schematic drive-time map: employee dots colored either by their band to the
+// selected building (time) or by department, plus isochrone-style reach rings
+// and a star marker for the entered existing office. (Production: real isochrones.)
+function CommuteMap({ buildings, employees, selectedId, current, peak, threshold, minutesFn, onSelect, colorMode, teams, deptColor }) {
+  const dcolor = deptColor || ((n) => DEPT_COLORS[n] || '#8896B0');
+  const teamList = teams || COMMUTE_DEPTS;
+  const [hover, setHover] = React.useState(null);
+  const pts = employees.map(e => ({ lat: e.lat, lng: e.lng })).concat(buildings.filter(b => Number.isFinite(b.lat)).map(b => ({ lat: b.lat, lng: b.lng })));
+  if (current) pts.push(current);
+  if (!pts.length) return <div className="commute-map"><div className="cm-empty">No mappable data</div></div>;
+  const lats = pts.map(p => p.lat), lngs = pts.map(p => p.lng);
+  let minLat = Math.min(...lats), maxLat = Math.max(...lats), minLng = Math.min(...lngs), maxLng = Math.max(...lngs);
+  const padLat = (maxLat - minLat) * 0.1 || 0.05, padLng = (maxLng - minLng) * 0.1 || 0.05;
+  minLat -= padLat; maxLat += padLat; minLng -= padLng; maxLng += padLng;
+  const W = 640, H = 560;
+  const x = (lng) => ((lng - minLng) / (maxLng - minLng)) * W;
+  const y = (lat) => H - ((lat - minLat) / (maxLat - minLat)) * H;
+  const lat0 = (minLat + maxLat) / 2;
+  const pxPerMile = (W / ((maxLng - minLng) * 54.6 * Math.cos(lat0 * Math.PI / 180)));
+  const sel = buildings.find(b => b.id === selectedId) || buildings[0];
+  const ringMi = (min) => (COMMUTE_SPEED[peak] || 26) * min / 60 * pxPerMile;
+  const bandColor = { good: 'var(--navy)', mid: '#0056DA', far: 'var(--gold)' };
+  const dotFill = (e) => colorMode === 'dept' ? dcolor(e.dept) : bandColor[commuteBand(minutesFn(e, sel), threshold)];
+  const legendDepts = colorMode === 'dept' ? teamList.filter(d => employees.some(e => e.dept === d)) : [];
+  const star = 'M0,-8 L1.9,-2.5 L7.7,-2.5 L2.9,1.1 L4.7,6.9 L0,3.4 L-4.7,6.9 L-2.9,1.1 L-7.7,-2.5 L-1.9,-2.5 Z';
+  const hv = hover && (() => {
+    const m = minutesFn(hover, sel), mc = current ? minutesFn(hover, current) : null;
+    const diff = mc != null ? m - mc : null, bd = commuteBand(m, threshold);
+    const bandLbl = bd === 'good' ? '≤ ' + threshold + ' min' : bd === 'mid' ? (threshold + 1) + '–' + (threshold + 15) + ' min' : (threshold + 15) + '+ min';
+    return { m, mc, diff, bd, bandLbl, px: x(hover.lng) / W * 100, py: y(hover.lat) / H * 100 };
+  })();
   return (
-    <div className="commute-wrap page-fade">
-      <div className="commute-head">
-        <div className="eyebrow">
-          {(survey && survey.client_company ? survey.client_company + ' · ' : '')}
-          {geocoded ? geocoded + ' employees geocoded' : 'employee commute analysis'}
-        </div>
-        <div className="commute-controls">
-          <div className="seg">
-            <button className={'seg-btn' + (peak === 'am' ? ' on' : '')} onClick={() => setPeak('am')}>AM peak</button>
-            <button className={'seg-btn' + (peak === 'off' ? ' on' : '')} onClick={() => setPeak('off')}>Off-peak</button>
-          </div>
-          <span className="sortchip">All employees ▾</span>
-          <span className="act-btn short" title="Roster upload is managed by your broker" style={{ cursor: 'default' }}>↑ Upload roster CSV</span>
-        </div>
-      </div>
-
-      {!hasData && (
-        <div className="commute-empty">
-          <div className="commute-empty-icon">🚗</div>
-          <div className="commute-empty-title">Commute analysis not available yet</div>
-          <div className="commute-empty-body">Once your broker uploads an employee roster (home ZIP codes only, for privacy), average and median drive times to each building — plus an under-30-minute distribution — populate the table below for AM-peak and off-peak. Building rows are shown now so you can see how each candidate will rank.</div>
+    <div className="commute-map">
+      <div className="cm-svg-wrap">
+      <svg viewBox={`0 0 ${W} ${H}`} className="cm-svg" preserveAspectRatio="xMidYMid meet">
+        <rect x="0" y="0" width={W} height={H} fill="#EEF3FA" />
+        {sel && Number.isFinite(sel.lat) && [threshold + 15, threshold].map((t, k) => (
+          <circle key={k} cx={x(sel.lng)} cy={y(sel.lat)} r={ringMi(t)} fill={k === 1 ? 'rgba(0,30,90,0.08)' : 'rgba(0,86,218,0.07)'} stroke={k === 1 ? 'rgba(0,30,90,0.45)' : 'rgba(0,86,218,0.4)'} strokeDasharray="4 4" strokeWidth="1.2" />
+        ))}
+        {employees.map((e) => (
+          <circle key={e.id} cx={x(e.lng)} cy={y(e.lat)} r={hover && hover.id === e.id ? 7 : 4.4} fill={dotFill(e)} fillOpacity="0.9" stroke={hover && hover.id === e.id ? 'var(--navy)' : '#fff'} strokeWidth={hover && hover.id === e.id ? 2 : 1} style={{ cursor: 'pointer' }} onMouseEnter={() => setHover(e)} onMouseLeave={() => setHover(h => (h && h.id === e.id ? null : h))} />
+        ))}
+        {current && Number.isFinite(current.lat) && (
+          <g transform={`translate(${x(current.lng)},${y(current.lat)})`}>
+            <circle r="13" fill="#fff" stroke="var(--navy)" strokeWidth="2.5" />
+            <path d={star} fill="var(--navy)" transform="scale(0.92)" />
+          </g>
+        )}
+        {buildings.filter(b => Number.isFinite(b.lat)).map((b) => {
+          const selp = b.id === selectedId; const s = selp ? 24 : 19;
+          return (
+            <g key={b.id} transform={`translate(${x(b.lng)},${y(b.lat)})`} onClick={() => onSelect(b.id)} style={{ cursor: 'pointer' }}>
+              <rect x={-s / 2} y={-s / 2} width={s} height={s} rx={selp ? 5 : 4} fill={selp ? 'var(--gold)' : 'var(--navy)'} stroke="#fff" strokeWidth="2.5" />
+              <text x="0" y="1" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="800" fill={selp ? 'var(--navy)' : '#fff'}>{buildings.indexOf(b) + 1}</text>
+            </g>
+          );
+        })}
+      </svg>
+      {hv && (
+        <div className={'cm-emp-tip' + (hv.py < 26 ? ' below' : '')} style={{ left: hv.px + '%', top: hv.py + '%' }}>
+          <div className="cm-tip-zip">ZIP {hover.zip}{hover.dept ? ' · ' + hover.dept : ''}</div>
+          <div className="cm-tip-row"><span>Est. commute</span><b>{hv.m} min</b></div>
+          {current && <div className="cm-tip-row"><span>Current</span><b>{hv.mc} min</b></div>}
+          {current && <div className="cm-tip-row"><span>Change</span><b className={hv.diff < 0 ? 'g' : hv.diff > 0 ? 'r' : ''}>{hv.diff < 0 ? hv.diff + ' min' : hv.diff > 0 ? '+' + hv.diff + ' min' : '0 min'}</b></div>}
+          <div className="cm-tip-band"><i style={{ background: bandColor[hv.bd] }} />{hv.bandLbl}{sel ? ' · to ' + sel.name : ''}</div>
         </div>
       )}
-
-      <div className="split">
-        <div className="commute-scroll">
-          <table className="commute-table">
-            <thead>
-              <tr>
-                <th className="c-bldg">Building</th>
-                <th>Avg drive</th>
-                <th>Median</th>
-                <th>&lt; 30 min</th>
-                <th className="c-dist">Distribution</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map(({ b, i, c }) => (
-                <tr key={b.id} className={b.id === bestId ? 'best' : ''} onClick={() => onOpen(b.id)}>
-                  <td className="c-bldg">
-                    <div className="commute-cell-bldg">
-                      <div className="commute-photo"><Photo src={b.photos[0]} w={200} label={String(i + 1)} /></div>
-                      <div>
-                        <div className="commute-name">{b.name}{b.id === bestId && <span className="best-tag">★ BEST FOR TEAM</span>}</div>
-                        <div className="commute-sub">{b.submarket}</div>
-                      </div>
-                    </div>
-                  </td>
-                  <td className={'c-num' + (c && c.avg ? '' : ' dash')}>{c && c.avg ? c.avg : '—'}</td>
-                  <td className={'c-num' + (c && c.median ? '' : ' dash')}>{c && c.median ? c.median : '—'}</td>
-                  <td className={'c-num' + (c && c.under30 ? '' : ' dash')}>{c && c.under30 ? c.under30 : '—'}</td>
-                  <td className="c-dist">
-                    <div className="dist-bar">
-                      {c ? <>
-                        <span style={{ width: (num(c.under20) || 0) + '%', background: 'var(--green)' }} />
-                        <span style={{ width: (num(c.mid) || 0) + '%', background: 'var(--gold)' }} />
-                        <span style={{ width: (num(c.over35) || 0) + '%', background: 'var(--rule)' }} />
-                      </> : null}
-                    </div>
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          <div className="commute-legend">
-            <span><i style={{ background: 'var(--green)' }} />Under 20 min</span>
-            <span><i style={{ background: 'var(--gold)' }} />20–35 min</span>
-            <span><i style={{ background: 'var(--rule)' }} />35+ min</span>
-            <span className="commute-src">Source: Google Distance Matrix · home ZIPs only</span>
-          </div>
-        </div>
-        <MapView buildings={mappable} selectedId={bestId} onSelect={() => {}} onOpen={onOpen} statuses={statuses} mode="client" />
+      </div>
+      <div className="cm-legend">
+        {colorMode === 'dept'
+          ? legendDepts.map(d => <span key={d}><i style={{ background: dcolor(d) }} />{d}</span>)
+          : (<>
+              <span><i style={{ background: 'var(--navy)' }} />≤ {threshold} min</span>
+              <span><i style={{ background: '#0056DA' }} />{threshold + 1}–{threshold + 15}</span>
+              <span><i style={{ background: 'var(--gold)' }} />{threshold + 15}+</span>
+            </>)}
+        <span className="cm-legend-mark"><svg width="15" height="15" viewBox="-9 -9 18 18"><circle r="7.5" fill="#fff" stroke="var(--navy)" strokeWidth="1.6" /><path d="M0,-5 L1.2,-1.6 L4.8,-1.6 L1.8,0.7 L2.9,4.3 L0,2.1 L-2.9,4.3 L-1.8,0.7 L-4.8,-1.6 L-1.2,-1.6 Z" fill="var(--navy)" /></svg>Existing office</span>
       </div>
     </div>
   );
 }
 
-function CompareView({ buildings, matrixView, statuses, interactive, onVote, onOpen }) {
-  const rows = matrixView.rows || [];
-  const cells = matrixView.cells || {};
-  const fitToScreen = buildings.length <= 8;
-  const propWidth = fitToScreen ? `calc((100% - 200px) / ${buildings.length})` : '228px';
-
-  const GROUPS = {
-    submarket: 'The Space', premises: 'The Space', askingRent: 'The Space', opex: 'The Space', leaseType: 'The Space',
-    class: 'The Building', built: 'The Building', totalSize: 'The Building', parking: 'The Building',
+function CommuteUpload({ onApply, onClose, currentAddr }) {
+  const [text, setText] = React.useState('');
+  const [office, setOffice] = React.useState(currentAddr || '');
+  const [fileName, setFileName] = React.useState('');
+  const parsed = parseRosterText(text);
+  const approxN = parsed.filter(e => e.approx).length;
+  const handleFile = (e) => {
+    const f = e.target.files && e.target.files[0];
+    if (!f) return;
+    setFileName(f.name);
+    const r = new FileReader();
+    r.onload = () => setText(String(r.result || ''));
+    r.readAsText(f);
   };
-  const groupOf = (k) => GROUPS[k] || 'Details';
+  const placeholder = '77007, Engineering\n1200 Main St, Houston, TX 77002, Sales\n77024, Finance\n77494';
+  return (
+    <div className="lightbox" onClick={onClose}>
+      <div className="lightbox-card cm-upload-card" onClick={e => e.stopPropagation()}>
+        <div className="lightbox-head">
+          <div><div className="mono-tag">Commute data</div><div style={{ fontSize: 18, fontWeight: 700, color: 'var(--navy)', marginTop: 2 }}>Upload employee &amp; office locations</div></div>
+          <button className="btn ghost sm" onClick={onClose}>✕</button>
+        </div>
+        <div className="cm-upload-body">
+          <div className="cm-up-sec">
+            <div className="cm-up-label">Employee home addresses</div>
+            <div className="cm-up-hint">One employee per line — include a ZIP; add a team after a comma (optional). Paste from a spreadsheet or upload a CSV.</div>
+            <label className="cm-up-file"><input type="file" accept=".csv,.txt" onChange={handleFile} /><span>⬆ Choose CSV / TXT</span>{fileName && <em>{fileName}</em>}</label>
+            <textarea className="cm-up-text" rows={7} placeholder={placeholder} value={text} onChange={e => setText(e.target.value)} />
+            <div className="cm-up-count">{parsed.length} employee{parsed.length === 1 ? '' : 's'} parsed{approxN ? ' · ' + approxN + ' ZIP' + (approxN === 1 ? '' : 's') + ' outside the preview area (approx.)' : ''}</div>
+          </div>
+          <div className="cm-up-sec">
+            <div className="cm-up-label">Current office location</div>
+            <input className="cm-addr-in cm-up-office" placeholder="full address (incl. ZIP)" value={office} onChange={e => setOffice(e.target.value)} />
+          </div>
+        </div>
+        <div className="cm-up-actions">
+          <span className="cm-up-note">Preview maps by home ZIP. Production geocodes each full address via Google.</span>
+          <span style={{ flex: 1 }} />
+          <button className="btn ghost sm" onClick={onClose}>Cancel</button>
+          <button className="btn sm" disabled={!parsed.length && !office.trim()} onClick={() => onApply(parsed, office)}>Apply</button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function CommuteView({ buildings, statuses, survey, onOpen }) {
+  const [peak, setPeak] = React.useState('am');
+  const [dept, setDept] = React.useState('all');
+  const [threshold, setThreshold] = React.useState(30);
+  const [colorMode, setColorMode] = React.useState('time');    // 'time' | 'dept'
+  const [curAddr, setCurAddr] = React.useState('');
+  const [current, setCurrent] = React.useState(() => {
+    const addr = survey && survey.current_address;
+    if (!addr) return null;
+    const zm = addr.match(/\b(\d{5})\b/); const c = zm && ZIP_COORDS[zm[1]];
+    return { addr: addr.trim(), zip: zm ? zm[1] : null, lat: c ? c.lat : 29.758, lng: c ? c.lng : -95.368, approx: !c, fromSurvey: true };
+  });
+  const [mapSel, setMapSel] = React.useState(null);
+  const [detailFor, setDetailFor] = React.useState(null);      // per-building popup
+  const [detailMode, setDetailMode] = React.useState('cmp');   // 'cmp' (vs existing) | 'emp'
+  const [detailDept, setDetailDept] = React.useState('all');   // in-popup team filter for the employee list
+  const [detailSort, setDetailSort] = React.useState({ key: 'a', dir: 'asc' });
+  const [sel2, setSel2] = React.useState([]);                  // up to 2 ids ticked for compare
+  const [cmpOpen, setCmpOpen] = React.useState(false);
+  const [cmpMode, setCmpMode] = React.useState('sum');         // 'sum' (comparison) | 'emp'
+  const [cmpDept, setCmpDept] = React.useState('all');
+  const [cmpSort, setCmpSort] = React.useState({ key: 'a', dir: 'asc' });
+  const [uploadedRoster, setUploadedRoster] = React.useState(null);  // null = preview sample roster
+  const [uploadOpen, setUploadOpen] = React.useState(false);
+
+  const mapBuildings = buildings.filter(b => Number.isFinite(b.lat) && Number.isFinite(b.lng));
+  const baseRoster = uploadedRoster || COMMUTE_ROSTER;
+  const teams = [...new Set(baseRoster.map(e => e.dept).filter(Boolean))];
+  const hasDept = teams.length > 0;
+  const roster = dept === 'all' ? baseRoster : baseRoster.filter(e => e.dept === dept);
+  const minutesFn = (e, place) => commuteMinutes(e, place, peak);
+  const setCurrentFromAddr = (addr) => {
+    const zm = addr.match(/\b(\d{5})\b/); const c = zm && ZIP_COORDS[zm[1]];
+    setCurrent({ addr: addr.trim(), zip: zm ? zm[1] : null, lat: c ? c.lat : 29.758, lng: c ? c.lng : -95.368, approx: !c });
+  };
+
+  const stat = (b) => {
+    const mins = roster.map(e => minutesFn(e, b)).filter(Number.isFinite).sort((a, c) => a - c);
+    if (!mins.length) return null;
+    const med = mins[Math.floor(mins.length / 2)];
+    const avg = Math.round(mins.reduce((s, m) => s + m, 0) / mins.length);
+    const within = Math.round(mins.filter(m => m <= threshold).length / mins.length * 100);
+    const hrsWk = Math.round(mins.reduce((s, m) => s + m, 0) * 2 * 5 / 60);
+    const good = mins.filter(m => m <= threshold).length, mid = mins.filter(m => m > threshold && m <= threshold + 15).length, far = mins.length - good - mid;
+    const pct = (n) => n / mins.length * 100;
+    let savedVsCur = null;
+    if (current) savedVsCur = Math.round((roster.reduce((s, e) => s + minutesFn(e, current), 0) * 2 * 5 / 60) - hrsWk);
+    return { med, avg, within, hrsWk, savedVsCur, bands: { good: pct(good), mid: pct(mid), far: pct(far), gc: good, mc: mid, fc: far } };
+  };
+  const rows = mapBuildings.map(b => ({ b, s: stat(b) })).filter(r => r.s);   // shared active order — matches every other view
+  const bestId = rows.length ? rows.reduce((best, r) => (r.s.avg < best.s.avg ? r : best)).b.id : null;
+  const mapSelId = mapSel && rows.some(r => r.b.id === mapSel) ? mapSel : bestId;
+
+  const toggleSel = (id) => setSel2(prev => prev.includes(id) ? prev.filter(x => x !== id) : (prev.length >= 2 ? [prev[1], id] : [...prev, id]));
+  const nameOf = (id) => (mapBuildings.find(b => b.id === id) || {}).name || '—';
+
+  const h2hBetween = (A, B) => {
+    let better = 0, same = 0, worse = 0;
+    roster.forEach(e => { const d = minutesFn(e, A) - minutesFn(e, B); if (d <= -5) better++; else if (d >= 5) worse++; else same++; });
+    return { better, same, worse, total: roster.length };
+  };
+
+  const rosterDepts = teams.filter(d => baseRoster.some(e => e.dept === d));
+  const detailBldg = detailFor && mapBuildings.find(b => b.id === detailFor);
+  const detailStat = detailBldg && stat(detailBldg);
+  const detailPeople = detailBldg ? roster.map(e => { const a = minutesFn(e, detailBldg); const b = current ? minutesFn(e, current) : null; return { e, a, b, diff: b != null ? a - b : null }; }) : [];
+  const curStat = current && stat(current);
+
+  // Shared per-employee table (filter + sort + zebra). aVal/bVal resolve minutes;
+  // bLabel null → single-column mode (no B/Change). Same look in both popups.
+  const renderEmpTable = ({ people, aLabel, bLabel, dept: pd, setDept: setPd, sort, setSort, foot }) => {
+    const filtered = (pd !== 'all' && rosterDepts.includes(pd)) ? people.filter(p => p.e.dept === pd) : people;
+    const key = ((sort.key === 'b' || sort.key === 'change') && !bLabel) ? 'a' : sort.key;
+    const sorted = [...filtered].sort((x, y) => {
+      const dir = sort.dir === 'asc' ? 1 : -1;
+      if (key === 'team') return dir * ((x.e.dept || '').localeCompare(y.e.dept || ''));
+      const v = (r) => key === 'zip' ? +r.e.zip : key === 'b' ? r.b : key === 'change' ? r.diff : r.a;
+      return dir * (v(x) - v(y));
+    });
+    const arrow = (k) => sort.key === k ? (sort.dir === 'asc' ? ' ↑' : ' ↓') : '';
+    const by = (k) => setSort(s => (s.key === k ? { key: k, dir: s.dir === 'asc' ? 'desc' : 'asc' } : { key: k, dir: 'asc' }));
+    return (
+      <>
+        {hasDept && rosterDepts.length > 1 && (
+          <div className="cm-emp-filter">
+            <label className="cm-field"><span>Team</span>
+              <select value={rosterDepts.includes(pd) ? pd : 'all'} onChange={e => setPd(e.target.value)}>
+                <option value="all">All teams ({people.length})</option>
+                {rosterDepts.map(d => <option key={d} value={d}>{d} ({people.filter(p => p.e.dept === d).length})</option>)}
+              </select>
+            </label>
+            <span className="cm-emp-count">{sorted.length} of {people.length} shown</span>
+          </div>
+        )}
+        <div className="cm-people-body">
+          <table className="cm-people-table">
+            <thead><tr>
+              <th>#</th>
+              <th className="cm-sort" onClick={() => by('zip')}>Home ZIP{arrow('zip')}</th>
+              {hasDept && <th className="cm-sort" onClick={() => by('team')}>Team{arrow('team')}</th>}
+              <th className="cm-sort" onClick={() => by('a')}>{aLabel}{arrow('a')}</th>
+              {bLabel && <th className="cm-sort" onClick={() => by('b')}>{bLabel}{arrow('b')}</th>}
+              {bLabel && <th className="cm-sort" onClick={() => by('change')}>Change{arrow('change')}</th>}
+            </tr></thead>
+            <tbody>
+              {sorted.map(({ e, a, b, diff }, i) => (
+                <tr key={e.id}><td className="cm-p-i">{i + 1}</td><td>{e.zip}</td>{hasDept && <td>{e.dept}</td>}<td className="cm-p-m">{a} min</td>{bLabel && <td>{b} min</td>}{bLabel && <td className={diff < 0 ? 'cm-good' : diff > 0 ? 'cm-bad' : ''}>{diff < 0 ? diff + ' min' : diff > 0 ? '+' + diff + ' min' : '0 min'}</td>}</tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+        {foot && <div className="cm-emp-foot">{foot}</div>}
+      </>
+    );
+  };
+  const detailH2h = detailBldg && current ? h2hBetween(detailBldg, current) : null;
+
+  // Two-building comparison popup (checkbox selection).
+  const cmpA = cmpOpen && sel2[0] && mapBuildings.find(b => b.id === sel2[0]);
+  const cmpB = cmpOpen && sel2[1] && mapBuildings.find(b => b.id === sel2[1]);
+  const cmpStatA = cmpA && stat(cmpA), cmpStatB = cmpB && stat(cmpB);
+  const cmpH2h = (cmpA && cmpB) ? h2hBetween(cmpA, cmpB) : null;
+  const cmpPeople = (cmpA && cmpB) ? roster.map(e => { const a = minutesFn(e, cmpA); const b = minutesFn(e, cmpB); return { e, a, b, diff: a - b }; }) : [];
+  const peakLabel = peak === 'off' ? 'Off-peak' : peak.toUpperCase();
+
+  // Shared comparison body — metric table + per-side distributions + where-each-lands + summary.
+  const compareBody = (aName, sA, bName, sB, h2h) => (
+    <>
+      <table className="cm-cmp-table">
+        <thead><tr><th>Metric</th><th>{aName}</th><th>{bName}</th><th>Advantage</th></tr></thead>
+        <tbody>
+          {[
+            ['Avg drive', sA.avg, sB.avg, sA.avg + ' min', sB.avg + ' min', 'min', 'lower'],
+            ['Median', sA.med, sB.med, sA.med + ' min', sB.med + ' min', 'min', 'lower'],
+            ['Within ' + threshold + ' min', sA.within, sB.within, sA.within + '%', sB.within + '%', 'pp', 'higher'],
+            ['Team hrs/wk', sA.hrsWk, sB.hrsWk, sA.hrsWk.toLocaleString(), sB.hrsWk.toLocaleString(), 'hrs', 'lower'],
+          ].map(([m, va, vb, a, bb, unit, dir]) => {
+            const mag = Math.abs(va - vb);
+            const aBetter = dir === 'lower' ? va < vb : va > vb;
+            return (
+              <tr key={m}><td className="cm-cmp-m">{m}</td>
+                <td className={aBetter && mag ? 'cm-cmp-win' : ''}>{a}</td>
+                <td className={!aBetter && mag ? 'cm-cmp-win' : ''}>{bb}</td>
+                <td className="cm-cmp-d">{mag ? <><b>{aBetter ? aName : bName}</b> by {mag.toLocaleString()} {unit}</> : 'Even'}</td>
+              </tr>
+            );
+          })}
+        </tbody>
+      </table>
+      <div className="cm-cmp-sec">Commute distribution</div>
+      {[[aName, sA], [bName, sB]].map(([nm, st]) => (
+        <div className="cm-cmp-distrow" key={nm}>
+          <div className="cm-cmp-distname">{nm}</div>
+          <div className="dist-bar cm-cmp-distbar" title={`≤${threshold}m ${st.bands.gc} · ${threshold}–${threshold + 15}m ${st.bands.mc} · ${threshold + 15}m+ ${st.bands.fc} people`}>
+            <span style={{ width: st.bands.good + '%', background: 'var(--navy)' }}>{st.bands.gc || ''}</span>
+            <span style={{ width: st.bands.mid + '%', background: '#0056DA' }}>{st.bands.mc || ''}</span>
+            <span style={{ width: st.bands.far + '%', background: 'var(--gold)' }}>{st.bands.fc || ''}</span>
+          </div>
+          <div className="cm-cmp-distpct">{Math.round(st.bands.good)}% ≤ {threshold}m</div>
+        </div>
+      ))}
+      <div className="cm-cmp-distlegend"><span><i style={{ background: 'var(--navy)' }} />≤ {threshold} min</span><span><i style={{ background: '#0056DA' }} />{threshold + 1}–{threshold + 15}</span><span><i style={{ background: 'var(--gold)' }} />{threshold + 15}+</span></div>
+      <div className="cm-cmp-sec">Where each employee lands — {aName} vs {bName}</div>
+      {[['better', 'good', `5+ min shorter at ${aName}`], ['same', 'mid', 'Within 5 min either way'], ['worse', 'bad', `5+ min shorter at ${bName}`]].map(([k, tone, lbl]) => (
+        <div className="cm-h2h-row" key={k}>
+          <div className="cm-h2h-lbl">{lbl}</div>
+          <div className="cm-h2h-track"><div className={'cm-h2h-fill ' + tone} style={{ width: (h2h[k] / h2h.total * 100) + '%' }} /></div>
+          <div className="cm-h2h-cnt">{h2h[k]} <span>({Math.round(h2h[k] / h2h.total * 100)}%)</span></div>
+        </div>
+      ))}
+      <div className="cm-h2h-summary">{h2h.better > h2h.worse
+        ? <><b>{aName}</b> gives a shorter commute to <b>{h2h.better}</b> of {h2h.total} employees{sA.hrsWk !== sB.hrsWk ? <> and saves the team <b>{Math.abs(sB.hrsWk - sA.hrsWk).toLocaleString()} hrs/week</b></> : ''}.</>
+        : h2h.worse > h2h.better
+          ? <><b>{bName}</b> gives a shorter commute to <b>{h2h.worse}</b> of {h2h.total} employees{sA.hrsWk !== sB.hrsWk ? <> and saves the team <b>{Math.abs(sB.hrsWk - sA.hrsWk).toLocaleString()} hrs/week</b></> : ''}.</>
+          : <>The two are effectively even across the team.</>}</div>
+    </>
+  );
+
+  return (
+    <div className="commute-wrap page-fade">
+      <div className="commute-head">
+        <div className="commute-controls">
+          <button className="btn subtle sm cm-upload-btn" onClick={() => setUploadOpen(true)}>⬆ Upload roster</button>
+          {uploadedRoster && (
+            <span className="cm-roster-tag">{baseRoster.length} uploaded<button onClick={() => { setUploadedRoster(null); setDept('all'); }} aria-label="Reset to sample roster">✕</button></span>
+          )}
+          {hasDept && (
+            <label className="cm-field"><span>Team</span>
+              <select value={dept} onChange={e => setDept(e.target.value)}>
+                <option value="all">All employees ({baseRoster.length})</option>
+                {teams.map(d => <option key={d} value={d}>{d}</option>)}
+              </select>
+            </label>
+          )}
+          <label className="cm-field cm-slider"><span>Within</span>
+            <input type="range" min="10" max="60" step="5" value={threshold} onChange={e => setThreshold(+e.target.value)} />
+            <b>{threshold} min</b>
+          </label>
+          {current ? (
+            <span className="cm-cur" title={current.addr}>★ {current.zip || current.addr}{current.approx ? ' (approx)' : ''}<button onClick={() => { setCurrent(null); setCurAddr(''); }} aria-label="Clear existing office">✕</button></span>
+          ) : (
+            <form className="cm-field cm-addr" onSubmit={e => { e.preventDefault(); if (curAddr.trim()) setCurrentFromAddr(curAddr); }}>
+              <span>Existing office</span>
+              <input className="cm-addr-in" placeholder="full address (incl. ZIP)" value={curAddr} onChange={e => setCurAddr(e.target.value)} />
+              <button className="btn subtle sm" type="submit">Map ★</button>
+            </form>
+          )}
+        </div>
+      </div>
+
+      {current && curStat && (
+        <div className="commute-quickcmp">
+          <div className="cqc-head">
+            <span className="cqc-title">Quick comparison</span>
+            <span className="cqc-sub">vs current office{current.zip ? ' · ' + current.zip : ''}{current.fromSurvey ? ' · from survey' : ''} — {curStat.avg} min avg · {curStat.within}% within {threshold}</span>
+          </div>
+          <div className="cqc-chips">
+            {rows.map(({ b, s }) => {
+              const d = s.avg - curStat.avg;
+              return (
+                <span className="cqc-chip" key={b.id} title={b.name + ': ' + s.avg + ' min avg vs current ' + curStat.avg + ' min'}>
+                  <b>{b.name}</b>
+                  <em className={d < 0 ? 'g' : d > 0 ? 'r' : ''}>{d < 0 ? d + ' min' : d > 0 ? '+' + d + ' min' : 'even'}</em>
+                </span>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      <div className="commute-body">
+        <div className="commute-scroll">
+          <div className="cm-tablebar">
+            {sel2.length < 2
+              ? <span className="cm-selhint">Tick two buildings <b>☑</b> to run a detailed head-to-head →</span>
+              : <span className="cm-selhint on"><b>{nameOf(sel2[0])}</b> vs <b>{nameOf(sel2[1])}</b></span>}
+            {sel2.length > 0 && (
+              <span className="cm-selactions">
+                {sel2.length === 2 && <button className="btn sm" onClick={() => { setCmpMode('sum'); setCmpOpen(true); }}>Compare →</button>}
+                <button className="btn ghost sm" onClick={() => setSel2([])}>Clear</button>
+              </span>
+            )}
+          </div>
+          <table className="commute-table">
+            <thead>
+              <tr>
+                <th className="c-chk"></th>
+                <th className="c-bldg">Building</th>
+                <th className="c-num">Avg drive</th>
+                <th className="c-num">&lt; {threshold} min</th>
+                <th className="c-dist">Distribution</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {rows.map(({ b, s }) => (
+                <tr key={b.id} className={(b.id === mapSelId ? 'sel ' : '') + (b.id === bestId ? 'best ' : '') + (sel2.includes(b.id) ? 'ticked' : '')} onClick={() => setMapSel(b.id)}>
+                  <td className="c-chk" onClick={e => e.stopPropagation()}>
+                    <label className="cm-check"><input type="checkbox" checked={sel2.includes(b.id)} onChange={() => toggleSel(b.id)} aria-label={'Select ' + b.name + ' to compare'} /><span /></label>
+                  </td>
+                  <td className="c-bldg">
+                    <div className="commute-cell-bldg">
+                      <span className="cm-pin">{buildings.indexOf(b) + 1}</span>
+                      <div>
+                        <div className="commute-name">{b.name}{b.id === bestId && <span className="best-tag">★ BEST</span>}</div>
+                        <div className="commute-sub">{b.submarket}</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td className="c-num">{s.avg} <span className="cm-min">min</span></td>
+                  <td className="c-num">{s.within}%</td>
+                  <td className="c-dist">
+                    <div className="dist-bar" title={`≤${threshold}m ${s.bands.gc} · ${threshold}–${threshold + 15}m ${s.bands.mc} · ${threshold + 15}m+ ${s.bands.fc} people`}>
+                      <span style={{ width: s.bands.good + '%', background: 'var(--navy)' }}>{s.bands.gc || ''}</span>
+                      <span style={{ width: s.bands.mid + '%', background: '#0056DA' }}>{s.bands.mc || ''}</span>
+                      <span style={{ width: s.bands.far + '%', background: 'var(--gold)' }}>{s.bands.fc || ''}</span>
+                    </div>
+                  </td>
+                  <td className="c-act"><button className="btn subtle sm" onClick={(e) => { e.stopPropagation(); setDetailMode('cmp'); setDetailFor(b.id); }}>Details</button></td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+          <div className="commute-legend">
+            <span><i style={{ background: 'var(--navy)' }} />≤ {threshold} min</span>
+            <span><i style={{ background: '#0056DA' }} />{threshold + 1}–{threshold + 15} min</span>
+            <span><i style={{ background: 'var(--gold)' }} />{threshold + 15}+ min</span>
+            <span className="commute-src">{uploadedRoster ? 'Uploaded roster' : 'Preview roster'} ({roster.length}) · est. from home ZIP → building. Production: Google Distance Matrix.</span>
+          </div>
+        </div>
+
+        <div className="commute-mapcol">
+          <div className="cm-map-head">
+            <span className="cm-map-title">Employee map</span>
+            {hasDept && (
+              <div className="seg cm-colorseg">
+                <button className={'seg-btn' + (colorMode === 'time' ? ' on' : '')} onClick={() => setColorMode('time')}>Drive time</button>
+                <button className={'seg-btn' + (colorMode === 'dept' ? ' on' : '')} onClick={() => setColorMode('dept')}>Team</button>
+              </div>
+            )}
+          </div>
+          <CommuteMap buildings={mapBuildings} employees={roster} selectedId={mapSelId} current={current} peak={peak} threshold={threshold} minutesFn={(e, b) => minutesFn(e, b)} onSelect={setMapSel} colorMode={colorMode} teams={teams} deptColor={(n) => deptColorOf(n, teams)} />
+        </div>
+      </div>
+
+      {detailBldg && detailStat && (
+        <div className="lightbox" onClick={() => setDetailFor(null)}>
+          <div className="lightbox-card cm-cmp-card" onClick={e => e.stopPropagation()}>
+            <div className="lightbox-head">
+              <div>
+                <div className="mono-tag">Commute detail · {roster.length} employees</div>
+                <div style={{ fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginTop: 2 }}>{detailBldg.name}{detailMode === 'cmp' && current && <span style={{ color: 'var(--ink-4)', fontWeight: 600 }}> vs Existing office</span>}</div>
+              </div>
+              <button className="btn ghost sm" onClick={() => setDetailFor(null)}>✕</button>
+            </div>
+            <div className="cm-cmp-body">
+              <div className="seg cm-detail-seg">
+                <button className={'seg-btn' + (detailMode === 'cmp' ? ' on' : '')} onClick={() => setDetailMode('cmp')}>{current ? 'vs Existing office' : 'Overview'}</button>
+                <button className={'seg-btn' + (detailMode === 'emp' ? ' on' : '')} onClick={() => setDetailMode('emp')}>By employee</button>
+              </div>
+
+              {detailMode === 'cmp' ? (
+                current && curStat && detailH2h
+                  ? compareBody(detailBldg.name, detailStat, 'Existing office', curStat, detailH2h)
+                  : (
+                    <>
+                      <div className="cm-detail-stats">
+                        <div className="cm-ds"><div className="l">Avg drive</div><div className="v">{detailStat.avg}<span> min</span></div></div>
+                        <div className="cm-ds"><div className="l">Median</div><div className="v">{detailStat.med}<span> min</span></div></div>
+                        <div className="cm-ds"><div className="l">Within {threshold} min</div><div className="v">{detailStat.within}%</div></div>
+                        <div className="cm-ds"><div className="l">Team hrs/wk</div><div className="v">{detailStat.hrsWk.toLocaleString()}</div><div className="s">round-trip</div></div>
+                      </div>
+                      <div className="cm-detail-note">Add your <b>existing office</b> in the top bar to compare this building head-to-head against your current commute.</div>
+                    </>
+                  )
+              ) : (
+                renderEmpTable({ people: detailPeople, aLabel: 'Est. Commute', bLabel: current ? 'Current Commute' : null, dept: detailDept, setDept: setDetailDept, sort: detailSort, setSort: setDetailSort })
+              )}
+            </div>
+            <div className="lightbox-foot" style={{ fontSize: 11, color: 'var(--ink-4)' }}>Home ZIPs only — individual identities are never shown.{current && detailMode === 'emp' && ' Change = this building vs current office · −min (green) shorter here, +min (red) longer.'}</div>
+          </div>
+        </div>
+      )}
+
+      {cmpOpen && cmpA && cmpB && cmpStatA && cmpStatB && cmpH2h && (
+        <div className="lightbox" onClick={() => setCmpOpen(false)}>
+          <div className="lightbox-card cm-cmp-card" onClick={e => e.stopPropagation()}>
+            <div className="lightbox-head">
+              <div><div className="mono-tag">Head-to-head · {roster.length} employees</div><div style={{ fontSize: 19, fontWeight: 700, color: 'var(--navy)', marginTop: 2 }}>{cmpA.name} <span style={{ color: 'var(--ink-4)', fontWeight: 600 }}>vs</span> {cmpB.name}</div></div>
+              <button className="btn ghost sm" onClick={() => setCmpOpen(false)}>✕</button>
+            </div>
+            <div className="cm-cmp-body">
+              <div className="seg cm-detail-seg">
+                <button className={'seg-btn' + (cmpMode === 'sum' ? ' on' : '')} onClick={() => setCmpMode('sum')}>Comparison</button>
+                <button className={'seg-btn' + (cmpMode === 'emp' ? ' on' : '')} onClick={() => setCmpMode('emp')}>By employee</button>
+              </div>
+              {cmpMode === 'sum'
+                ? compareBody(cmpA.name, cmpStatA, cmpB.name, cmpStatB, cmpH2h)
+                : renderEmpTable({ people: cmpPeople, aLabel: cmpA.name, bLabel: cmpB.name, dept: cmpDept, setDept: setCmpDept, sort: cmpSort, setSort: setCmpSort })}
+            </div>
+            {cmpMode === 'emp' && <div className="lightbox-foot" style={{ fontSize: 11, color: 'var(--ink-4)' }}>Home ZIPs only — individual identities are never shown. Change = {cmpA.name} vs {cmpB.name} · −min (green) shorter at {cmpA.name}, +min (red) longer.</div>}
+          </div>
+        </div>
+      )}
+
+      {uploadOpen && (
+        <CommuteUpload
+          currentAddr={current ? current.addr : ''}
+          onClose={() => setUploadOpen(false)}
+          onApply={(rosterArr, officeAddr) => {
+            if (rosterArr && rosterArr.length) { setUploadedRoster(rosterArr); setDept('all'); setDetailDept('all'); setCmpDept('all'); }
+            if (officeAddr && officeAddr.trim()) setCurrentFromAddr(officeAddr);
+            setUploadOpen(false);
+          }}
+        />
+      )}
+    </div>
+  );
+}
+
+function CompareView({ buildings, matrixView, statuses, interactive, onVote, onOpen, onReorder, onOpenReorder }) {
+  // Column order is the shared app order (buildings already arrives ordered).
+  // Removing a building from the comparison is view-only (local hidden set).
+  const [hidden, setHidden] = React.useState({});
+  const [diffOnly, setDiffOnly] = React.useState(false);
+  const order = buildings.map(b => b.id);
+  const displayed = buildings.filter(b => !hidden[b.id]);
+  const removeCol = (id) => setHidden(h => ({ ...h, [id]: true }));
+  const addCol = (id) => setHidden(h => { const n = { ...h }; delete n[id]; return n; });
+  const resetCols = () => setHidden({});
+  const hiddenBuildings = buildings.filter(b => hidden[b.id]);
+  const hiddenCount = hiddenBuildings.length;
+
+  // Drag-to-reorder columns by grabbing a building's image → persists the new
+  // order app-wide via onReorder (also reflected on the map, list and pager).
+  const [dragId, setDragId] = React.useState(null);
+  const [overId, setOverId] = React.useState(null);
+  const dropOn = (targetId) => {
+    if (!dragId || dragId === targetId) { setDragId(null); setOverId(null); return; }
+    const o = order.filter(id => id !== dragId);
+    const at = o.indexOf(targetId);
+    o.splice(at < 0 ? o.length : at, 0, dragId);
+    onReorder && onReorder(o); setDragId(null); setOverId(null);
+  };
+
+  const fitToScreen = displayed.length <= 8;
+  const propWidth = fitToScreen ? `calc((100% - 200px) / ${Math.max(displayed.length, 1)})` : '228px';
+  const isShort = (b) => statuses[b.id]?.vote === 'up';
+  const isDown = (b) => statuses[b.id]?.vote === 'down';
+  const colClass = (b) => (isShort(b) ? ' is-short' : '') + (isDown(b) ? ' is-down' : '');
 
   // Compare uses the same data points as the building detail page, derived from
   // the building records. Suite-level fields are shown as min–max ranges;
   // strings stay verbatim (parsing is only used to pick the range endpoints).
   const parseN = (v) => { const m = String(v || '').replace(/[$,]/g, '').match(/\d[\d.]*/); return m ? parseFloat(m[0]) : NaN; };
+  // Strip a trailing lease-structure token off a rent string ("$42.50 FS" →
+  // "$42.50") — the structure now lives in its own "Lease Structure" row.
+  const cleanRent = (v) => String(v || '').replace(/\s*(FSG|FS|NNN|MG|IG|Full Service|Modified Gross|Industrial Gross|Gross)\s*$/i, '').trim();
   const rangeOf = (arr) => {
     const items = arr.map(v => ({ v, n: parseN(v) })).filter(x => !isNaN(x.n));
     if (!items.length) return '—';
@@ -6577,8 +7571,7 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
     const hi = items.reduce((a, b) => b.n > a.n ? b : a);
     return lo.v === hi.v ? lo.v : lo.v + '–' + hi.v;
   };
-  const dealTypeOf = (b) => { const set = new Set((b.spaces || []).map(s => s.dealType || 'Direct')); return set.size ? [...set].join(' / ') : 'Direct'; };
-  const termOf = (b) => { const t = [...new Set((b.spaces || []).map(s => s.term).filter(Boolean))]; return t.length ? t.join(', ') : '—'; };
+  const leaseStructOf = (b) => { const t = [...new Set((b.spaces || []).map(s => s.lease).filter(Boolean))]; return t.length ? t.join(' / ') : '—'; };
   const builtOf = (b) => [b.year_built, b.year_renovated].filter(Boolean).join(' / ') || '—';
   const parkCostOf = (b) => [b.parking_reserved && 'Res ' + b.parking_reserved, b.parking_unreserved && 'Unres ' + b.parking_unreserved].filter(Boolean).join(' / ') || '—';
   const monthlyRange = (b) => {
@@ -6593,81 +7586,141 @@ function CompareView({ buildings, matrixView, statuses, interactive, onVote, onO
     return lo === hi ? f(lo) : f(lo) + '–' + f(hi);
   };
   const compareRows = [
-    { label: 'Submarket', get: b => b.submarket || '—' },
-    { label: 'Building Class', get: b => b.class ? 'Class ' + b.class : '—' },
-    { label: 'Year Built / Renov.', get: builtOf },
-    { label: 'Stories', get: b => b.stories || '—' },
-    { label: 'Percent Leased', get: b => b.percent_leased || '—' },
-    { label: 'Premises SF', get: b => rangeOf((b.spaces || []).map(s => s.sf)) },
-    { label: 'Base Rent/SF', get: b => rangeOf((b.spaces || []).map(s => s.rate)) },
-    { label: 'Est. OpEx/SF', get: b => rangeOf((b.spaces || []).map(s => s.opex)) },
-    { label: 'Total Rent/SF', get: b => rangeOf((b.spaces || []).map(s => s.total)) },
-    { label: 'Monthly Rent', get: monthlyRange },
-    { label: 'Parking Ratio', get: b => b.parking || '—' },
-    { label: 'Parking $/Space/Mo', get: parkCostOf },
-    { label: 'Landlord', get: b => b.landlord || '—' },
+    { g: 'Building Info', label: 'Submarket', get: b => b.submarket || '—' },
+    { g: 'Building Info', label: 'Building Class', get: b => b.class ? 'Class ' + b.class : '—' },
+    { g: 'Building Info', label: 'Year Built / Renov.', get: builtOf },
+    { g: 'Building Info', label: 'Stories', get: b => b.stories || '—' },
+    { g: 'Building Info', label: 'Percent Leased', get: b => b.percent_leased || '—' },
+    { g: 'Building Info', label: 'Premises SF', get: b => rangeOf((b.spaces || []).map(s => s.sf)) },
+    { g: 'Building Info', label: 'Parking Ratio', get: b => b.parking || '—' },
+    { g: 'Building Info', label: 'Parking $/Space/Mo', get: parkCostOf },
+    { g: 'Building Info', label: 'Landlord', get: b => b.landlord || '—' },
+    { g: 'Economics', label: 'Lease Structure', get: leaseStructOf },
+    { g: 'Economics', label: 'Base Rent/SF', get: b => rangeOf((b.spaces || []).map(s => cleanRent(s.rate))) },
+    { g: 'Economics', label: 'Est. OpEx/SF', get: b => rangeOf((b.spaces || []).map(s => s.opex)) },
+    { g: 'Economics', label: 'Total Rent/SF', get: b => rangeOf((b.spaces || []).map(s => cleanRent(s.total))) },
+    { g: 'Economics', label: 'Monthly Rent', get: monthlyRange },
   ];
 
-  const statusLabel = (b) => {
-    const v = statuses[b.id]?.vote;
-    return v === 'up' ? '★ Shortlisted' : v === 'down' ? 'Passed' : 'Under review';
+  const allSame = (r) => displayed.length > 1 && displayed.every(b => r.get(b) === r.get(displayed[0]));
+  const visibleRows = diffOnly ? compareRows.filter(r => !allSame(r)) : compareRows;
+  const exportCSV = () => {
+    const esc = (c) => '"' + String(c == null ? '' : c).replace(/"/g, '""') + '"';
+    const lines = [['', ...displayed.map(b => b.name)], ['', ...displayed.map(b => b.address || '')]];
+    compareRows.forEach(r => lines.push([r.label, ...displayed.map(b => r.get(b))]));
+    const csv = lines.map(row => row.map(esc).join(',')).join('\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv' }));
+    const a = document.createElement('a'); a.href = url; a.download = 'property-comparison.csv'; a.click();
+    URL.revokeObjectURL(url);
   };
 
   let lastGroup = null;
 
   return (
     <div className="compare-wrap page-fade">
-      <table className={'compare-table' + (fitToScreen ? ' compare-table--fit' : '')}>
-        <thead>
-          <tr>
-            <th className="compare-row-label"></th>
-            {buildings.map((b, i) => (
-              <th key={b.id} style={{width: propWidth}}>
-                <div className="compare-photo" onClick={() => onOpen(b.id)} style={{cursor:'pointer'}}>
-                  <Photo src={b.photos[0]} w={480} label={`#${i+1}`} />
-                </div>
-              </th>
-            ))}
-          </tr>
-          <tr className="compare-name-row">
-            <th className="compare-row-label"></th>
-            {buildings.map(b => (
-              <th key={b.id} className="compare-namecell" style={{cursor:'pointer'}} onClick={() => onOpen(b.id)}>
-                <div className="compare-name">{b.name}</div>
-                <div className="compare-addr">{b.address}</div>
-              </th>
-            ))}
-          </tr>
-        </thead>
-        <tbody>
-          {compareRows.map((r, ri) => (
-            <tr key={ri}>
-              <td className="compare-row-label">{r.label}</td>
-              {buildings.map(b => <td key={b.id}>{r.get(b)}</td>)}
-            </tr>
-          ))}
-          {interactive && (
-            <tr>
-              <td className="compare-row-label">Shortlist / Remove</td>
-              {buildings.map(b => (
-                <td key={b.id}>
-                  <VoteGroup vote={statuses[b.id]?.vote} onVote={(v) => onVote(b.id, v)}/>
-                </td>
-              ))}
-            </tr>
-          )}
-        </tbody>
-      </table>
-      {buildings.length > 0 && (
-        <div className="compare-foot">
-          <span>Data as of {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} · asking terms</span>
-          <a onClick={() => window.print()}>Export comparison PDF →</a>
+      {displayed.length > 0 && (
+        <div className="compare-toolbar">
+          <div className="ctb-group">
+            {onOpenReorder && <button className="btn subtle sm" onClick={onOpenReorder}>⇅ Reorder</button>}
+            <button className={'ctb-chip' + (diffOnly ? ' on' : '')} onClick={() => setDiffOnly(v => !v)} aria-pressed={diffOnly}>Differences only</button>
+            {hiddenCount > 0 && (
+              <label className="ctb-field"><span>Add</span>
+                <select value="" onChange={(e) => { if (e.target.value) addCol(e.target.value); }}>
+                  <option value="">+ Add property…</option>
+                  {hiddenBuildings.map(b => <option key={b.id} value={b.id}>{b.name}</option>)}
+                </select>
+              </label>
+            )}
+          </div>
+          <div className="ctb-group">
+            <button className="btn subtle sm" onClick={exportCSV}>Export CSV</button>
+            <button className="btn subtle sm" onClick={() => window.print()}>Export PDF</button>
+          </div>
         </div>
       )}
-      {buildings.length === 0 && (
+      {displayed.length > 0 ? (
+        <table className={'compare-table' + (fitToScreen ? ' compare-table--fit' : '')}>
+          <caption className="sr-only">Property comparison — {displayed.map(b => b.name).join(', ')}</caption>
+          <thead>
+            <tr>
+              <th className="compare-row-label"></th>
+              {displayed.map((b, i) => (
+                <th key={b.id} style={{width: propWidth}}
+                    className={(dragId === b.id ? 'col-dragging ' : '') + (overId === b.id && dragId && dragId !== b.id ? 'col-dragover' : '')}
+                    onDragOver={(e) => { if (dragId) { e.preventDefault(); if (overId !== b.id) setOverId(b.id); } }}
+                    onDrop={(e) => { e.preventDefault(); dropOn(b.id); }}>
+                  <div className={'compare-photo' + (isShort(b) ? ' shortlisted-top' : '')}
+                       draggable
+                       onDragStart={(e) => { setDragId(b.id); e.dataTransfer.effectAllowed = 'move'; e.dataTransfer.setData('text/plain', b.id); }}
+                       onDragEnd={() => { setDragId(null); setOverId(null); }}
+                       onClick={() => onOpen(b.id)}>
+                    <Photo src={b.photos[0]} w={480} label={`#${i+1}`} />
+                    {isShort(b) && <span className="cp-badge short">★ Shortlist</span>}
+                    {isDown(b) && <span className="cp-badge pass">Remove</span>}
+                    <div className="cp-view">View details →</div>
+                    <div className="cp-drag"><span className="cp-grip">⠿</span> Drag to reorder</div>
+                    <div className="cp-colbar" onClick={(e) => e.stopPropagation()}>
+                      <button className="cp-act cp-remove" title="Remove from comparison" onClick={() => removeCol(b.id)}>✕</button>
+                    </div>
+                  </div>
+                </th>
+              ))}
+            </tr>
+            <tr className="compare-name-row">
+              <th className="compare-row-label"></th>
+              {displayed.map(b => (
+                <th key={b.id} scope="col" className={'compare-namecell' + colClass(b)}>
+                  <div className="compare-namecell-row">
+                    <div className="compare-nameblock" style={{cursor:'pointer'}} onClick={() => onOpen(b.id)}>
+                      <div className="compare-name">{b.name}</div>
+                      <div className="compare-addr">{b.address}</div>
+                    </div>
+                    {interactive && (
+                      <VoteGroup vote={statuses[b.id]?.vote} onVote={(v) => onVote(b.id, v)} size="xs" />
+                    )}
+                  </div>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {visibleRows.map((r) => {
+              const header = r.g !== lastGroup ? r.g : null;
+              lastGroup = r.g;
+              return (
+                <React.Fragment key={r.label}>
+                  {header && (
+                    <tr className="compare-grouprow">
+                      <td className="compare-row-label">{header}</td>
+                      {displayed.map(b => <td key={b.id}></td>)}
+                    </tr>
+                  )}
+                  <tr>
+                    <td className="compare-row-label" scope="row">{r.label}</td>
+                    {displayed.map(b => <td key={b.id} className={colClass(b).trim()}>{r.get(b)}</td>)}
+                  </tr>
+                </React.Fragment>
+              );
+            })}
+            {visibleRows.length === 0 && (
+              <tr><td className="compare-row-label"></td><td colSpan={displayed.length} className="st-empty">All shown data points are identical across these properties.</td></tr>
+            )}
+          </tbody>
+        </table>
+      ) : (
         <div className="empty-state" style={{padding:'40px 20px'}}>
-          <div className="empty-state-title">No properties to compare</div>
-          <div className="empty-state-body">Add properties to this survey to compare them side by side.</div>
+          <div className="empty-state-title">{buildings.length === 0 ? 'No properties to compare' : 'All properties removed from comparison'}</div>
+          <div className="empty-state-body">
+            {buildings.length === 0
+              ? 'Add properties to this survey to compare them side by side.'
+              : <a onClick={resetCols} style={{cursor:'pointer', color:'var(--link)', fontWeight:700}}>Restore all {buildings.length} →</a>}
+          </div>
+        </div>
+      )}
+      {displayed.length > 0 && (
+        <div className="compare-foot">
+          <span>Data as of {new Date().toLocaleDateString('en-US', { month: 'short', year: 'numeric' })} · asking terms</span>
+          {hiddenCount > 0 && <a onClick={resetCols}>Show all {buildings.length} →</a>}
         </div>
       )}
     </div>
@@ -6730,6 +7783,10 @@ function App() {
   const [listView, setListView] = React.useState('spread');   // spread | gallery
   const [sortIx, setSortIx]     = React.useState(0);           // 0 broker · 1 rate · 2 size
   const [showMap, setShowMap]   = React.useState(true);
+  // Shared property order (array of ids, or null = broker's default). Set from the
+  // Compare view (dropdown or drag) and applied across every view.
+  const [propOrder, setPropOrder]   = React.useState(null);
+  const [compareSort, setCompareSort] = React.useState('broker');
   const SORTS = ["Broker's order", 'Rate (low → high)', 'Size (large → small)'];
 
   React.useEffect(() => {
@@ -6744,7 +7801,17 @@ function App() {
 
   // Clients see active properties only. Eliminated rows stay in the record —
   // votes / comments / tour history survive — they just never render here.
-  const activeBuildings = buildings.filter(b => !b.eliminated);
+  const activeUnordered = buildings.filter(b => !b.eliminated);
+  // Apply the shared custom order when set; any building not in the saved order
+  // (e.g. newly added) falls to the end in its original position.
+  const activeBuildings = (() => {
+    if (!propOrder) return activeUnordered;
+    const byId = {}; activeUnordered.forEach(b => { byId[b.id] = b; });
+    const seen = {}; const out = [];
+    propOrder.forEach(id => { if (byId[id]) { out.push(byId[id]); seen[id] = 1; } });
+    activeUnordered.forEach(b => { if (!seen[b.id]) out.push(b); });
+    return out;
+  })();
 
   const statuses = {};
   activeBuildings.forEach(b => {
@@ -6765,8 +7832,57 @@ function App() {
     window.scrollTo(0, 0);
   };
 
+  // Compare-view sort dropdown → writes the shared order (or null to reset).
+  const applyCompareSort = (mode) => {
+    setCompareSort(mode);
+    if (mode === 'broker') { setPropOrder(null); return; }
+    if (mode === 'custom') return;
+    const num = (v) => { const m = String(v || '').replace(/[$,]/g, '').match(/[\d.]+/); return m ? parseFloat(m[0]) : NaN; };
+    const totalOf = (b) => { const xs = (b.spaces || []).map(s => { const t = num(s.total); return isNaN(t) ? num(s.rate) : t; }).filter(n => !isNaN(n)); return xs.length ? Math.min(...xs) : Infinity; };
+    const sfOf = (b) => { const xs = (b.spaces || []).map(s => num(s.sf)).filter(n => !isNaN(n)); return xs.length ? Math.max(...xs) : 0; };
+    const arr = activeBuildings.slice();
+    if (mode === 'shortlist') arr.sort((a, b) => (statuses[b.id]?.vote === 'up' ? 1 : 0) - (statuses[a.id]?.vote === 'up' ? 1 : 0));
+    else if (mode === 'rent') arr.sort((a, b) => totalOf(a) - totalOf(b));
+    else if (mode === 'sf') arr.sort((a, b) => sfOf(b) - sfOf(a));
+    else if (mode === 'name') arr.sort((a, b) => String(a.name || '').localeCompare(String(b.name || '')));
+    setPropOrder(arr.map(b => b.id));
+  };
+  // Drag-to-reorder in Compare → saves that exact order to the shared state.
+  const handleManualReorder = (ids) => { setPropOrder(ids); setCompareSort('custom'); };
+
+  // "Custom order" popup — a draggable list with up/down arrows.
+  const [reorderOpen, setReorderOpen] = React.useState(false);
+  const [dragRow, setDragRow] = React.useState(null);
+  const [overRow, setOverRow] = React.useState(null);
+  const moveRow = (id, dir) => {
+    const o = activeBuildings.map(b => b.id); const i = o.indexOf(id); const j = i + dir;
+    if (j < 0 || j >= o.length) return;
+    [o[i], o[j]] = [o[j], o[i]];
+    handleManualReorder(o);
+  };
+  const dropRow = (targetId) => {
+    if (!dragRow || dragRow === targetId) { setDragRow(null); setOverRow(null); return; }
+    const o = activeBuildings.map(b => b.id).filter(x => x !== dragRow);
+    const at = o.indexOf(targetId);
+    o.splice(at < 0 ? o.length : at, 0, dragRow);
+    handleManualReorder(o); setDragRow(null); setOverRow(null);
+  };
+
   const detailBuilding = route.name === 'detail' ? activeBuildings.find(b => b.id === route.id) : null;
   const shortlistedCount = activeBuildings.filter(b => statuses[b.id]?.vote === 'up').length;
+  // At-a-glance survey summary (scales to any count of properties).
+  const summaryStats = (() => {
+    const n = (s) => { const m = String(s || '').replace(/[$,]/g, '').match(/[\d.]+/); return m ? parseFloat(m[0]) : NaN; };
+    const rents = activeBuildings.map(b => n(b.spaces && b.spaces[0] && b.spaces[0].rate)).filter(Number.isFinite);
+    const sizes = activeBuildings.flatMap(b => (b.spaces || []).map(s => n(s.sf))).filter(Number.isFinite);
+    const subs = new Set(activeBuildings.map(b => b.submarket).filter(Boolean));
+    const rng = (a, fmt) => a.length ? (Math.min(...a) === Math.max(...a) ? fmt(Math.min(...a)) : fmt(Math.min(...a)) + '–' + fmt(Math.max(...a))) : '—';
+    return {
+      rent: rng(rents, v => '$' + v),
+      size: rng(sizes, v => v.toLocaleString()),
+      submarkets: subs.size,
+    };
+  })();
   const clientName = (PREVIEW && 'Grant') || localStorage.getItem('cresaPortalName.v1') || '';
   const updatedStr = (() => {
     try {
@@ -6788,20 +7904,20 @@ function App() {
         <div className="topbar-right">
           {(route.name === 'survey-list' || route.name === 'detail') && (
             <div className="topbar-tabs">
-              <button className={'topbar-tab' + (((route.name === 'survey-list' && activeTab === 'list') || route.name === 'detail') ? ' active' : '')} onClick={() => { setActiveTab('list'); setRoute({ name: 'survey-list' }); }}>
-                Properties <span className="count">{activeBuildings.length}</span>
+              <button className={'topbar-tab' + (route.name === 'survey-list' && activeTab === 'list' ? ' active' : '')} onClick={() => { setActiveTab('list'); setRoute({ name: 'survey-list' }); }}>
+                Map
               </button>
-              <button className={'topbar-tab' + (route.name === 'survey-list' && activeTab === 'commute' ? ' active' : '')} onClick={() => { setActiveTab('commute'); setRoute({ name: 'survey-list' }); }}>
-                Commute
+              <button className={'topbar-tab' + (route.name === 'detail' ? ' active' : '')} onClick={() => { if (activeBuildings[0]) setRoute({ name: 'detail', id: activeBuildings[0].id }); }}>
+                Properties
               </button>
               <button className={'topbar-tab' + (route.name === 'survey-list' && activeTab === 'compare' ? ' active' : '')} onClick={() => { setActiveTab('compare'); setRoute({ name: 'survey-list' }); }}>
                 Compare
               </button>
+              <button className={'topbar-tab' + (route.name === 'survey-list' && activeTab === 'commute' ? ' active' : '')} onClick={() => { setActiveTab('commute'); setRoute({ name: 'survey-list' }); }}>
+                Commute
+              </button>
               <button className={'topbar-tab' + (route.name === 'survey-list' && activeTab === 'tour' ? ' active' : '')} onClick={() => { setActiveTab('tour'); setRoute({ name: 'survey-list' }); }}>
                 Tour
-              </button>
-              <button className={'topbar-tab' + (route.name === 'survey-list' && activeTab === 'activity' ? ' active' : '')} onClick={() => { setActiveTab('activity'); setRoute({ name: 'survey-list' }); }}>
-                Activity
               </button>
             </div>
           )}
@@ -6838,9 +7954,6 @@ function App() {
           <div className="survey-header">
             <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 24, flexWrap: 'wrap' }}>
               <div>
-                <div className="eyebrow">
-                  {('Prepared for ' + (survey.client_company || 'client') + (updatedStr ? ' · ' + updatedStr : '')).toUpperCase()}
-                </div>
                 <h1 className="survey-title">
                   {survey.name || ((survey.city_state ? survey.city_state + ' ' : '') + survey.property_type + ' ' + (survey.doc_type === 'tour' ? 'Tour' : 'Survey'))}
                 </h1>
@@ -6853,7 +7966,9 @@ function App() {
               </div>
               {activeTab === 'list' && (
                 <div className="list-controls">
-                  <span className="sortchip" onClick={() => setSortIx((sortIx + 1) % 3)}>Sort: {SORTS[sortIx]} ▾</span>
+                  {activeBuildings.length > 1 && (
+                    <button className="btn subtle sm" onClick={() => setReorderOpen(true)}>⇅ Reorder</button>
+                  )}
                   <div className="seg">
                     <button className={'seg-btn' + (listView === 'spread' ? ' on' : '')} onClick={() => setListView('spread')}>☰ Spread</button>
                     <button className={'seg-btn' + (listView === 'gallery' ? ' on' : '')} onClick={() => setListView('gallery')}>▦ Gallery</button>
@@ -6864,6 +7979,18 @@ function App() {
                 </div>
               )}
             </div>
+            {activeTab === 'list' && activeBuildings.length > 0 && (
+              <div className="survey-summary">
+                <div className="ss-item"><div className="ss-val">{summaryStats.rent}<span> /sf</span></div><div className="ss-label">Asking rent</div></div>
+                <div className="ss-item"><div className="ss-val">{summaryStats.size}<span> sf</span></div><div className="ss-label">Size range</div></div>
+                <div className="ss-item"><div className="ss-val">{summaryStats.submarkets}</div><div className="ss-label">{summaryStats.submarkets === 1 ? 'Submarket' : 'Submarkets'}</div></div>
+                <div className="ss-item"><div className="ss-val">{activeBuildings.length}</div><div className="ss-label">{activeBuildings.length === 1 ? 'Candidate' : 'Candidates'}</div></div>
+                <div className={'ss-item ss-short' + (shortlistedCount === 0 ? ' empty' : '')}>
+                  <div className="ss-val">{shortlistedCount > 0 ? <>{shortlistedCount}<span> of {activeBuildings.length}</span></> : <span className="ss-nudge">★ tap ♥ to add</span>}</div>
+                  <div className="ss-label">Shortlisted</div>
+                </div>
+              </div>
+            )}
           </div>
 
           {activeTab === 'list' && (
@@ -6892,7 +8019,9 @@ function App() {
               statuses={statuses}
               interactive={interactive}
               onVote={handleVote}
-              onOpen={handleOpenDetail} />
+              onOpen={handleOpenDetail}
+              onReorder={handleManualReorder}
+              onOpenReorder={() => setReorderOpen(true)} />
           )}
           {activeTab === 'tour' && (
             <TourPanel shortlistedCount={shortlistedCount} />
@@ -6902,6 +8031,55 @@ function App() {
           )}
         </>
       }
+
+      {reorderOpen && (
+        <div className="lightbox" onClick={() => setReorderOpen(false)}>
+          <div className="lightbox-card reorder-card" onClick={(e) => e.stopPropagation()}>
+            <div className="lightbox-head">
+              <div>
+                <div className="mono-tag">Property order</div>
+                <div style={{fontSize:18, fontWeight:700, color:'var(--navy)', marginTop:2}}>Arrange properties</div>
+              </div>
+              <button className="btn ghost sm" onClick={() => setReorderOpen(false)}>✕</button>
+            </div>
+            <div className="reorder-body">
+              <div className="reorder-presets">
+                {[
+                  ['broker', 'Initial order'],
+                  ['rent', 'Rent'],
+                  ['shortlist', 'Shortlist'],
+                  ['custom', 'Manual'],
+                ].map(([mode, label]) => (
+                  <button key={mode} className={'reorder-preset' + (compareSort === mode ? ' on' : '')} onClick={() => applyCompareSort(mode)}>{label}</button>
+                ))}
+              </div>
+              <div className="reorder-hint">Or drag a row / use the arrows to arrange manually. This order is saved across every view.</div>
+              <ul className="reorder-list">
+                {activeBuildings.map((b, i) => (
+                  <li key={b.id}
+                      className={'reorder-item' + (dragRow === b.id ? ' dragging' : '') + (overRow === b.id && dragRow && dragRow !== b.id ? ' dragover' : '')}
+                      draggable
+                      onDragStart={() => setDragRow(b.id)}
+                      onDragOver={(e) => { e.preventDefault(); if (overRow !== b.id) setOverRow(b.id); }}
+                      onDrop={(e) => { e.preventDefault(); dropRow(b.id); }}
+                      onDragEnd={() => { setDragRow(null); setOverRow(null); }}>
+                    <span className="reorder-grip" aria-hidden="true">⠿</span>
+                    <span className="reorder-num">{i + 1}</span>
+                    <span className="reorder-name">{b.name}<span className="reorder-addr">{b.address}</span></span>
+                    <span className="reorder-arrows">
+                      <button className="reorder-arrow" disabled={i === 0} onClick={() => moveRow(b.id, -1)} aria-label="Move up">▲</button>
+                      <button className="reorder-arrow" disabled={i === activeBuildings.length - 1} onClick={() => moveRow(b.id, 1)} aria-label="Move down">▼</button>
+                    </span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="lightbox-foot" style={{display:'flex', justifyContent:'flex-end', alignItems:'center'}}>
+              <button className="btn sm" onClick={() => setReorderOpen(false)}>Done</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
