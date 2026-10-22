@@ -6,6 +6,10 @@ Editable InDesign files (IDML) plus PDF proofs.
 |---|---|---|
 | One-pager, front and back | `Cresa_Healthcare_OnePager/Cresa_Healthcare_OnePager.idml` | Letter, 2 pages |
 | Bifold brochure | `Cresa_Healthcare_Bifold/Cresa_Healthcare_Bifold.idml` | Letter, 4 pages (cover / inside spread / back); prints on 11×17 folded to letter |
+| One-pager, Houston edition | `Cresa_Healthcare_OnePager_Houston/Cresa_Healthcare_OnePager_Houston.idml` | Letter, 2 pages |
+| Bifold, Houston edition | `Cresa_Healthcare_Bifold_Houston/Cresa_Healthcare_Bifold_Houston.idml` | Letter, 4 pages |
+
+**Houston editions** drop the 2024 national stats. In their place is a Houston section ("From the Texas Medical Center to Houston's fastest-growing suburbs," with a submarket list), and "Houston" appears in the practice labels, cover, hero copy and footers. The case studies and client logos are national and are unchanged.
 
 ## Opening the files
 
