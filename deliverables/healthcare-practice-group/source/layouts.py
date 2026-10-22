@@ -71,6 +71,7 @@ def add_styles(d):
     P(PStyle("Caption Right", "Roman", 6.5, 8.5, "Dark Gray", align="right"))
     P(PStyle("Outcome", "Medium", 8.5, 11, "Midnight"))
     P(PStyle("Submarkets", "Medium", 9, 14, "Midnight"))
+    P(PStyle("Question", "Medium", 10, 13, "Midnight", after=4))
     P(PStyle("Bullet Reverse Tight", "Roman", 9, 12, "Paper", after=4, bullet="\u25AA", bullet_color="Goldenrod",
              left_indent=12, first_indent=-12))
     C(CStyle("Emphasis Medium", weight="Medium"))
@@ -232,6 +233,16 @@ HOUSTON_LINE = ("We know where Houston\u2019s patients are moving and where clin
                 "Practice Group.")
 
 
+QUESTIONS = [
+    ("\u201cIs this the right location for our next clinic?\u201d",
+     "A site-level study tests each candidate space against patient demand, competition and drive times."),
+    ("\u201cShould we expand, consolidate or exit?\u201d",
+     "A multi-site study benchmarks every location and shows where to invest, hold or exit."),
+    ("\u201cOur board needs to approve this.\u201d",
+     "A board-ready market and strategy deck gives your leadership the full story."),
+]
+
+
 def intro(houston):
     return INTRO.replace("healthcare company, ", "healthcare company in Houston, ") if houston else INTRO
 
@@ -267,11 +278,11 @@ def build_onepager(houston=False):
     for k, col in enumerate(WHO_WE_SERVE):
         d.add(F, Text(300 + k * 140, 426, 134, 80, [("Bullet", t) for t in col]))
     if houston:
-        d.add(F, *eyebrow_with_dash(M, 528, 300, "Houston healthcare expertise"))
-        d.add(F, Text(M, 548, 320, 70, [("H4", "From the Texas Medical Center to Houston\u2019s fastest-growing suburbs."),
-                                        ("Body Small", HOUSTON_LINE)]),
-              *icon("pin", 380, 549, 16),
-              Text(404, 548, W - M - 404, 70, [("Submarkets", HOUSTON_SUBMARKETS)]))
+        d.add(F, *eyebrow_with_dash(M, 520, 300, "Questions we help you answer"))
+        for k, (q, ans) in enumerate(QUESTIONS):
+            x = M + k * 184
+            d.add(F, Rect(x, 540, 24, 2, fill="Goldenrod", name="question rule"),
+                  Text(x, 548, 168, 66, [("Question", q), ("Body Small", ans)]))
     else:
         d.add(F, *eyebrow_with_dash(M, 528, 300, "2024 Healthcare Experience"))
         for k, (n, lab) in enumerate(STATS):
