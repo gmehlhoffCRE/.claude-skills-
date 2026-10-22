@@ -23,7 +23,7 @@ Editable InDesign files (IDML) plus PDF proofs.
 
 ## Still needed before release
 
-- **Photography:** one-pager hero (vertical clinician and patient), bifold cover (full bleed, calm lower-left area for the title block).
+- **Photography:** one-pager front hero (vertical clinician and patient), one-pager back image (sample analytics output such as a market heat map or drive-time map), bifold cover (full bleed, calm lower-left area for the title block).
 - **Headshots:** Doug McNee and Jason Herbrich (square crop). Frames are labeled.
 - **QR code:** landing page URL for the "complimentary Healthcare Market Screen" call to action. Confirm the offer is approved; otherwise change the CTA to "Schedule a strategy call."
 - **Client logos:** cropped at 600 dpi from the 2025 Practice Group Overview. Replace with original vector files before print if available. Aliera Healthcare was intentionally left off the logo wall.

@@ -105,8 +105,8 @@ class Image(Item):
 
 class Placeholder(Item):
     """Empty graphics frame for art the client will supply, with a non-printing label."""
-    def __init__(self, x, y, w, h, label, fill="Light Gray", tint=None, dark=False, name=None, lpad=8):
-        self.x, self.y, self.w, self.h, self.label, self.lpad = x, y, w, h, label, lpad
+    def __init__(self, x, y, w, h, label, fill="Light Gray", tint=None, dark=False, name=None, lpad=8, rpad=8):
+        self.x, self.y, self.w, self.h, self.label, self.lpad, self.rpad = x, y, w, h, label, lpad, rpad
         self.fill, self.tint, self.dark, self.name = fill, tint, dark, name
 
 
@@ -233,7 +233,7 @@ class IdmlWriter:
                      f'<FrameFittingOption AutoFit="false" FittingOnEmptyFrame="FillProportionally" '
                      f'FittingAlignment="CenterAnchor" /></Rectangle>')
             lbl_style = "zz Placeholder Label Light" if it.dark else "zz Placeholder Label"
-            t = Text(it.x + it.lpad, it.y + 8, it.w - it.lpad - 8, it.h - 16, [(lbl_style, it.label)], valign="center",
+            t = Text(it.x + it.lpad, it.y + 8, it.w - it.lpad - it.rpad, it.h - 16, [(lbl_style, it.label)], valign="center",
                      name="Label: " + it.label[:40], layer="Placeholder Labels")
             return frame + self.item_xml(pi, t)
         if isinstance(it, Image):
@@ -570,7 +570,7 @@ def item_html(doc, it, ox, show_labels=True):
                 f'stroke-width="{it.sw}" stroke-linecap="round" stroke-linejoin="round"/></svg>')
     if isinstance(it, Placeholder):
         col = "#fff" if it.dark else "#595959"
-        lab = (f'<div style="position:absolute;inset:8pt 8pt 8pt {it.lpad}pt;display:flex;align-items:center;justify-content:center;'
+        lab = (f'<div style="position:absolute;inset:8pt {it.rpad}pt 8pt {it.lpad}pt;display:flex;align-items:center;justify-content:center;'
                f'text-align:center;font:500 7.5pt/10pt {PROOF_FONT};letter-spacing:.04em;text-transform:uppercase;color:{col};'
                f'opacity:.85">{html.escape(it.label)}</div>') if show_labels else ""
         return (f'<div class="i" style="{box(it.x, it.y, it.w, it.h)}background:{css_color(it.fill, it.tint)};'

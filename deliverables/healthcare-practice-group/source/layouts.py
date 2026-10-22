@@ -265,39 +265,40 @@ def build_onepager():
           Text(M, H - 24, 300, 10, [("Caption", "Cresa Healthcare Practice Group")]),
           Text(W - M - 200, H - 24, 200, 10, [("Caption Right", "cresa.com")]))
 
-    # ---------- BACK
-    d.add(BK, Rect(-B, -B, W + 2 * B, 228 + B, fill="Midnight", name="header band"),
-          logo(M, 32, 96, white=True),
-          Text(W - M - 300, 34, 300, 14, [("Practice Label Reverse Right", "Healthcare Analytics  |  Portfolio Solutions")]),
-          Text(M, 74, 520, 70, [("Headline Reverse", [(None, "Where to grow is a data problem.\n"),
-                                                      ("Emphasis Gold", "We solve it before you sign the lease.")])]),
-          Text(M, 150, 450, 60, [("Body Reverse",
-                                  "Our healthcare analytics turn demand, competition and access data into defensible "
-                                  "site decisions — so your real estate strategy is built on evidence, not instinct, "
-                                  "and your board gets answers before it asks.")]),
-          Rect(M, 220, 130, 4, fill="Goldenrod", name="header accent"))
-    d.add(BK, *eyebrow_with_dash(M, 248, 300, "Capabilities"))
+    # ---------- BACK (mirrors the front: white top, navy block over an image, gold accent)
+    d.add(BK, logo(M, 32, 96),
+          Text(W - M - 300, 34, 300, 14, [("Practice Label Right", "Healthcare Analytics  |  Portfolio Solutions")]))
+    d.add(BK, Placeholder(-B, 66, 326 + B, 196,
+                          "Image: sample analytics output, e.g. market heat map or drive-time map", lpad=36, rpad=60),
+          Rect(286, 90, W + B - 286, 160, fill="Midnight", name="hero block"),
+          Rect(W + B - 130, 246, 130, 4, fill="Goldenrod", name="hero accent"),
+          Text(312, 112, 264, 130, [("Hero", [(None, "Where to grow is\n"), ("Emphasis Medium", "a data problem.")]),
+                                    ("Hero Sub", "We solve it before you sign the lease.")]))
+    d.add(BK, Text(M, 278, W - 2 * M, 34, [("Body",
+          "Our healthcare analytics turn demand, competition and access data into defensible site decisions — "
+          "so your real estate strategy is built on evidence, not instinct, and your board gets answers before it asks.")]))
+    d.add(BK, *eyebrow_with_dash(M, 324, 300, "Capabilities"))
     for k, (ic, t, s) in enumerate(CAPABILITIES):
         col, row = k % 2, k // 2
-        x, y = M + col * 176, 272 + row * 70
+        x, y = M + col * 176, 346 + row * 62
         d.add(BK, *icon(ic, x, y, 20))
-        d.add(BK, Text(x + 30, y, 136, 64, [("H4", t), ("Body Small", s)]))
+        d.add(BK, Text(x + 30, y, 136, 60, [("H4", t), ("Body Small", s)]))
     # what you receive panel
-    px, py, pw, ph = 400, 244, W - M - 400, 236
-    d.add(BK, Rect(px, py, pw, ph, fill="Midnight", name="receive panel"),
+    px, py, pw, ph = 400, 320, W - M - 400, 206
+    d.add(BK, Rect(px, py, pw, ph, fill="Light Gray", tint=60, name="receive panel"),
           Rect(px, py, 3, ph, fill="Goldenrod", name="receive accent"),
-          Text(px + 18, py + 18, pw - 32, ph - 30,
-               [("Eyebrow Gold", "What you receive"), ("Body Small Reverse", " "),
-                ("Bullet Reverse", "100-point opportunity scorecards ranking every market in your footprint"),
-                ("Bullet Reverse", "Demand and competition workbooks with full methodology"),
-                ("Bullet Reverse", "Drive-time access maps by site and submarket"),
-                ("Bullet Reverse", "Site ranking matrices tied to your growth criteria"),
-                ("Bullet Reverse", "Board-ready executive decks for leadership and lenders")]))
+          Text(px + 16, py + 16, pw - 28, ph - 24,
+               [("Eyebrow", "What you receive"), ("Body Small", " "),
+                ("Bullet", "100-point opportunity scorecards ranking every market in your footprint"),
+                ("Bullet", "Demand and competition workbooks with full methodology"),
+                ("Bullet", "Drive-time access maps by site and submarket"),
+                ("Bullet", "Site ranking matrices tied to your growth criteria"),
+                ("Bullet", "Board-ready executive decks for leadership and lenders")]))
     # process
-    d.add(BK, Rect(M, 500, W - 2 * M, 112, fill="Light Gray", tint=60, name="process panel"))
-    d.add(BK, *eyebrow_with_dash(M + 16, 512, 300, "Our Process"))
-    process_steps(d, BK, M + 8, 532, W - 2 * M - 16)
-    footer(d, BK, 632, with_logo=False)
+    d.add(BK, Rect(M, 540, W - 2 * M, 94, fill="Light Gray", tint=60, name="process panel"))
+    d.add(BK, *eyebrow_with_dash(M + 16, 550, 300, "Our Process"))
+    process_steps(d, BK, M + 8, 566, W - 2 * M - 16)
+    footer(d, BK, 646, with_logo=False)
     return d
 
 
