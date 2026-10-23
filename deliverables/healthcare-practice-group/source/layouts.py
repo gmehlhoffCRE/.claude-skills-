@@ -372,7 +372,7 @@ def build_bifold(houston=False):
     for k, col in enumerate(WHO_WE_SERVE):
         d.add(IL, Text(M + k * 150, 260, 144, 70, [("Bullet", t) for t in col]))
     # stats panel
-    sx, sy, sw_, sh = 364, 100, W - M - 364, 240
+    sx, sy, sw_, sh = 364, 100, W - M - 364, 226
     d.add(IL, Rect(sx, sy, sw_, sh, fill="Midnight", name="stats panel"),
           Rect(sx, sy, 3, sh, fill="Goldenrod", name="stats accent"),
           Text(sx + 20, sy + 18, sw_ - 34, sh - 26,
@@ -384,35 +384,23 @@ def build_bifold(houston=False):
                if houston else
                [("Eyebrow Gold", "2024 by the numbers")] +
                sum([[("Stat Number Reverse", n), ("Stat Label Reverse", lab)] for n, lab in STATS], [])))
-    d.add(IL, Line(M, 356, W - M, 356, stroke="Light Gray", sw=1, name="divider"))
-    d.add(IL, Text(M, 372, 540, 28, [("H2 Small", [(None, "Occupier focused — "),
-                                                    ("Emphasis Medium", "so our only bias is you.")])]),
-          Text(M, 410, 256, 170, [
-              ("Body", "Most full-service real estate firms represent both landlords and occupiers — and they "
-                       "estimate nearly 85% of their revenue comes from landlords. When a broker owes duties to both "
-                       "sides, something has to give, and the advantage typically goes to the landlord."),
-              ("Body", "Cresa never represents landlords or developers. No listings to steer you toward, freedom "
-                       "to negotiate aggressively, and savings that stay with you.")]))
-    # revenue chart
-    cx, cw = 318, W - M - 318
-    d.add(IL, Text(cx, 414, cw, 12, [("Eyebrow", "Where the revenue comes from")]))
-    bars = [("Typical full-service firm", 85), ("Cresa", 0)]
-    for k, (lab, landlord) in enumerate(bars):
-        y = 440 + k * 52
-        d.add(IL, Text(cx, y, cw, 12, [("Chart Label", lab)]))
-        lw = cw * landlord / 100
-        if landlord:
-            d.add(IL, Rect(cx, y + 14, lw, 22, fill="Dark Gray", name="bar landlord"),
-                  Text(cx + 8, y + 20, lw - 16, 12, [("Chart Bar Label", f"{landlord}% landlord")]))
-        d.add(IL, Rect(cx + lw, y + 14, cw - lw, 22, fill="Midnight", name="bar occupier"),
-              Text(cx + lw + 4, y + 20, cw - lw - 10, 12,
-                   [("Chart Bar Label Right", f"{100 - landlord}%" if landlord else "100% occupier")]))
-    d.add(IL, Rect(cx, 548, 8, 8, fill="Dark Gray", name="legend"),
-          Text(cx + 12, 547, 80, 10, [("Caption", "Landlord services")]),
-          Rect(cx + 96, 548, 8, 8, fill="Midnight", name="legend"),
-          Text(cx + 108, 547, 100, 10, [("Caption", "Occupier representation")]),
-          Text(cx, 562, cw, 20, [("Caption", "Share of revenue by client type. Full-service firm figure "
-                                             "reflects industry estimates.")]))
+    # where to grow (moved from the right page)
+    d.add(IL, Line(M, 352, W - M, 352, stroke="Light Gray", sw=1, name="divider"))
+    d.add(IL, Text(M, 366, 540, 64, [("H2", [(None, "Where to grow is a data problem.\n"),
+                                             ("Emphasis Medium", "We solve it before you sign the lease.")])]),
+          Text(M, 434, 540, 44, [("Body", "Our healthcare analytics turn demand, competition and access data into "
+                                          "defensible site decisions. Instead of gut-feel recommendations and generic "
+                                          "market narratives, you get scored, data-backed answers \u2014 and the "
+                                          "confidence to move faster with less risk.")]))
+    # occupier focused (condensed; graph to be supplied)
+    d.add(IL, Line(M, 488, W - M, 488, stroke="Light Gray", sw=1, name="divider"))
+    d.add(IL, Text(M, 500, 270, 18, [("H3", [(None, "Occupier focused \u2014 "),
+                                             ("Emphasis Medium", "our only bias is you.")])]),
+          Text(M, 522, 262, 68, [("Body Small",
+                                  "Full-service firms estimate nearly 85% of their revenue comes from landlords. Cresa "
+                                  "never represents landlords or developers \u2014 no listings to steer you toward, "
+                                  "and savings that stay with you.")]),
+          Placeholder(318, 500, W - M - 318, 88, "Graph: landlord vs. occupier revenue (to be supplied)"))
     # band across the spread (left half)
     by = 600
     d.add(IL, Rect(-B, by, W + B, H + B - by, fill="Light Gray", tint=60, name="spread band L"))
@@ -429,53 +417,49 @@ def build_bifold(houston=False):
 
     # ---------- INSIDE RIGHT
     d.add(IR, Text(W - M - 300, 34, 300, 14, [("Practice Label Right", "Healthcare Analytics  |  Portfolio Solutions")]),
-          Text(M, 60, 540, 64, [("H2", [(None, "Where to grow is a data problem.\n"),
-                                        ("Emphasis Medium", "We solve it before you sign the lease.")])]),
-          Text(M, 132, 540, 44, [("Body", "Our healthcare analytics turn demand, competition and access data into "
-                                          "defensible site decisions. Instead of gut-feel recommendations and generic "
-                                          "market narratives, you get scored, data-backed answers — and the "
-                                          "confidence to move faster with less risk.")]))
-    for k, (ic, t, s) in enumerate(CAPABILITIES):
+          Text(M, 58, 540, 18, [("H3", "Healthcare analytics capabilities")]))
+    for k, (ic, t, s_) in enumerate(CAPABILITIES):
         col, row = k % 3, k // 3
-        x, y = M + col * 184, 190 + row * 66
+        x, y = M + col * 184, 86 + row * 62
         d.add(IR, *icon(ic, x, y, 18))
-        d.add(IR, Text(x + 28, y, 144, 60, [("H4", t), ("Body Small", s)]))
-    d.add(IR, Text(M, 336, 540, 18, [("H3", "Analytics matched to your decision")]))
+        d.add(IR, Text(x + 28, y, 144, 58, [("H4", t), ("Body Small", s_)]))
+    d.add(IR, Text(M, 214, 540, 18, [("H3", "Analytics matched to your decision")]))
     journey = [("Explore markets", "Healthcare Market Screening",
                 "Rank and tier markets across your footprint by demand, supply, access and health burden.", "About 1 week"),
                ("Shortlist", "Single Market or Regional Opportunity Study",
-                "Compare markets side by side to show which deserve investment.", "1–2 weeks"),
+                "Compare markets side by side to show which deserve investment.", "1\u20132 weeks"),
                ("Validate the site", "Facility or Service Line Utilization Study",
                 "Confirm patient demand at the site and tie clinical volume to the real estate decision.",
-                "1–1.5 weeks"),
+                "1\u20131.5 weeks"),
                ("Win approval", "Executive-Ready Market & Strategy Deck",
-                "A board-ready narrative for leadership, lenders and your board.", "1–2 weeks")]
+                "A board-ready narrative for leadership, lenders and your board.", "1\u20132 weeks")]
     cw4 = (W - 2 * M - 3 * 12) / 4
     for k, (stage, prod, desc, timing) in enumerate(journey):
         x = M + k * (cw4 + 12)
-        d.add(IR, Rect(x, 362, cw4, 150, fill=None, stroke="Light Gray", sw=1, name="journey card"),
-              Rect(x, 362, cw4, 3, fill="Goldenrod", name="journey accent"),
-              Oval(x + 12, 378, 20, 20, fill="Midnight", name="journey number"),
-              Text(x + 12, 383, 20, 12, [("Step Number", str(k + 1))]),
-              Text(x + 12, 408, cw4 - 24, 100, [("Eyebrow", stage), ("Body Small", " "), ("H4", prod),
-                                                ("Body Small", desc), ("Card Timing", timing)]))
-    d.add(IR, *eyebrow_with_dash(M, 526, 300, "What you gain"))
+        d.add(IR, Rect(x, 238, cw4, 146, fill=None, stroke="Light Gray", sw=1, name="journey card"),
+              Rect(x, 238, cw4, 3, fill="Goldenrod", name="journey accent"),
+              Oval(x + 12, 252, 20, 20, fill="Midnight", name="journey number"),
+              Text(x + 12, 257, 20, 12, [("Step Number", str(k + 1))]),
+              Text(x + 12, 280, cw4 - 24, 100, [("Eyebrow", stage), ("Body Small", " "), ("H4", prod),
+                                               ("Body Small", desc), ("Card Timing", timing)]))
+    d.add(IR, *eyebrow_with_dash(M, 394, 300, "What you gain"))
     outcomes = ["Confidence in the real estate decision", "Clinical strategy aligned to the market",
                 "Reduced risk and faster approvals", "A long-term strategic advisor"]
     for k, o in enumerate(outcomes):
         x = M + k * (cw4 + 12)
-        d.add(IR, Oval(x, 548, 14, 14, fill="Goldenrod", name="outcome dot"),
-              Path([(x + 3.5, 555), (x + 6, 558), (x + 10.5, 552)], False, None, "Midnight", 1.3, name="outcome check"),
-              Text(x + 20, 547, cw4 - 22, 30, [("Outcome", o)]))
-    # band across the spread (right half)
-    by = 600
-    d.add(IR, Rect(0, by, W + B, H + B - by, fill="Light Gray", tint=60, name="spread band R"))
-    d.add(IR, *eyebrow_with_dash(M, by + 22, 300, "Our Process"))
-    process_steps(d, IR, M, by + 46, W - 2 * M)
-    d.add(IR, Text(M, by + 140, W - 2 * M, 40, [
+        d.add(IR, Oval(x, 414, 14, 14, fill="Goldenrod", name="outcome dot"),
+              Path([(x + 3.5, 421), (x + 6, 424), (x + 10.5, 418)], False, None, "Midnight", 1.3, name="outcome check"),
+              Text(x + 20, 413, cw4 - 22, 30, [("Outcome", o)]))
+    d.add(IR, Line(M, 452, W - M, 452, stroke="Light Gray", sw=1, name="divider"))
+    d.add(IR, *eyebrow_with_dash(M, 466, 300, "Our Process"))
+    process_steps(d, IR, M, 486, W - 2 * M)
+    d.add(IR, Text(M, 556, W - 2 * M, 30, [
         ("Body Small", [("Emphasis Medium", "From analysis to signed lease. "),
-                        (None, "Each step hands your brokers a sharper target — priority ZIP codes, building "
+                        (None, "Each step hands your brokers a sharper target \u2014 priority ZIP codes, building "
                                "requirements, labor and referral insight, and payer data to begin contracting early.")])]))
+    # image across the lower right (aligns with the services band on the left page)
+    d.add(IR, Placeholder(0, 600, W + B, H + B - 600,
+                          "Photo: healthcare facility exterior or clinical interior, wide crop"))
 
     # ---------- BACK (left-hand page of outside spread)
     d.add(BACK, *eyebrow_with_dash(M, 38, 300, "Proven results"))
