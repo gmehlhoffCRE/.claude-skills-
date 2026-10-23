@@ -125,6 +125,27 @@ def icon(kind, x, y, s, color="Midnight", sw=1.3):
         a = _arc(0.5, 0.5, 0.42, 200, 470, 30)
         end = a[-1]
         return [P(a), P([(end[0] - 0.2, end[1] - 0.04), end, (end[0] - 0.02, end[1] - 0.22)])]
+    if kind == "scorecard":
+        return [P([(0.15, 0.05), (0.85, 0.05), (0.85, 0.95), (0.15, 0.95)], True),
+                P([(0.3, 0.3), (0.7, 0.3)]), P([(0.3, 0.5), (0.7, 0.5)]),
+                P([(0.32, 0.74), (0.44, 0.84), (0.66, 0.64)])]
+    if kind == "workbook":
+        return [P([(0.25, 0.05), (0.9, 0.05), (0.9, 0.8)]),
+                P([(0.1, 0.2), (0.75, 0.2), (0.75, 0.95), (0.1, 0.95)], True),
+                P([(0.1, 0.45), (0.75, 0.45)]), P([(0.1, 0.7), (0.75, 0.7)]), P([(0.42, 0.2), (0.42, 0.95)])]
+    if kind == "map":
+        return [P([(0.05, 0.15), (0.35, 0.05), (0.65, 0.15), (0.95, 0.05), (0.95, 0.85), (0.65, 0.95),
+                   (0.35, 0.85), (0.05, 0.95)], True),
+                P([(0.35, 0.05), (0.35, 0.85)]), P([(0.65, 0.15), (0.65, 0.95)])]
+    if kind == "grid":
+        out = [P([(0.05, 0.05), (0.95, 0.05), (0.95, 0.95), (0.05, 0.95)], True)]
+        for v in (0.35, 0.65):
+            out += [P([(v, 0.05), (v, 0.95)]), P([(0.05, v), (0.95, v)])]
+        return out
+    if kind == "deck":
+        return [P([(0.05, 0.08), (0.95, 0.08), (0.95, 0.68), (0.05, 0.68)], True),
+                P([(0.5, 0.68), (0.5, 0.92)]), P([(0.3, 0.95), (0.7, 0.95)]),
+                P([(0.22, 0.52), (0.42, 0.35), (0.58, 0.45), (0.78, 0.25)])]
     if kind == "building":
         return [P([(0.15, 0.95), (0.15, 0.1), (0.62, 0.1), (0.62, 0.95)], False),
                 P([(0.62, 0.4), (0.88, 0.4), (0.88, 0.95)]), P([(0.05, 0.95), (0.95, 0.95)]),
@@ -404,30 +425,25 @@ def build_bifold(houston=False):
                                           "defensible site decisions. Instead of gut-feel recommendations and generic "
                                           "market narratives, you get scored, data-backed answers — and the "
                                           "confidence to move faster with less risk.")]))
+    d.add(IR, Text(M, 186, 540, 18, [("H3", "What we analyze")]))
     for k, (ic, t, s) in enumerate(CAPABILITIES):
         col, row = k % 3, k // 3
-        x, y = M + col * 184, 196 + row * 72
+        x, y = M + col * 184, 212 + row * 68
         d.add(IR, *icon(ic, x, y, 18))
         d.add(IR, Text(x + 28, y, 144, 60, [("H4", t), ("Body Small", s)]))
-    d.add(IR, Text(M, 360, 540, 18, [("H3", "Analytics matched to your decision")]))
-    journey = [("Explore markets", "Healthcare Market Screening",
-                "Rank and tier markets across your footprint by demand, supply, access and health burden.", "About 1 week"),
-               ("Shortlist", "Single Market or Regional Opportunity Study",
-                "Compare markets side by side to show which deserve investment.", "1–2 weeks"),
-               ("Validate the site", "Facility or Service Line Utilization Study",
-                "Confirm patient demand at the site and tie clinical volume to the real estate decision.",
-                "1–1.5 weeks"),
-               ("Win approval", "Executive-Ready Market & Strategy Deck",
-                "A board-ready narrative for leadership, lenders and your board.", "1–2 weeks")]
-    cw4 = (W - 2 * M - 3 * 12) / 4
-    for k, (stage, prod, desc, timing) in enumerate(journey):
-        x = M + k * (cw4 + 12)
-        d.add(IR, Rect(x, 386, cw4, 150, fill=None, stroke="Light Gray", sw=1, name="journey card"),
-              Rect(x, 386, cw4, 3, fill="Goldenrod", name="journey accent"),
-              Oval(x + 12, 402, 20, 20, fill="Midnight", name="journey number"),
-              Text(x + 12, 407, 20, 12, [("Step Number", str(k + 1))]),
-              Text(x + 12, 432, cw4 - 24, 100, [("Eyebrow", stage), ("Body Small", " "), ("H4", prod),
-                                                ("Body Small", desc), ("Card Timing", timing)]))
+    d.add(IR, Text(M, 360, 540, 18, [("H3", "What you receive")]))
+    deliverables = [("scorecard", "Opportunity scorecards", "100-point scores ranking every market in your footprint."),
+                    ("workbook", "Demand & competition workbooks", "The full data and methodology behind every finding."),
+                    ("map", "Drive-time access maps", "Patient and labor catchments by site and submarket."),
+                    ("grid", "Site ranking matrices", "Candidate buildings scored against your growth criteria."),
+                    ("deck", "Board-ready executive decks", "A clear narrative for leadership, lenders and your board.")]
+    cw5 = (W - 2 * M - 4 * 10) / 5
+    for k, (ic, t, desc) in enumerate(deliverables):
+        x = M + k * (cw5 + 10)
+        d.add(IR, Rect(x, 386, cw5, 128, fill=None, stroke="Light Gray", sw=1, name="deliverable card"),
+              Rect(x, 386, cw5, 3, fill="Goldenrod", name="deliverable accent"),
+              *icon(ic, x + 12, 402, 22),
+              Text(x + 12, 436, cw5 - 22, 74, [("H4", t), ("Body Small", desc)]))
     # band across the spread (right half): what you gain
     by = 600
     d.add(IR, Rect(0, by, W + B, H + B - by, fill="Light Gray", tint=60, name="spread band R"))
