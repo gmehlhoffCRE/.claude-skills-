@@ -9,7 +9,7 @@ Editable InDesign files (IDML) plus PDF proofs.
 | One-pager, Houston edition | `Cresa_Healthcare_OnePager_Houston/Cresa_Healthcare_OnePager_Houston.idml` | Letter, 2 pages |
 | Bifold, Houston edition | `Cresa_Healthcare_Bifold_Houston/Cresa_Healthcare_Bifold_Houston.idml` | Letter, 4 pages |
 
-**Houston editions** drop the 2024 national stats. The one-pager replaces them with "Questions we help you answer" (three client questions with how the analytics answer each). Both use the integrated-services callout like the national bifold, and "Houston" appears in the practice labels, cover, hero copy and footers. The case studies and client logos are national and are unchanged.
+**Houston editions** drop the 2024 national stats. The one-pager replaces them with "Questions we help you answer" (three client questions with how the analytics answer each). The Houston bifold uses the same integrated-services callout as the national bifold. "Houston" appears in the practice labels, cover, hero copy and footers. The case studies and client logos are national and are unchanged.
 
 ## Opening the files
 
