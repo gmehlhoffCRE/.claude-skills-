@@ -386,17 +386,15 @@ def build_bifold(houston=False):
                 ("Body Small Reverse", "One point of contact for every site and every stage of the real estate "
                                        "life cycle."), ("Body Small Reverse", " ")] +
                [("Bullet Reverse Tight", t) for t in SERVICE_LINES]))
-    # band across the spread (left half): occupier focused + graph
+    # band across the spread (left half): our process
     by = 600
     d.add(IL, Rect(-B, by, W + B, H + B - by, fill="Light Gray", tint=60, name="spread band L"))
-    d.add(IL, *eyebrow_with_dash(M, by + 22, 300, "Occupier focused"))
-    d.add(IL, Text(M, by + 42, 262, 22, [("H3", "Our only bias is you.")]),
-          Text(M, by + 66, 262, 90, [("Body Small",
-                                      "Full-service firms estimate nearly 85% of their revenue comes from landlords. "
-                                      "Cresa never represents landlords or developers \u2014 no listings to steer you "
-                                      "toward, freedom to negotiate aggressively, and savings that stay with you.")]),
-          Placeholder(318, by + 22, W - M - 318, 150, "Graph: landlord vs. occupier revenue (to be supplied)",
-                      fill="Paper"))
+    d.add(IL, *eyebrow_with_dash(M, by + 22, 300, "Our Process"))
+    process_steps(d, IL, M, by + 46, W - 2 * M)
+    d.add(IL, Text(M, by + 140, W - 2 * M, 40, [
+        ("Body Small", [("Emphasis Medium", "From analysis to signed lease. "),
+                        (None, "Each step hands your Cresa team a sharper target \u2014 priority ZIP codes, building "
+                               "requirements, labor and referral insight, and payer data to begin contracting early.")])]))
 
     # ---------- INSIDE RIGHT
     d.add(IR, Text(W - M - 300, 34, 300, 14, [("Practice Label Right", "Healthcare Analytics  |  Portfolio Solutions")]),
@@ -408,10 +406,10 @@ def build_bifold(houston=False):
                                           "confidence to move faster with less risk.")]))
     for k, (ic, t, s) in enumerate(CAPABILITIES):
         col, row = k % 3, k // 3
-        x, y = M + col * 184, 190 + row * 66
+        x, y = M + col * 184, 196 + row * 72
         d.add(IR, *icon(ic, x, y, 18))
         d.add(IR, Text(x + 28, y, 144, 60, [("H4", t), ("Body Small", s)]))
-    d.add(IR, Text(M, 336, 540, 18, [("H3", "Analytics matched to your decision")]))
+    d.add(IR, Text(M, 360, 540, 18, [("H3", "Analytics matched to your decision")]))
     journey = [("Explore markets", "Healthcare Market Screening",
                 "Rank and tier markets across your footprint by demand, supply, access and health burden.", "About 1 week"),
                ("Shortlist", "Single Market or Regional Opportunity Study",
@@ -424,29 +422,34 @@ def build_bifold(houston=False):
     cw4 = (W - 2 * M - 3 * 12) / 4
     for k, (stage, prod, desc, timing) in enumerate(journey):
         x = M + k * (cw4 + 12)
-        d.add(IR, Rect(x, 362, cw4, 150, fill=None, stroke="Light Gray", sw=1, name="journey card"),
-              Rect(x, 362, cw4, 3, fill="Goldenrod", name="journey accent"),
-              Oval(x + 12, 378, 20, 20, fill="Midnight", name="journey number"),
-              Text(x + 12, 383, 20, 12, [("Step Number", str(k + 1))]),
-              Text(x + 12, 408, cw4 - 24, 100, [("Eyebrow", stage), ("Body Small", " "), ("H4", prod),
+        d.add(IR, Rect(x, 386, cw4, 150, fill=None, stroke="Light Gray", sw=1, name="journey card"),
+              Rect(x, 386, cw4, 3, fill="Goldenrod", name="journey accent"),
+              Oval(x + 12, 402, 20, 20, fill="Midnight", name="journey number"),
+              Text(x + 12, 407, 20, 12, [("Step Number", str(k + 1))]),
+              Text(x + 12, 432, cw4 - 24, 100, [("Eyebrow", stage), ("Body Small", " "), ("H4", prod),
                                                 ("Body Small", desc), ("Card Timing", timing)]))
-    d.add(IR, *eyebrow_with_dash(M, 526, 300, "What you gain"))
-    outcomes = ["Confidence in the real estate decision", "Clinical strategy aligned to the market",
-                "Reduced risk and faster approvals", "A long-term strategic advisor"]
-    for k, o in enumerate(outcomes):
-        x = M + k * (cw4 + 12)
-        d.add(IR, Oval(x, 548, 14, 14, fill="Goldenrod", name="outcome dot"),
-              Path([(x + 3.5, 555), (x + 6, 558), (x + 10.5, 552)], False, None, "Midnight", 1.3, name="outcome check"),
-              Text(x + 20, 547, cw4 - 22, 30, [("Outcome", o)]))
-    # band across the spread (right half)
+    # band across the spread (right half): what you gain
     by = 600
     d.add(IR, Rect(0, by, W + B, H + B - by, fill="Light Gray", tint=60, name="spread band R"))
-    d.add(IR, *eyebrow_with_dash(M, by + 22, 300, "Our Process"))
-    process_steps(d, IR, M, by + 46, W - 2 * M)
-    d.add(IR, Text(M, by + 140, W - 2 * M, 40, [
-        ("Body Small", [("Emphasis Medium", "From analysis to signed lease. "),
-                        (None, "Each step hands your brokers a sharper target — priority ZIP codes, building "
-                               "requirements, labor and referral insight, and payer data to begin contracting early.")])]))
+    d.add(IR, *eyebrow_with_dash(M, by + 22, 300, "What you gain"))
+    d.add(IR, Text(M, by + 40, 540, 22, [("H3", "Decisions that hold up in the boardroom.")]))
+    benefits = [("Confidence in the decision",
+                 "Every recommendation traces back to a 100-point opportunity score you can defend to leadership "
+                 "and lenders."),
+                ("Clinical strategy aligned to the market",
+                 "Sites chosen on service-line demand, payer mix and referral patterns \u2014 not just rooftops and "
+                 "traffic counts."),
+                ("Reduced risk, faster approvals",
+                 "Answers ready before your board asks, so decisions move from analysis to approval without rework."),
+                ("A long-term strategic advisor",
+                 "Analytics that carry the relationship beyond one transaction into ongoing portfolio strategy.")]
+    for k, (t, desc) in enumerate(benefits):
+        col, row = k % 2, k // 2
+        x, y = M + col * 276, by + 72 + row * 58
+        d.add(IR, Oval(x, y, 18, 18, fill="Goldenrod", name="benefit dot"),
+              Path([(x + 4.5, y + 9), (x + 7.8, y + 12.5), (x + 13.5, y + 5.5)], False, None, "Midnight", 1.5,
+                   name="benefit check"),
+              Text(x + 28, y, 236, 54, [("H4", t), ("Body Small", desc)]))
 
     # ---------- BACK (left-hand page of outside spread)
     d.add(BACK, *eyebrow_with_dash(M, 38, 300, "Proven results"))
