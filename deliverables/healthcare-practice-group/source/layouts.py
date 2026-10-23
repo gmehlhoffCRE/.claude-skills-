@@ -268,6 +268,20 @@ SERVICE_LINES = ["Portfolio Strategy", "Transaction Management", "Project Manage
                  "Location Strategy", "Labor Analytics", "Incentives Negotiation", "Strategic Consulting"]
 
 
+SECOND_OPINION_INTRO = (
+    "Whether you lead a health system, physician group, outpatient network or healthcare company, industry "
+    "disruption is changing not only how you deliver care, but where. Before you commit to a location, get an "
+    "expert, independent view that aligns your real estate with your mission \u2014 and builds in the economic "
+    "and functional flexibility to grow.")
+SECOND_OPINION_LINE = ("We work exclusively for occupiers \u2014 never landlords or developers \u2014 so every "
+                       "recommendation is made in your best interest.")
+
+
+def second_opinion_intro(houston):
+    return (SECOND_OPINION_INTRO.replace("healthcare company, ", "healthcare company in Houston, ")
+            if houston else SECOND_OPINION_INTRO)
+
+
 def intro(houston):
     return INTRO.replace("healthcare company, ", "healthcare company in Houston, ") if houston else INTRO
 
@@ -393,8 +407,9 @@ def build_bifold(houston=False):
     d.add(IL, Placeholder(-B, -B, W + B, 236 + B,
                           "Photo: healthcare setting, wide crop (clinicians, patient experience or facility)"))
     d.add(IL, Text(M, 252, 300, 14, [("Practice Label", practice_label(houston))]),
-          Text(M, 274, 540, 34, [("H2", [(None, "Like you, "), ("Emphasis Medium", "we\u2019re specialists.")])]),
-          Text(M, 318, 296, 136, [("Body", intro(houston)), ("Body", [("Emphasis Medium", OCCUPIER_LINE)])]))
+          Text(M, 274, 540, 34, [("H2", [(None, "A second opinion "), ("Emphasis Medium", "you can trust.")])]),
+          Text(M, 318, 296, 136, [("Body", second_opinion_intro(houston)),
+                                  ("Body", [("Emphasis Medium", SECOND_OPINION_LINE)])]))
     d.add(IL, Text(M, 458, 296, 18, [("H3", "Who we serve")]))
     for k, col in enumerate(WHO_WE_SERVE):
         d.add(IL, Text(M + k * 150, 480, 144, 70, [("Bullet", t) for t in col]))
