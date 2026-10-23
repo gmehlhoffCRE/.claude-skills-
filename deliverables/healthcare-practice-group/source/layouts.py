@@ -269,16 +269,16 @@ SERVICE_LINES = ["Portfolio Strategy", "Transaction Management", "Project Manage
 
 
 SECOND_OPINION_INTRO = (
-    "Whether you lead a health system, physician group, outpatient network or healthcare company, industry "
-    "disruption is changing not only how you deliver care, but where. Before you commit to a location, get an "
-    "expert, independent view that aligns your real estate with your mission \u2014 and builds in the economic "
-    "and functional flexibility to grow.")
-SECOND_OPINION_LINE = ("We work exclusively for occupiers \u2014 never landlords or developers \u2014 so every "
-                       "recommendation is made in your best interest.")
+    "Whether you lead a health system, a physician group, an outpatient network or a healthcare company, "
+    "industry disruption is changing not only how you deliver care, but where. Before you commit to a location, "
+    "it helps to have an expert, independent view. We help you align your real estate with your mission and "
+    "build in the economic and functional flexibility you need to grow.")
+SECOND_OPINION_LINE = ("We work only for occupiers, never for landlords or developers, so every recommendation "
+                       "we make is in your best interest.")
 
 
 def second_opinion_intro(houston):
-    return (SECOND_OPINION_INTRO.replace("healthcare company, ", "healthcare company in Houston, ")
+    return (SECOND_OPINION_INTRO.replace("a healthcare company, ", "a healthcare company in Houston, ")
             if houston else SECOND_OPINION_INTRO)
 
 
