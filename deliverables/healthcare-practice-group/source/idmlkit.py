@@ -14,7 +14,14 @@ from xml.sax.saxutils import escape, quoteattr
 
 FONT_FAMILY = "Helvetica Neue LT Pro"
 WEIGHTS = {"Thin": ("35 Thin", 200), "Light": ("45 Light", 300), "Roman": ("55 Roman", 400),
-           "Medium": ("65 Medium", 500), "Bold": ("75 Bold", 700)}
+           "Medium": ("65 Medium", 500), "Bold": ("75 Bold", 700),
+           "MediumCond": ("67 Medium Condensed", 500), "BoldCond": ("77 Bold Condensed", 700),
+           "HeavyCond": ("87 Heavy Condensed", 800)}
+COND_PROOF_FONT = "'Helvetica Neue LT Pro Cond','Roboto Condensed','Arial Narrow',sans-serif"
+
+
+def _family_css(weight):
+    return f"font-family:{COND_PROOF_FONT};" if weight and weight.endswith("Cond") else ""
 
 # name: (cmyk, rgb hex)
 SWATCHES = {
@@ -25,6 +32,7 @@ SWATCHES = {
     "Stadium Blue": ((100, 90, 11, 1), "#243E8C"),
     "Bright Blue": ((86, 69, 0, 0), "#0056DA"),
     "Warm Orange": ((0, 60, 100, 0), "#FF8200"),
+    "Atlas Cream": ((3, 5, 16, 0), "#F5EEDC"),
     "Paper": ((0, 0, 0, 0), "#FFFFFF"),
     "Black": ((0, 0, 0, 100), "#1A1A1A"),
 }
@@ -87,8 +95,9 @@ class Oval(Rect):
 
 class Path(Item):
     """Polyline/polygon. points: [(x,y), ...]"""
-    def __init__(self, points, closed=False, fill=None, stroke=None, sw=1, name=None):
+    def __init__(self, points, closed=False, fill=None, stroke=None, sw=1, name=None, tint=None, layer="Art"):
         self.points, self.closed, self.fill, self.stroke, self.sw, self.name = points, closed, fill, stroke, sw, name
+        self.tint, self.layer = tint, layer
 
 
 class Line(Path):
@@ -116,6 +125,14 @@ class Text(Item):
         self.x, self.y, self.w, self.h = x, y, w, h
         self.paras = [(p, [(None, r)] if isinstance(r, str) else r) for p, r in paras]
         self.inset, self.valign, self.name, self.layer = inset, valign, name, layer
+
+
+class Rotated(Item):
+    """Group of items laid out in local coords and rotated (+/-90) into the page box bx,by,bw,bh.
+    Local space is bh wide by bw tall."""
+    def __init__(self, bx, by, bw, bh, angle, items):
+        self.bx, self.by, self.bw, self.bh, self.angle, self.items = bx, by, bw, bh, angle, items
+        self.lw, self.lh = bh, bw
 
 
 # ---------------------------------------------------------------- document
@@ -156,6 +173,8 @@ class IdmlWriter:
         self.n = 0x2000
         self.stories = []  # (id, xml)
         self.used_links = set()
+        self._local = False
+        self._xf = "1 0 0 1 0 0"
 
     def uid(self):
         self.n += 1
@@ -163,10 +182,10 @@ class IdmlWriter:
 
     # -- geometry helpers
     def sx(self, pi, x):
-        return x + self.d.page_offset(pi)
+        return x if self._local else x + self.d.page_offset(pi)
 
     def sy(self, y):
-        return y - self.d.h / 2
+        return y if self._local else y - self.d.h / 2
 
     @staticmethod
     def _pts(points):
@@ -200,7 +219,7 @@ class IdmlWriter:
     def _common(self, layer, name):
         nm = quoteattr(name) if name else '"$ID/"'
         return (f'ItemLayer="{self.layer_ids[layer]}" Locked="false" Visible="true" Name={nm} '
-                f'ItemTransform="1 0 0 1 0 0"')
+                f'ItemTransform="{self._xf}"')
 
     def _paint(self, fill, stroke, sw, tint=None):
         s = f'FillColor="{color_ref(fill)}" StrokeColor="{color_ref(stroke)}" StrokeWeight="{sw if stroke else 0}"'
@@ -209,6 +228,17 @@ class IdmlWriter:
         return s
 
     def item_xml(self, pi, it):
+        if isinstance(it, Rotated):
+            th = math.radians(it.angle)
+            c, s_ = math.cos(th), math.sin(th)
+            cx, cy = self.sx(pi, it.bx + it.bw / 2), self.sy(it.by + it.bh / 2)
+            tx = cx - (c * it.lw / 2 - s_ * it.lh / 2)
+            ty = cy - (s_ * it.lw / 2 + c * it.lh / 2)
+            self._local, self._xf = True, f"{c:.6f} {s_:.6f} {-s_:.6f} {c:.6f} {tx:.3f} {ty:.3f}"
+            try:
+                return "".join(self.item_xml(pi, ch) for ch in it.items)
+            finally:
+                self._local, self._xf = False, "1 0 0 1 0 0"
         u = self.uid()
         if isinstance(it, Oval):
             return (f'<Oval Self="{u}" ContentType="Unassigned" {self._common(it.layer, it.name)} '
@@ -222,7 +252,7 @@ class IdmlWriter:
             pts = [(self.sx(pi, x), self.sy(y)) for x, y in it.points]
             tag = "GraphicLine" if (len(pts) == 2 and not it.closed) else "Polygon"
             return (f'<{tag} Self="{u}" ContentType="Unassigned" {self._common(it.layer, it.name)} '
-                    f'AppliedObjectStyle="ObjectStyle/$ID/[None]" {self._paint(it.fill, it.stroke, it.sw)} '
+                    f'AppliedObjectStyle="ObjectStyle/$ID/[None]" {self._paint(it.fill, it.stroke, it.sw, it.tint)} '
                     f'EndCap="RoundEndCap" EndJoin="RoundEndJoin">'
                     f'{self._geom(pts, it.closed)}</{tag}>')
         if isinstance(it, Placeholder):
@@ -528,7 +558,7 @@ PROOF_FONT = "'Helvetica Neue LT Pro','Helvetica Neue','Inter',Arial,sans-serif"
 
 
 def _pstyle_css(s):
-    return (f"font-weight:{WEIGHTS[s.weight][1]};font-size:{s.size}pt;line-height:{s.leading}pt;"
+    return (f"{_family_css(s.weight)}font-weight:{WEIGHTS[s.weight][1]};font-size:{s.size}pt;line-height:{s.leading}pt;"
             f"color:{css_color(s.color)};letter-spacing:{s.tracking / 1000}em;margin:{s.before}pt 0 {s.after}pt 0;"
             f"text-align:{s.align};{'text-transform:uppercase;' if s.caps else ''}"
             f"{'font-style:italic;' if s.italic else ''}"
@@ -538,7 +568,7 @@ def _pstyle_css(s):
 def _cstyle_css(c):
     css = ""
     if c.weight:
-        css += f"font-weight:{WEIGHTS[c.weight][1]};"
+        css += f"{_family_css(c.weight)}font-weight:{WEIGHTS[c.weight][1]};"
     if c.color:
         css += f"color:{css_color(c.color)};"
     if c.size:
@@ -553,6 +583,11 @@ def _cstyle_css(c):
 def item_html(doc, it, ox, show_labels=True):
     def box(x, y, w, h):
         return f"left:{x + ox}pt;top:{y}pt;width:{w}pt;height:{h}pt;"
+    if isinstance(it, Rotated):
+        inner = "".join(item_html(doc, ch, 0, show_labels) for ch in it.items)
+        return (f'<div class="i" style="{box(it.bx, it.by, it.bw, it.bh)}">'
+                f'<div style="position:absolute;left:{(it.bw - it.lw) / 2}pt;top:{(it.bh - it.lh) / 2}pt;'
+                f'width:{it.lw}pt;height:{it.lh}pt;transform:rotate({it.angle}deg)">{inner}</div></div>')
     if isinstance(it, Oval) or isinstance(it, Rect):
         rad = "border-radius:50%;" if isinstance(it, Oval) else ""
         bd = f"box-shadow:inset 0 0 0 {it.sw}pt {css_color(it.stroke)};" if it.stroke else ""
@@ -566,7 +601,7 @@ def item_html(doc, it, ox, show_labels=True):
         pts = " ".join(f"{x - x0},{y - y0}" for x, y in it.points)
         tag = "polygon" if it.closed else "polyline"
         return (f'<svg class="i" style="{box(x0, y0, w, h)}overflow:visible" viewBox="0 0 {w} {h}">'
-                f'<{tag} points="{pts}" fill="{css_color(it.fill)}" stroke="{css_color(it.stroke)}" '
+                f'<{tag} points="{pts}" fill="{css_color(it.fill, it.tint)}" stroke="{css_color(it.stroke)}" '
                 f'stroke-width="{it.sw}" stroke-linecap="round" stroke-linejoin="round"/></svg>')
     if isinstance(it, Placeholder):
         col = "#fff" if it.dark else "#595959"
@@ -604,10 +639,13 @@ def item_html(doc, it, ox, show_labels=True):
     raise TypeError(it)
 
 
+FONT_FACES = []  # extra @font-face rules for proof rendering
+
+
 def proof_html(doc, sheets, show_bleed=False, show_labels=True):
     """sheets: list of lists of page indices laid side by side (e.g. [[0],[1,2],[3]])."""
     b = doc.bleed if show_bleed else 0
-    css = [f"@font-face{{}}",
+    css = ["".join(FONT_FACES),
            "*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff}",
            f"body{{font-family:{PROOF_FONT};-webkit-print-color-adjust:exact;print-color-adjust:exact}}",
            ".sheet{position:relative;overflow:hidden;break-after:page}.sheet:last-child{break-after:auto}",

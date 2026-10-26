@@ -8,8 +8,17 @@ Editable InDesign files (IDML) plus PDF proofs.
 | Bifold brochure | `Cresa_Healthcare_Bifold/Cresa_Healthcare_Bifold.idml` | Letter, 4 pages (cover / inside spread / back); prints on 11×17 folded to letter |
 | One-pager, Houston edition | `Cresa_Healthcare_OnePager_Houston/Cresa_Healthcare_OnePager_Houston.idml` | Letter, 2 pages |
 | Bifold, Houston edition | `Cresa_Healthcare_Bifold_Houston/Cresa_Healthcare_Bifold_Houston.idml` | Letter, 4 pages |
+| Road Atlas trifold self-mailer | `Cresa_Healthcare_RoadAtlas_Trifold/Cresa_Healthcare_RoadAtlas_Trifold.idml` | Legal 14×8.5", letter fold; page 1 = outside, page 2 = inside |
 
 **Houston editions** drop the 2024 national stats. The one-pager replaces them with "Questions we help you answer" (three client questions with how the analytics answer each). The Houston bifold uses the same integrated-services callout as the national bifold. "Houston" appears in the practice labels, cover, hero copy and footers. The case studies and client logos are national and are unchanged.
+
+## Road Atlas trifold notes
+
+- **Panels:** outside = fold-in flap (services & benefits) | mailer back | cover; inside = map spread (two panels) | case studies, no-conflicts and client logos. The fold-in flap is 4.625", the others 4.6875". Fold lines are drawn on the non-printing layer.
+- **Personalization:** `[Company Name]` appears on the cover badge, mailer teaser and map title. The map pins, callout tags and legend are **sample data**. Move or duplicate pins to show each prospect's real footprint.
+- **The map** is built from native, editable shapes: states, interstates, shields, labels and pins, from U.S. Census-derived state boundaries (us-atlas, public domain).
+- **Mailing:** the address panel is rotated so the address reads along the 8.5" length. Before printing, confirm with your mail house: postage indicia/permit, return address (placeholder), tab or wafer-seal placement, and the barcode clear zone. Folded size is about 4.69" × 8.5", which qualifies as a USPS letter-size mailpiece.
+- **Fonts:** condensed headlines use Helvetica Neue LT Pro 67/77/87 Condensed.
 
 ## Opening the files
 
