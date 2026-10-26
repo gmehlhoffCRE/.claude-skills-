@@ -26,9 +26,9 @@ def client_logo(name):
 def add_styles(d):
     P = d.add_pstyle
     C = d.add_cstyle
-    P(PStyle("Practice Label", "Roman", 10, 12, "Bright Blue"))
-    P(PStyle("Practice Label Right", "Roman", 10, 12, "Bright Blue", align="right"))
-    P(PStyle("Practice Label Reverse Right", "Roman", 10, 12, "Paper", align="right"))
+    P(PStyle("Practice Label", "Bold", 7.5, 10, "Bright Blue", 150, caps=True))
+    P(PStyle("Practice Label Right", "Bold", 7.5, 10, "Bright Blue", 150, caps=True, align="right"))
+    P(PStyle("Practice Label Reverse Right", "Bold", 7.5, 10, "Paper", 150, caps=True, align="right"))
     P(PStyle("Eyebrow", "Bold", 7.5, 9, "Midnight", 150, caps=True))
     P(PStyle("Eyebrow Gold", "Bold", 7.5, 9, "Goldenrod", 150, caps=True))
     P(PStyle("Hero", "Light", 31, 34, "Paper", -10))
@@ -44,9 +44,9 @@ def add_styles(d):
     P(PStyle("Body Reverse", "Light", 10.5, 15, "Paper", after=6))
     P(PStyle("Body Small", "Roman", 8, 11, "Dark Gray", after=4))
     P(PStyle("Body Small Reverse", "Roman", 8, 11, "Paper", after=4))
-    P(PStyle("Bullet", "Roman", 9, 12, "Dark Gray", after=4, bullet="▪", bullet_color="Goldenrod",
+    P(PStyle("Bullet", "Roman", 9, 12, "Dark Gray", after=4, bullet="\u2022", bullet_color="Goldenrod",
              left_indent=11, first_indent=-11))
-    P(PStyle("Bullet Reverse", "Roman", 9, 12.5, "Paper", after=8, bullet="▪", bullet_color="Goldenrod",
+    P(PStyle("Bullet Reverse", "Roman", 9, 12.5, "Paper", after=8, bullet="\u2022", bullet_color="Paper",
              left_indent=12, first_indent=-12))
     P(PStyle("Stat Number", "Light", 34, 36, "Midnight", -20))
     P(PStyle("Stat Number Reverse", "Light", 34, 36, "Paper", -20))
@@ -72,7 +72,7 @@ def add_styles(d):
     P(PStyle("Outcome", "Medium", 8.5, 11, "Midnight"))
     P(PStyle("Submarkets", "Medium", 9, 14, "Midnight"))
     P(PStyle("Question", "Medium", 10, 13, "Midnight", after=4))
-    P(PStyle("Bullet Reverse Tight", "Roman", 9, 12, "Paper", after=4, bullet="\u25AA", bullet_color="Goldenrod",
+    P(PStyle("Bullet Reverse Tight", "Roman", 9, 12, "Paper", after=4, bullet="\u2022", bullet_color="Paper",
              left_indent=12, first_indent=-12))
     C(CStyle("Emphasis Medium", weight="Medium"))
     C(CStyle("Emphasis Gold", color="Goldenrod"))
@@ -295,6 +295,13 @@ OCCUPIER_LINE = ("We work exclusively for occupiers — never landlords or devel
 
 
 # ================================================================== ONE-PAGER
+DELIVERABLES_SHORT = [("Opportunity Scorecards", "ranking every market in your footprint"),
+                      ("Analytics/KPI Workbooks", "with the full data and methodology"),
+                      ("Drive-Time Access Maps", "by site and submarket"),
+                      ("Site Ranking Matrices", "tied to your growth criteria"),
+                      ("Board-Ready Executive Decks", "for leadership, lenders and your board")]
+
+
 def build_onepager(houston=False):
     d = Doc("Cresa_Healthcare_OnePager" + ("_Houston" if houston else ""), W, H, 2, bleed=B, margin=M)
     add_styles(d)
@@ -302,7 +309,7 @@ def build_onepager(houston=False):
 
     # ---------- FRONT
     d.add(F, logo(M, 32, 96),
-          Text(W - M - 300, 34, 300, 14, [("Practice Label Right", practice_label(houston))]))
+          Text(W - M - 300, 36, 300, 12, [("Practice Label Right", practice_label(houston))]))
     d.add(F, Placeholder(286, 66, W + B - 286, 322,
                          "Photo: clinician with patient in a bright, modern outpatient setting. "
                          "Vertical crop, subject right of center", lpad=52))
@@ -313,24 +320,24 @@ def build_onepager(houston=False):
                                                 if houston else "Real estate strategy that supports your mission, ")
                                                + "your clinicians and your patients.")]))
     d.add(F, Text(M, 340, 230, 180, [("Body", intro(houston)), ("Body", [("Emphasis Medium", OCCUPIER_LINE)])]))
-    d.add(F, Text(300, 404, 276, 18, [("H3", "Who we serve")]))
+    d.add(F, Text(300, 404, 276, 18, [("H3", "Who We Serve")]))
     for k, col in enumerate(WHO_WE_SERVE):
         d.add(F, Text(300 + k * 140, 426, 134, 80, [("Bullet", t) for t in col]))
     if houston:
-        d.add(F, *eyebrow_with_dash(M, 520, 300, "Questions we help you answer"))
+        d.add(F, Text(M, 514, 400, 18, [("H3", "Questions We Help You Answer")]))
         for k, (q, ans) in enumerate(QUESTIONS):
             x = M + k * 184
             d.add(F, Rect(x, 540, 24, 2, fill="Goldenrod", name="question rule"),
                   Text(x, 548, 168, 66, [("Question", q), ("Body Small", ans)]))
     else:
-        d.add(F, *eyebrow_with_dash(M, 528, 300, "2024 Healthcare Experience"))
+        d.add(F, Text(M, 522, 400, 18, [("H3", "2024 Healthcare Experience")]))
         for k, (n, lab) in enumerate(STATS):
             x = M + k * 184
             d.add(F, Text(x, 548, 170, 38, [("Stat Number", n)]),
                   Text(x, 588, 150, 24, [("Stat Label", lab)]))
     # why band
     d.add(F, Rect(-B, 630, W + 2 * B, H + B - 630, fill="Light Gray", tint=60, name="why band"))
-    d.add(F, Text(M, 650, 400, 18, [("H3", "Why healthcare occupiers choose Cresa")]))
+    d.add(F, Text(M, 650, 400, 18, [("H3", "Why Healthcare Occupiers Choose Cresa")]))
     why = [("shield", "Conflict-free advocacy",
             "We never represent landlords or developers. Our only bias is you — your growth, your budget, your terms."),
            ("pulse", "Clinical demand fluency",
@@ -347,7 +354,7 @@ def build_onepager(houston=False):
 
     # ---------- BACK (mirrors the front: white top, navy block over an image, gold accent)
     d.add(BK, logo(M, 32, 96),
-          Text(W - M - 300, 34, 300, 14, [("Practice Label Right", "Healthcare Analytics  |  Portfolio Solutions")]))
+          Text(W - M - 300, 36, 300, 12, [("Practice Label Right", practice_label(houston))]))
     d.add(BK, Placeholder(-B, 66, 326 + B, 196,
                           "Image: sample analytics output, e.g. market heat map or drive-time map", lpad=36, rpad=60),
           Rect(286, 90, W + B - 286, 160, fill="Midnight", name="hero block"),
@@ -358,7 +365,7 @@ def build_onepager(houston=False):
           "Our healthcare analytics turn demand, competition and access data into defensible site decisions "
           + ("across Greater Houston " if houston else "") + "\u2014 "
           "so your real estate strategy is built on evidence, not instinct, and your board gets answers before it asks.")]))
-    d.add(BK, *eyebrow_with_dash(M, 324, 300, "Capabilities"))
+    d.add(BK, Text(M, 320, 340, 18, [("H3", "What We Analyze")]))
     for k, (ic, t, s) in enumerate(CAPABILITIES):
         col, row = k % 2, k // 2
         x, y = M + col * 176, 346 + row * 62
@@ -369,15 +376,11 @@ def build_onepager(houston=False):
     d.add(BK, Rect(px, py, pw, ph, fill="Light Gray", tint=60, name="receive panel"),
           Rect(px, py, 3, ph, fill="Goldenrod", name="receive accent"),
           Text(px + 16, py + 16, pw - 28, ph - 24,
-               [("Eyebrow", "What you receive"), ("Body Small", " "),
-                ("Bullet", "100-point opportunity scorecards ranking every market in your footprint"),
-                ("Bullet", "Demand and competition workbooks with full methodology"),
-                ("Bullet", "Drive-time access maps by site and submarket"),
-                ("Bullet", "Site ranking matrices tied to your growth criteria"),
-                ("Bullet", "Board-ready executive decks for leadership and lenders")]))
+               [("H3", "What We Deliver")] +
+               [("Bullet", [("Emphasis Medium", t + " "), (None, desc)]) for t, desc in DELIVERABLES_SHORT]))
     # process
     d.add(BK, Rect(M, 540, W - 2 * M, 94, fill="Light Gray", tint=60, name="process panel"))
-    d.add(BK, *eyebrow_with_dash(M + 16, 550, 300, "Our Process"))
+    d.add(BK, Text(M + 16, 546, 300, 18, [("H3", "Our Process")]))
     process_steps(d, BK, M + 8, 566, W - 2 * M - 16)
     footer(d, BK, 646, with_logo=False, houston=houston)
     return d

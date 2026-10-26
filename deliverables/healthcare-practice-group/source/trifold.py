@@ -174,7 +174,11 @@ def add_trifold_styles(d):
     P(PStyle("Mini Detail", "Roman", 7.5, 9.5, "Dark Gray"))
     P(PStyle("Body Small Reverse Plain", "Roman", 8.5, 12, "Paper", after=8))
     P(PStyle("H4 Gold", "Medium", 9.5, 12, "Goldenrod", after=2))
-    P(PStyle("Flap Head", "Medium", 12, 14, "Goldenrod"))
+    P(PStyle("Flap Head", "Bold", 8, 10, "Goldenrod", 150, caps=True))
+    P(PStyle("Headline Sync", "Light", 21, 24, "Midnight", -10))
+    P(PStyle("Headline Sync Reverse", "Light", 26, 30, "Paper", -10))
+    P(PStyle("Card Title", "Medium", 8.5, 10.5, "Midnight", after=3))
+    P(PStyle("Card Text", "Roman", 7.5, 9.5, "Dark Gray"))
     P(PStyle("Flap Item", "Medium", 9, 11, "Paper", after=1))
     P(PStyle("Footer Gold", "BoldCond", 9, 10, "Goldenrod", 160, caps=True))
     C(CStyle("Gold Text", color="Goldenrod"))
@@ -264,36 +268,40 @@ def build_trifold():
     # --- flap: what we do / what you gain / service lines, navy
     d.add(OUT, Rect(-B, -B, FLAP + B, H + 2 * B, fill="Midnight", name="flap background"))
     x, w = OX_FLAP + PM, FLAP - 2 * PM
-    d.add(OUT, Text(x, 30, w, 12, [("Atlas Kicker Gold", "Healthcare Practice Group")]),
-          Text(x, 46, w, 56, [("Atlas Title Reverse", "Every mile,\non your side.")]),
-          Rect(x, 104, 60, 3, fill="Goldenrod", name="flap accent"))
+    d.add(OUT, Text(x, 30, w, 12, [("Flap Head", "Healthcare Practice Group")]),
+          Text(x, 46, w, 64, [("Headline Sync Reverse", [(None, "Every mile,\n"), ("Emphasis Medium", "on your side.")])]),
+          Rect(x, 112, 60, 3, fill="Goldenrod", name="flap accent"))
     # what we do
-    d.add(OUT, Text(x, 120, w, 16, [("Flap Head", "What We Do")]),
-          Text(x, 138, w, 28, [("Body Small Reverse Plain",
+    d.add(OUT, Text(x, 130, w, 12, [("Flap Head", "What We Do")]),
+          Text(x, 146, w, 28, [("Body Small Reverse Plain",
                                 "We turn demand, competition and access data into defensible site decisions.")]))
     analytics = ["Market Demand Modeling", "Competitive Saturation", "Drive-Time & Access",
                  "Site Ranking & Selection", "Referral Network Mapping", "Payer Mix Analysis"]
     for k, col in enumerate((analytics[:3], analytics[3:])):
-        d.add(OUT, Text(x + k * (w / 2), 166, w / 2 - 4, 50, [("Bullet Reverse Tight", t) for t in col]))
+        d.add(OUT, Text(x + k * (w / 2), 174, w / 2 - 4, 50, [("Bullet Reverse Tight", t) for t in col]))
     # what you gain
-    d.add(OUT, Line(x, 222, x + w, 222, stroke="Stadium Blue", sw=0.6, name="flap rule"),
-          Text(x, 232, w, 16, [("Flap Head", "What You Gain")]))
-    gains = [("Confidence in the decision", "Recommendations you can defend to leadership and lenders."),
-             ("Clinical strategy aligned to the market", "Sites chosen on demand, payer mix and referral patterns."),
-             ("Reduced risk, faster approvals", "Answers ready before your board asks."),
-             ("A long-term strategic advisor", "Conflict-free guidance well beyond one transaction.")]
-    y = 254
+    d.add(OUT, Line(x, 230, x + w, 230, stroke="Stadium Blue", sw=0.6, name="flap rule"),
+          Text(x, 242, w, 12, [("Flap Head", "What You Gain")]))
+    gains = [("Confidence in the decision", "Every recommendation traces back to a 100-point opportunity score you "
+                                            "can defend to leadership and lenders."),
+             ("Clinical strategy aligned to the market", "Sites chosen on service-line demand, payer mix and referral "
+                                                         "patterns, not just rooftops and traffic counts."),
+             ("Reduced risk, faster approvals", "Answers ready before your board asks, so decisions move from "
+                                                "analysis to approval without rework."),
+             ("A long-term strategic advisor", "Analytics that carry the relationship beyond one transaction into "
+                                               "ongoing portfolio strategy.")]
+    y = 262
     for t, desc in gains:
         d.add(OUT, Oval(x, y + 1, 13, 13, fill="Goldenrod", name="gain dot"),
               Path([(x + 3.2, y + 7.5), (x + 5.8, y + 10.1), (x + 10, y + 4.8)], False, None, "Midnight", 1.2,
                    name="gain check"),
-              Text(x + 21, y, w - 21, 32, [("Flap Item", t), ("Body Small Reverse", desc)]))
-        y += 36
+              Text(x + 21, y, w - 21, 44, [("Flap Item", t), ("Body Small Reverse", desc)]))
+        y += 46
     # service lines
     d.add(OUT, Line(x, y + 6, x + w, y + 6, stroke="Stadium Blue", sw=0.6, name="flap rule"),
-          Text(x, y + 16, w, 16, [("Flap Head", "Service Lines")]))
+          Text(x, y + 16, w, 12, [("Flap Head", "Service Lines")]))
     for k, col in enumerate((SERVICE_LINES[:4], SERVICE_LINES[4:])):
-        d.add(OUT, Text(x + k * (w / 2), y + 38, w / 2 - 4, 90, [("Bullet Reverse Tight", t) for t in col]))
+        d.add(OUT, Text(x + k * (w / 2), y + 34, w / 2 - 4, 90, [("Bullet Reverse Tight", t) for t in col]))
     d.add(OUT, Text(x, H - 40, w, 12, [("Footer Gold", "Think beyond space.")]))
 
     # --- back panel: self-mailer (rotated so the address reads along the 8.5" length)
@@ -334,7 +342,7 @@ def build_trifold():
           Rect(cx0, 92, cw + B, 4, fill="Goldenrod", name="cover band rule"),
           logo(cx0 + PM, 28, 92, white=True),
           Text(cx0 + PM, 58, cw - 2 * PM, 18, [("Atlas Band", "Healthcare Road Atlas")]),
-          Text(cx0 + cw - PM - 120, 32, 120, 12, [("Footer Line Right", "United States edition")]))
+          Text(cx0 + cw - PM - 170, 36, 170, 12, [("Practice Label Reverse Right", "Healthcare Practice Group")]))
     bw, bh = 236, 252
     bx, by = cx0 + (cw - bw) / 2, 118
     d.add(OUT, *shield(bx, by, bw, bh, ("Shield Top", "Healthcare"),
@@ -390,11 +398,12 @@ def build_trifold():
     d.add(IN, Line(sx0, 26, sx0 + sw, 26, stroke="Midnight", sw=1.0, name="header rule"),
           Line(sx0, 28.5, sx0 + sw, 28.5, stroke="Midnight", sw=0.35, name="header rule thin"),
           Text(sx0, 33, 300, 10, [("Atlas Kicker", "Plate 1  ·  United States")]),
-          Text(sx0 + sw - 300, 33, 300, 10, [("Atlas Kicker Right", "Healthcare Road Atlas")]),
-          Text(sx0, 50, sw, 24, [("Atlas Title", f"{COMPANY} today: your footprint, your next market")]),
+          Text(sx0 + sw - 300, 33, 300, 10, [("Practice Label Right", "Healthcare Practice Group")]),
+          Text(sx0, 48, sw, 26, [("Headline Sync", [(None, f"{COMPANY} today: "),
+                                                     ("Emphasis Medium", "your footprint, your next market.")])]),
           Text(sx0, 74, sw, 16, [("Body Small", "We map every location you operate today against patient demand, "
                                                "competition and access, so you can see where the next one belongs.")]))
-    mitems, mh = us_map(sx0 + (sw - 552) / 2, 96, 552)
+    mitems, mh = us_map(sx0 + (sw - 500) / 2, 96, 500)
     d.add(IN, *mitems)
     ly = 96 + mh + 8
     legend = [("Midnight", "Current location"), ("Bright Blue", "Target market"),
@@ -420,19 +429,21 @@ def build_trifold():
                ("network", "Labor & Referral Network Maps", "Where clinical talent lives and referrals originate."),
                ("deck", "Board-Ready Executive Decks", "A clear narrative for leadership, lenders and your board.")]
     pw_ = PANEL - 2 * PM
-    cw3 = (pw_ - 2 * 12) / 3
+    cw3 = (pw_ - 2 * 8) / 3
     for k, (ic, t, desc) in enumerate(deliver):
         px0 = (IX_L if k < 3 else IX_M) + PM
-        xx = px0 + (k % 3) * (cw3 + 12)
-        d.add(IN, *icon(ic, xx, sy + 26, 15))
-        d.add(IN, Text(xx, sy + 46, cw3, 66, [("H4", t), ("Body Small", desc)]))
+        xx, yy0 = px0 + (k % 3) * (cw3 + 8), sy + 28
+        d.add(IN, Rect(xx, yy0, cw3, 110, fill="Paper", stroke="Light Gray", sw=1, name="deliverable card"),
+              Rect(xx, yy0, cw3, 3, fill="Goldenrod", name="deliverable accent"),
+              *icon(ic, xx + 10, yy0 + 13, 16),
+              Text(xx + 10, yy0 + 38, cw3 - 18, 68, [("Card Title", t), ("Card Text", desc)]))
 
     # --- right panel: proof
     rx, rw = IX_R + PM, FLAP - 2 * PM
     d.add(IN, Line(rx, 26, rx + rw, 26, stroke="Midnight", sw=1.0, name="header rule"),
           Line(rx, 28.5, rx + rw, 28.5, stroke="Midnight", sw=0.35, name="header rule thin"),
           Text(rx, 33, rw, 10, [("Atlas Kicker", "Plate 2  ·  Proven routes")]),
-          Text(rx, 50, rw, 24, [("Atlas Title", "Success stories")]))
+          Text(rx, 48, rw, 26, [("Headline Sync", [(None, "Success "), ("Emphasis Medium", "Stories")])]))
     cases = [("Fresenius", [("2,235", "transactions"), ("$186.3M", "gross savings")],
               "A 14-year national partnership across one of the world’s largest healthcare portfolios, with "
               "planning that starts 3.5 years before lease expiration."),
@@ -453,14 +464,14 @@ def build_trifold():
     ny = yy + 2
     d.add(IN, Rect(rx - 6, ny, rw + 12, 104, fill="Midnight", name="no conflicts box"),
           Rect(rx - 6, ny, 3, 104, fill="Goldenrod", name="no conflicts accent"),
-          Text(rx + 10, ny + 14, rw - 20, 84, [("Atlas Kicker Gold", "No conflicts. Ever."),
+          Text(rx + 10, ny + 14, rw - 20, 84, [("Eyebrow Gold", "No conflicts. Ever."),
                                                ("Body Small Reverse", " "),
                                                ("Body Small Reverse Plain",
                                                 "Most full-service firms earn the bulk of their revenue from "
                                                 "landlords. Cresa never represents landlords or developers, so every "
                                                 "recommendation, negotiation and dollar saved works for you.")]))
     ly2 = ny + 118
-    d.add(IN, Text(rx, ly2, rw, 10, [("Atlas Kicker", "Trusted by healthcare leaders")]))
+    d.add(IN, Text(rx, ly2 - 4, rw, 18, [("H3", "Trusted by Healthcare Leaders")]))
     wall = ["DaVita", "ChenMed", "Hanger", "Sharecare", "Modivcare", "SyneosHealth"]
     gw = (rw - 2 * 10) / 3
     for k, lg in enumerate(wall):

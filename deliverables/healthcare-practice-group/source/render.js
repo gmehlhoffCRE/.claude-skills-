@@ -3,7 +3,7 @@ const path = require('path');
 (async () => {
   const [out, ...names] = process.argv.slice(2);
   const browser = await chromium.launch();
-  const page = await browser.newPage({ deviceScaleFactor: 1.5 });
+  const page = await browser.newPage({ deviceScaleFactor: parseFloat(process.env.SCALE || '1.5') });
   for (const n of names) {
     await page.goto('file://' + path.resolve(out, n + '.html'));
     await page.waitForTimeout(300);

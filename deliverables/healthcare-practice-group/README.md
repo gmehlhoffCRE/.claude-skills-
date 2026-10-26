@@ -9,8 +9,27 @@ Editable InDesign files (IDML) plus PDF proofs.
 | One-pager, Houston edition | `Cresa_Healthcare_OnePager_Houston/Cresa_Healthcare_OnePager_Houston.idml` | Letter, 2 pages |
 | Bifold, Houston edition | `Cresa_Healthcare_Bifold_Houston/Cresa_Healthcare_Bifold_Houston.idml` | Letter, 4 pages |
 | Road Atlas trifold self-mailer | `Cresa_Healthcare_RoadAtlas_Trifold/Cresa_Healthcare_RoadAtlas_Trifold.idml` | Legal 14×8.5", letter fold; page 1 = outside, page 2 = inside |
+| Business cards (Doug McNee, Jason Herbrich) | `Cresa_BusinessCard_<Name>/…idml` | 3.5×2", page 1 = front, page 2 = back |
+| Business card alternate back (road atlas) | `Cresa_BusinessCard_AltBack_RoadAtlas/…idml` | 3.5×2", 1 page |
 
 **Houston editions** drop the 2024 national stats. The one-pager replaces them with "Questions we help you answer" (three client questions with how the analytics answer each). The Houston bifold uses the same integrated-services callout as the national bifold. "Houston" appears in the practice labels, cover, hero copy and footers. The case studies and client logos are national and are unchanged.
+
+## Shared style system (from the edited bifold)
+
+All pieces follow the bifold as edited in InDesign. **That InDesign file is the master for the bifold**; the bifold IDML in this folder predates those edits.
+
+- **Practice label:** "HEALTHCARE PRACTICE GROUP" top right, Bold caps, letter-spaced, Bright Blue.
+- **Headlines:** two weights (Light, then Medium). Section headings are Medium, title case: Who We Serve, What We Analyze, What We Deliver, What You Gain, Our Process.
+- **Navy callouts:** gold left bar, gold Bold caps kicker, white text and white dot bullets. Gold dot bullets on white.
+- **Copy:** "What We Deliver" items are Opportunity Scorecards, Analytics/KPI Workbooks, Drive-Time Access Maps, Site Ranking Matrices and Board-Ready Executive Decks. The service lines include Project & Development Services. "What You Gain" wording matches the bifold.
+- **Road-atlas pieces only:** the condensed highway lettering and shield badge.
+
+## Business cards
+
+- **Front:** white, with logo, practice label, name and title, gold rule, mobile, email, cresa.com, office address (placeholder) and a gold edge accent.
+- **Back:** navy callout with "A second opinion you can really trust." and a QR frame (URL TBD).
+- **Alternate back:** road-atlas shield ("Where will you grow next?") with "Let's map your next market."
+- Check with Cresa marketing whether practice-group cards may vary from the corporate card template.
 
 ## Road Atlas trifold notes
 
