@@ -17,6 +17,7 @@ OX_FLAP, OX_BACK, OX_COVER = 0, FLAP, FLAP + PANEL
 IX_L, IX_M, IX_R = 0, PANEL, 2 * PANEL
 PM = 22                                # panel margin
 COMPANY = "[Company Name]"
+TAGLINE = "The right diagnosis for your next location."
 
 STATE_ABBR = {
     "Alabama": "AL", "Alaska": "AK", "Arizona": "AZ", "Arkansas": "AR", "California": "CA", "Colorado": "CO",
@@ -177,6 +178,7 @@ def add_trifold_styles(d):
     P(PStyle("Flap Head", "Bold", 8, 10, "Goldenrod", 150, caps=True))
     P(PStyle("Headline Sync", "Light", 21, 24, "Midnight", -10))
     P(PStyle("Headline Sync Reverse", "Light", 26, 30, "Paper", -10))
+    P(PStyle("Mailer Tagline", "Medium", 9, 11.5, "Midnight", after=3))
     P(PStyle("Card Title", "Medium", 8.5, 10.5, "Midnight", after=3))
     P(PStyle("Card Text", "Roman", 7.5, 9.5, "Dark Gray"))
     P(PStyle("Flap Item", "Medium", 9, 11, "Paper", after=1))
@@ -314,7 +316,8 @@ def build_trifold():
         Rect(lw - m - 84, m, 84, 58, fill=None, stroke="Midnight", sw=0.75, name="indicia box"),
         Text(lw - m - 84, m + 12, 84, 40, [("Indicia", "PRSRT STD\nU.S. Postage\nPaid\n[Permit #]")]),
         Text(m, 112, 250, 50, [("Mailer Teaser", f"Where will {COMPANY}\ngrow next?")]),
-        Text(m, 160, 240, 30, [("Body Small", "Your personalized healthcare road atlas is inside.")]),
+        Text(m, 160, 250, 30, [("Mailer Tagline", TAGLINE),
+                               ("Body Small", "Your personalized healthcare road atlas is inside.")]),
         Placeholder(296, 116, lw - m - 296, 92, "Recipient address (variable data)", fill="Light Gray", tint=45),
         Line(m, 214, 268, 214, stroke="Goldenrod", sw=1.2, name="mailer rule"),
         Text(m, 224, 240, 12, [("Atlas Kicker", "Your Cresa healthcare team")]),
@@ -348,12 +351,13 @@ def build_trifold():
     d.add(OUT, *shield(bx, by, bw, bh, ("Shield Top", "Healthcare"),
                        [("Shield Line", [(None, "Where will\n"), ("Gold Text", f"{COMPANY}\n"),
                                          (None, "grow next?")])], name="cover badge", border=2.4, inset=8))
-    d.add(OUT, Text(cx0 + PM, 380, cw - 2 * PM, 12, [("Atlas Kicker Center", "Real insight. Better locations.")]))
+    d.add(OUT, Text(cx0 + PM, 380, cw - 2 * PM, 12, [("Atlas Kicker Center", TAGLINE)]))
     # road scene
     gy = 470
-    mountains = [[(cx0, gy), (cx0, gy - 8), (cx0 + 70, gy - 52), (cx0 + 150, gy)],
-                 [(cx0 + 120, gy), (cx0 + 215, gy - 68), (cx0 + 320, gy)],
-                 [(cx0 + 250, gy), (cx0 + 310, gy - 40), (cx0 + cw + B, gy - 8), (cx0 + cw + B, gy)]]
+    gb = gy + 24  # mountain bases run behind the hills so no gap shows
+    mountains = [[(cx0, gb), (cx0, gy - 8), (cx0 + 70, gy - 52), (cx0 + 150, gb)],
+                 [(cx0 + 120, gb), (cx0 + 215, gy - 68), (cx0 + 320, gb)],
+                 [(cx0 + 250, gb), (cx0 + 310, gy - 40), (cx0 + cw + B, gy - 8), (cx0 + cw + B, gb)]]
     for mt in mountains:
         d.add(OUT, Path(mt, True, "Stadium Blue", None, 0, tint=35, name="mountain"))
     d.add(OUT, Path([(cx0 + 199, gy - 57), (cx0 + 215, gy - 68), (cx0 + 231, gy - 57), (cx0 + 222, gy - 54),
@@ -367,7 +371,7 @@ def build_trifold():
           hill(gy + 46, 16, 2.0, "Warm Orange", 28, "hill mid"),
           hill(gy + 96, 12, 1.0, "Goldenrod", 22, "hill front"))
     # winding road with perspective
-    P0, P1, P2, P3 = (cx0 + 180, gy + 4), (cx0 + 250, gy + 60), (cx0 + 40, gy + 90), (cx0 + 120, H + B + 4)
+    P0, P1, P2, P3 = (cx0 + 180, gy + 4), (cx0 + 250, gy + 60), (cx0 + 40, gy + 90), (cx0 + 105, H + B + 70)
     N = 60
     cl = [bezier(P0, P1, P2, P3, i / N) for i in range(N + 1)]
     left, right = [], []

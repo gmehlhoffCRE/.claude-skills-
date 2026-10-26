@@ -22,13 +22,14 @@ All pieces follow the bifold as edited in InDesign. **That InDesign file is the 
 - **Headlines:** two weights (Light, then Medium). Section headings are Medium, title case: Who We Serve, What We Analyze, What We Deliver, What You Gain, Our Process.
 - **Navy callouts:** gold left bar, gold Bold caps kicker, white text and white dot bullets. Gold dot bullets on white.
 - **Copy:** "What We Deliver" items are Opportunity Scorecards, Analytics/KPI Workbooks, Drive-Time Access Maps, Site Ranking Matrices and Board-Ready Executive Decks. The service lines include Project & Development Services. "What You Gain" wording matches the bifold.
+- **Tagline:** "The right diagnosis for your next location." Pair it with the headline "A second opinion you can really trust." Cresa's corporate "Think beyond space." stays in footers.
 - **Road-atlas pieces only:** the condensed highway lettering and shield badge.
 
 ## Business cards
 
 - **Front:** white, with logo, practice label, name and title, gold rule, mobile, email, cresa.com, office address (placeholder) and a gold edge accent.
-- **Back:** navy callout with "A second opinion you can really trust." and a QR frame (URL TBD).
-- **Alternate back:** road-atlas shield ("Where will you grow next?") with "Let's map your next market."
+- **Back:** navy callout with "A second opinion you can really trust.", the tagline "The right diagnosis for your next location." and a QR frame (URL TBD).
+- **Alternate back:** road-atlas shield ("Where will you grow next?") with "The right diagnosis for your next location."
 - Check with Cresa marketing whether practice-group cards may vary from the corporate card template.
 
 ## Road Atlas trifold notes
