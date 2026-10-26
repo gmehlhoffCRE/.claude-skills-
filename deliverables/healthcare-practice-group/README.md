@@ -14,7 +14,7 @@ Editable InDesign files (IDML) plus PDF proofs.
 
 ## Road Atlas trifold notes
 
-- **Panels:** outside = fold-in flap (services & benefits) | mailer back | cover; inside = map spread (two panels) | case studies, no-conflicts and client logos. The fold-in flap is 4.625", the others 4.6875". Fold lines are drawn on the non-printing layer.
+- **Panels:** outside = fold-in flap (What We Do, What You Gain, Service Lines) | mailer back | cover; inside = map spread (two panels) with What We Deliver underneath | case studies, no-conflicts and client logos. The fold-in flap is 4.625", the others 4.6875". Fold lines are drawn on the non-printing layer.
 - **Personalization:** `[Company Name]` appears on the cover badge, mailer teaser and map title. The map pins, callout tags and legend are **sample data**. Move or duplicate pins to show each prospect's real footprint.
 - **The map** is built from native, editable shapes: states, interstates, shields, labels and pins, from U.S. Census-derived state boundaries (us-atlas, public domain).
 - **Mailing:** the address panel is rotated so the address reads along the 8.5" length. Before printing, confirm with your mail house: postage indicia/permit, return address (placeholder), tab or wafer-seal placement, and the barcode clear zone. Folded size is about 4.69" × 8.5", which qualifies as a USPS letter-size mailpiece.

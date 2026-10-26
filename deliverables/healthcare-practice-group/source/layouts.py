@@ -264,7 +264,7 @@ QUESTIONS = [
 ]
 
 
-SERVICE_LINES = ["Portfolio Strategy", "Transaction Management", "Project Management", "Lease Administration",
+SERVICE_LINES = ["Portfolio Strategy", "Transaction Management", "Project & Development Services", "Lease Administration",
                  "Location Strategy", "Labor Analytics", "Incentives Negotiation", "Strategic Consulting"]
 
 

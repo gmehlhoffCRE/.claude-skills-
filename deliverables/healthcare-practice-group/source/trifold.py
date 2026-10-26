@@ -57,7 +57,7 @@ SAMPLE_TARGET = ["Raleigh", "Columbia SC", "Jacksonville", "Birmingham", "Kansas
 SAMPLE_GROWTH = ["Las Vegas", "Salt Lake City", "Boise"]
 TAGS = [("Next location", "Raleigh", "Warm Orange", "Paper", (28, -30)),
         ("Expansion", "Atlanta", "Stadium Blue", "Paper", (-70, 26)),
-        ("Relocation", "Dallas", "Midnight", "Paper", (-78, -36)),
+        ("Relocation", "Dallas", "Midnight", "Paper", (-84, 12)),
         ("Future market", "Salt Lake City", "Goldenrod", "Midnight", (-30, -42))]
 STATE_FILLS = [("Goldenrod", 30), ("Warm Orange", 18), ("Atlas Cream", 100), ("Goldenrod", 12)]
 
@@ -174,6 +174,8 @@ def add_trifold_styles(d):
     P(PStyle("Mini Detail", "Roman", 7.5, 9.5, "Dark Gray"))
     P(PStyle("Body Small Reverse Plain", "Roman", 8.5, 12, "Paper", after=8))
     P(PStyle("H4 Gold", "Medium", 9.5, 12, "Goldenrod", after=2))
+    P(PStyle("Flap Head", "Medium", 12, 14, "Goldenrod"))
+    P(PStyle("Flap Item", "Medium", 9, 11, "Paper", after=1))
     P(PStyle("Footer Gold", "BoldCond", 9, 10, "Goldenrod", 160, caps=True))
     C(CStyle("Gold Text", color="Goldenrod"))
 
@@ -259,31 +261,39 @@ def build_trifold():
     OUT, IN = 0, 1
 
     # ================= OUTSIDE =================
-    # --- flap (services & benefits), navy
+    # --- flap: what we do / what you gain / service lines, navy
     d.add(OUT, Rect(-B, -B, FLAP + B, H + 2 * B, fill="Midnight", name="flap background"))
     x, w = OX_FLAP + PM, FLAP - 2 * PM
-    d.add(OUT, Text(x, 30, w, 12, [("Atlas Kicker Gold", "The Cresa route")]),
-          Text(x, 48, w, 56, [("Atlas Title Reverse", "Every mile,\non your side.")]),
-          Rect(x, 108, 60, 3, fill="Goldenrod", name="flap accent"),
-          Text(x, 122, w, 74, [("Body Small Reverse Plain",
-                               "Cresa is the world’s largest occupier-only commercial real estate firm. We "
-                               "represent healthcare organizations, never landlords or developers, from the first "
-                               "market study to every renewal after.")]))
-    benefits = [("Conflict-free advocacy", "One client, one mission: your growth, your budget and your terms."),
-                ("Data before decisions", "Demand, competition and access analytics behind every recommendation."),
-                ("One point of contact", "A single team coordinating every site, market and stage."),
-                ("Savings that stay with you", "Aggressive negotiation with no landlord interests to protect.")]
-    y = 200
-    for t, desc in benefits:
-        d.add(OUT, Oval(x, y + 1, 14, 14, fill="Goldenrod", name="benefit dot"),
-              Path([(x + 3.5, y + 8), (x + 6.2, y + 10.8), (x + 10.8, y + 5)], False, None, "Midnight", 1.3,
-                   name="benefit check"),
-              Text(x + 22, y, w - 22, 40, [("H4 Gold", t), ("Body Small Reverse", desc)]))
-        y += 46
-    d.add(OUT, Line(x, y + 4, x + w, y + 4, stroke="Stadium Blue", sw=0.6, name="flap rule"),
-          Text(x, y + 16, w, 12, [("Atlas Kicker Gold", "Integrated services")]))
+    d.add(OUT, Text(x, 30, w, 12, [("Atlas Kicker Gold", "Healthcare Practice Group")]),
+          Text(x, 46, w, 56, [("Atlas Title Reverse", "Every mile,\non your side.")]),
+          Rect(x, 104, 60, 3, fill="Goldenrod", name="flap accent"))
+    # what we do
+    d.add(OUT, Text(x, 120, w, 16, [("Flap Head", "What We Do")]),
+          Text(x, 138, w, 28, [("Body Small Reverse Plain",
+                                "We turn demand, competition and access data into defensible site decisions.")]))
+    analytics = ["Market Demand Modeling", "Competitive Saturation", "Drive-Time & Access",
+                 "Site Ranking & Selection", "Referral Network Mapping", "Payer Mix Analysis"]
+    for k, col in enumerate((analytics[:3], analytics[3:])):
+        d.add(OUT, Text(x + k * (w / 2), 166, w / 2 - 4, 50, [("Bullet Reverse Tight", t) for t in col]))
+    # what you gain
+    d.add(OUT, Line(x, 222, x + w, 222, stroke="Stadium Blue", sw=0.6, name="flap rule"),
+          Text(x, 232, w, 16, [("Flap Head", "What You Gain")]))
+    gains = [("Confidence in the decision", "Recommendations you can defend to leadership and lenders."),
+             ("Clinical strategy aligned to the market", "Sites chosen on demand, payer mix and referral patterns."),
+             ("Reduced risk, faster approvals", "Answers ready before your board asks."),
+             ("A long-term strategic advisor", "Conflict-free guidance well beyond one transaction.")]
+    y = 254
+    for t, desc in gains:
+        d.add(OUT, Oval(x, y + 1, 13, 13, fill="Goldenrod", name="gain dot"),
+              Path([(x + 3.2, y + 7.5), (x + 5.8, y + 10.1), (x + 10, y + 4.8)], False, None, "Midnight", 1.2,
+                   name="gain check"),
+              Text(x + 21, y, w - 21, 32, [("Flap Item", t), ("Body Small Reverse", desc)]))
+        y += 36
+    # service lines
+    d.add(OUT, Line(x, y + 6, x + w, y + 6, stroke="Stadium Blue", sw=0.6, name="flap rule"),
+          Text(x, y + 16, w, 16, [("Flap Head", "Service Lines")]))
     for k, col in enumerate((SERVICE_LINES[:4], SERVICE_LINES[4:])):
-        d.add(OUT, Text(x + k * (w / 2), y + 34, w / 2 - 4, 80, [("Bullet Reverse Tight", t) for t in col]))
+        d.add(OUT, Text(x + k * (w / 2), y + 38, w / 2 - 4, 90, [("Bullet Reverse Tight", t) for t in col]))
     d.add(OUT, Text(x, H - 40, w, 12, [("Footer Gold", "Think beyond space.")]))
 
     # --- back panel: self-mailer (rotated so the address reads along the 8.5" length)
@@ -384,9 +394,9 @@ def build_trifold():
           Text(sx0, 50, sw, 24, [("Atlas Title", f"{COMPANY} today: your footprint, your next market")]),
           Text(sx0, 74, sw, 16, [("Body Small", "We map every location you operate today against patient demand, "
                                                "competition and access, so you can see where the next one belongs.")]))
-    mitems, mh = us_map(sx0 + 14, 98, sw - 28)
+    mitems, mh = us_map(sx0 + (sw - 552) / 2, 96, 552)
     d.add(IN, *mitems)
-    ly = 98 + mh + 8
+    ly = 96 + mh + 8
     legend = [("Midnight", "Current location"), ("Bright Blue", "Target market"),
               ("Warm Orange", "High-growth market")]
     lx = sx0
@@ -399,23 +409,23 @@ def build_trifold():
           Text(sx0 + sw - 260, ly, 260, 24, [("zz Placeholder Label",
                                               "Sample locations shown: replace with client footprint")]))
     d.pages[IN][-1].layer = "Placeholder Labels"
-    # services strip
+    # what we deliver
     sy = ly + 18
     d.add(IN, Line(sx0, sy, sx0 + sw, sy, stroke="Midnight", sw=0.6, name="strip rule"),
-          Text(sx0, sy + 9, 300, 10, [("Atlas Kicker", "How Cresa helps you grow")]))
-    services = [("pin", "Location Strategy", "Site selection built on demand and access."),
-                ("chart", "Healthcare Analytics", "Market screens to board-ready decks."),
-                ("network", "Labor Analytics", "Clinical talent mapped by market."),
-                ("rank", "Transaction Management", "Leases negotiated with leverage."),
-                ("grid", "Project Management", "Clinical build-outs on time and budget."),
-                ("workbook", "Lease Administration", "Every date, dollar and option tracked.")]
+          Text(sx0, sy + 7, 300, 16, [("H3", "What We Deliver")]))
+    deliver = [("scorecard", "Opportunity Scorecards", "Scores ranking every market in your footprint."),
+               ("workbook", "Analytics/KPI Workbooks", "The full data and methodology behind every finding."),
+               ("map", "Drive-Time Access Maps", "Patient and labor catchments by site and submarket."),
+               ("grid", "Site Ranking Matrices", "Candidate buildings scored against your growth criteria."),
+               ("network", "Labor & Referral Network Maps", "Where clinical talent lives and referrals originate."),
+               ("deck", "Board-Ready Executive Decks", "A clear narrative for leadership, lenders and your board.")]
     pw_ = PANEL - 2 * PM
     cw3 = (pw_ - 2 * 12) / 3
-    for k, (ic, t, desc) in enumerate(services):
+    for k, (ic, t, desc) in enumerate(deliver):
         px0 = (IX_L if k < 3 else IX_M) + PM
         xx = px0 + (k % 3) * (cw3 + 12)
         d.add(IN, *icon(ic, xx, sy + 26, 15))
-        d.add(IN, Text(xx, sy + 46, cw3, 48, [("H4", t), ("Body Small", desc)]))
+        d.add(IN, Text(xx, sy + 46, cw3, 66, [("H4", t), ("Body Small", desc)]))
 
     # --- right panel: proof
     rx, rw = IX_R + PM, FLAP - 2 * PM
