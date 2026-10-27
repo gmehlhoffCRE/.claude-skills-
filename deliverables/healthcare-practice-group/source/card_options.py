@@ -100,24 +100,82 @@ def option_d(contact):
 
 
 # ------------------------------------------------------------------ Option E: map contours
+def hospital_sign(cx, cy, size=15):
+    """Blue road-sign hospital marker: white-bordered square with a white H."""
+    h = size / 2
+    return [Rect(cx - h - 1.5, cy - h - 1.5, size + 3, size + 3, fill="Paper", name="hospital sign border"),
+            Rect(cx - h, cy - h, size, size, fill="Bright Blue", name="hospital sign"),
+            Text(cx - h, cy - h * 0.62, size, size, [("Hospital H", "H")], name="hospital H")]
+
+
+def street_map(x_edge, minor, major, highway, top=-B, bottom=CH + B, right=CW + B, seed=0.0):
+    """Street-grid texture: minor streets, two arterials, a parks block or two and a curving highway.
+    Streets start at a wavy left edge x_edge(y) so the map fades in from the right."""
+    items = []
+    step = 12
+    xmin = min(x_edge(y) for y in range(int(top), int(bottom)))
+    # vertical streets (slight jog so it doesn't look like graph paper)
+    x = xmin + 4
+    k = 0
+    while x < right:
+        ys = [y for y in range(int(top), int(bottom) + 1, 3) if x >= x_edge(y)]
+        if len(ys) > 1:
+            jog = 2.5 * math.sin(k * 1.7 + seed)
+            items.append(Path([(x, ys[0]), (x + jog, ys[-1])], False, None, minor, 0.5, name="street"))
+        x += step + (3 if k % 3 == 2 else 0)
+        k += 1
+    # horizontal streets
+    y = top + 6
+    k = 0
+    while y < bottom:
+        x0 = x_edge(y)
+        if x0 < right:
+            items.append(Path([(x0, y), (right, y + 1.5 * math.sin(k + seed))], False, None, minor, 0.5,
+                              name="street"))
+        y += step + (2 if k % 4 == 1 else 0)
+        k += 1
+    # park blocks
+    for (px, py) in ((xmin + 60, 24), (xmin + 98, 96)):
+        items.insert(0, Rect(px, py, 22, 20, fill=minor, tint=55, name="park block"))
+    # arterials
+    for (p0, p1) in (((xmin + 10, bottom), (right, top + 30)), ((xmin + 44, top), (right - 30, bottom))):
+        pts = [(p0[0] + (p1[0] - p0[0]) * t / 20, p0[1] + (p1[1] - p0[1]) * t / 20) for t in range(21)]
+        pts = [p for p in pts if p[0] >= x_edge(p[1])]
+        if len(pts) > 1:
+            items.append(Path(pts, False, None, major, 1.3, name="arterial"))
+    # curving highway
+    P0, P1, P2, P3 = (xmin - 4, bottom - 20), (xmin + 70, 40), (xmin + 120, 120), (right, top + 10)
+    hw = []
+    for i in range(41):
+        t = i / 40
+        u = 1 - t
+        px = u ** 3 * P0[0] + 3 * u * u * t * P1[0] + 3 * u * t * t * P2[0] + t ** 3 * P3[0]
+        py = u ** 3 * P0[1] + 3 * u * u * t * P1[1] + 3 * u * t * t * P2[1] + t ** 3 * P3[1]
+        if px >= x_edge(py):
+            hw.append((px, py))
+    items.append(Path(hw, False, None, highway, 2.2, name="highway"))
+    return items
+
+
 def option_e(contact):
     name, title = contact[0], contact[1]
-    d = Doc("Cresa_BusinessCard_OptionE_Contour", CW, CH, 2, bleed=B, margin=CM)
+    d = Doc("Cresa_BusinessCard_OptionE_StreetMap", CW, CH, 2, bleed=B, margin=CM)
     add_option_styles(d)
-    pcx, pcy = 200, 62
+    d.add_pstyle(PStyle("Hospital H", "Bold", 10, 10, "Paper", align="center"))
+    front_edge = lambda y: 132 + 12 * math.sin(y / 22)
+    back_edge = lambda y: 182 + 8 * math.sin(y / 20 + 1)
     d.add(0, Rect(-B, -B, CW + 2 * B, CH + 2 * B, fill="Paper", name="card front"),
-          *contours(pcx, pcy, 6, 8.5, "Light Gray", 0.7),
-          *teardrop(pcx, pcy - 10, 6.5, "Goldenrod"),
+          *street_map(front_edge, "Light Gray", "Light Gray", "Goldenrod"),
+          *hospital_sign(206, 58),
           logo(CM, CM, 64),
           Text(CM, CM + 22, 150, 8, [("Card Label Left", "Healthcare Practice Group")]),
-          Text(CM, 54, 150, 32, [("Card Name", name), ("Card Role", title)]),
-          Rect(CM, 86, 26, 2, fill="Goldenrod", name="name rule"),
-          Text(CM, 94, 130, 40, contact_lines("Card Contact", contact)),
-          Text(CW - CM - 110, 112, 110, 20, [("Card Address", "Cresa Houston  ·  [Street address]\n"
-                                                              "Houston, TX [ZIP]")]))
+          Text(CM, 48, 150, 32, [("Card Name", name), ("Card Role", title)]),
+          Rect(CM, 79, 26, 2, fill="Goldenrod", name="name rule"),
+          Text(CM, 86, 130, 28, contact_lines("Card Contact", contact)),
+          Text(CM, 114, 104, 18, [("Card Address Left", "[Street address, suite]\nHouston, TX [ZIP]")]))
     d.add(1, Rect(-B, -B, CW + 2 * B, CH + 2 * B, fill="Midnight", name="card back"),
-          *contours(pcx + 6, pcy + 8, 7, 9, "Stadium Blue", 0.8, seed=1.2),
-          *teardrop(pcx + 6, pcy - 2, 7, "Goldenrod"),
+          *street_map(back_edge, "Stadium Blue", "Stadium Blue", "Goldenrod", seed=1.3),
+          *hospital_sign(224, 70),
           Text(CM, 30, 160, 8, [("Card Kicker", "Healthcare Practice Group")]),
           Text(CM, 44, 160, 40, [("Card Headline", [(None, "The right diagnosis\n"),
                                                     ("Emphasis Medium", "for your next location.")])]),

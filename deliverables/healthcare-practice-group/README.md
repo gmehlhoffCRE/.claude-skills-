@@ -35,6 +35,7 @@ All pieces follow the bifold as edited in InDesign. **That InDesign file is the 
   - **C, Bold navy:** navy front with white and gold type; white back with a gold edge bar and a large headline.
   - **D, Vertical:** 2×3.5" portrait, with a gold side bar on the front and a stacked headline and QR on a navy back.
   - **E, Contour:** subtle map contour lines with a gold location pin; the navy back leads with the diagnosis tagline.
+  - **E (street map version):** street-grid map lines with a gold highway and the blue road-sign hospital "H" marker (`Cresa_BusinessCard_OptionE_StreetMap`). The contour version is kept for comparison.
 
 ## Road Atlas trifold notes
 
