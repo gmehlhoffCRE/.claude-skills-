@@ -442,47 +442,59 @@ def build_trifold():
               *icon(ic, xx + 10, yy0 + 13, 16),
               Text(xx + 10, yy0 + 38, cw3 - 18, 68, [("Card Title", t), ("Card Text", desc)]))
 
-    # --- right panel: proof
+    # --- right panel: experience, case studies, no conflicts, client logos
     rx, rw = IX_R + PM, FLAP - 2 * PM
     d.add(IN, Line(rx, 26, rx + rw, 26, stroke="Midnight", sw=1.0, name="header rule"),
           Line(rx, 28.5, rx + rw, 28.5, stroke="Midnight", sw=0.35, name="header rule thin"),
-          Text(rx, 33, rw, 10, [("Atlas Kicker", "Plate 2  ·  Proven routes")]),
-          Text(rx, 48, rw, 26, [("Headline Sync", [(None, "Success "), ("Emphasis Medium", "Stories")])]))
+          Text(rx, 33, rw, 10, [("Atlas Kicker", "Plate 2  \u00b7  Proven routes")]),
+          Text(rx, 48, rw, 26, [("Headline Sync", [(None, "Proven "), ("Emphasis Medium", "Results")])]))
+    # experience strip
+    d.add(IN, Text(rx, 84, rw, 10, [("Eyebrow", "2024 Healthcare Experience")]))
+    exp = [("180+", "Industry-related clients"), ("38", "States and Washington, DC"),
+           ("500+", "Occupier-only transactions")]
+    ew = rw / 3
+    for k, (n, lab) in enumerate(exp):
+        d.add(IN, Text(rx + k * ew, 98, ew - 6, 24, [("Stat Number Small", n)]),
+              Text(rx + k * ew, 122, ew - 8, 20, [("Caption", lab)]))
+    d.add(IN, Line(rx, 148, rx + rw, 148, stroke="Light Gray", sw=1, name="divider"))
+    # case studies, side by side
     cases = [("Fresenius", [("2,235", "transactions"), ("$186.3M", "gross savings")],
-              "A 14-year national partnership across one of the world’s largest healthcare portfolios, with "
-              "planning that starts 3.5 years before lease expiration."),
+              "A 14-year national partnership across one of the world\u2019s largest healthcare portfolios, "
+              "with planning that starts 3.5 years before lease expiration."),
              ("DispatchHealth", [("42", "transactions in 2022"), ("38", "markets")],
               "Rapid growth in new and existing markets. Every transaction closed ahead of schedule and within "
               "budget, through a single point of contact.")]
-    yy = 82
-    for lg, stats, body in cases:
-        d.add(IN, Rect(rx, yy - 4, 132, 36, fill="Paper", name="logo tile"),
-              Image(rx + 6, yy, 120, 28, client_logo(lg), align="l"),
-              Line(rx, yy + 36, rx + rw, yy + 36, stroke="Goldenrod", sw=1.2, name="case rule"))
+    cg = 10
+    ccw = (rw - cg) / 2
+    cy = 160
+    for k, (lg, stats, body) in enumerate(cases):
+        x0 = rx + k * (ccw + cg)
+        d.add(IN, Rect(x0, cy, ccw, 196, fill="Paper", stroke="Light Gray", sw=1, name="case card"),
+              Rect(x0, cy, ccw, 3, fill="Goldenrod", name="case accent"),
+              Image(x0 + 10, cy + 14, ccw - 30, 26, client_logo(lg), align="l"))
         for j, (n, lab) in enumerate(stats):
-            d.add(IN, Text(rx + j * 120, yy + 44, 116, 24, [("Stat Number Small", n)]),
-                  Text(rx + j * 120, yy + 68, 116, 10, [("Caption", lab)]))
-        d.add(IN, Text(rx, yy + 84, rw, 48, [("Body Small", body)]))
-        yy += 142
+            yy = cy + 50 + j * 38
+            d.add(IN, Text(x0 + 10, yy, ccw - 20, 24, [("Stat Number Small", n)]),
+                  Text(x0 + 10, yy + 24, ccw - 20, 10, [("Caption", lab)]))
+        d.add(IN, Text(x0 + 10, cy + 130, ccw - 20, 66, [("Card Text", body)]))
     # no-conflicts callout
-    ny = yy + 2
-    d.add(IN, Rect(rx - 6, ny, rw + 12, 104, fill="Midnight", name="no conflicts box"),
-          Rect(rx - 6, ny, 3, 104, fill="Goldenrod", name="no conflicts accent"),
-          Text(rx + 10, ny + 14, rw - 20, 84, [("Eyebrow Gold", "No conflicts. Ever."),
-                                               ("Body Small Reverse", " "),
+    ny = cy + 208
+    d.add(IN, Rect(rx - 6, ny, rw + 12, 64, fill="Midnight", name="no conflicts box"),
+          Rect(rx - 6, ny, 3, 64, fill="Goldenrod", name="no conflicts accent"),
+          Text(rx + 10, ny + 12, rw - 20, 46, [("Eyebrow Gold", "No conflicts. Ever."),
                                                ("Body Small Reverse Plain",
-                                                "Most full-service firms earn the bulk of their revenue from "
-                                                "landlords. Cresa never represents landlords or developers, so every "
+                                                "Cresa never represents landlords or developers, so every "
                                                 "recommendation, negotiation and dollar saved works for you.")]))
-    ly2 = ny + 118
-    d.add(IN, Text(rx, ly2 - 4, rw, 18, [("H3", "Trusted by Healthcare Leaders")]))
-    wall = ["DaVita", "ChenMed", "Hanger", "Sharecare", "Modivcare", "SyneosHealth"]
-    gw = (rw - 2 * 10) / 3
+    # client logos, 4 x 2
+    ly2 = ny + 76
+    d.add(IN, Text(rx, ly2, rw, 18, [("H3", "Trusted by Healthcare Leaders")]))
+    wall = ["DaVita", "ChenMed", "Hanger", "Sharecare", "Modivcare", "SyneosHealth", "Joerns", "Benevis",
+            "OneBlood", "ERT", "PartnersInHealth", "RTGMedical"]
+    gw = (rw - 3 * 6) / 4
     for k, lg in enumerate(wall):
-        c, r = k % 3, k // 3
-        d.add(IN, Rect(rx + c * (gw + 10), ly2 + 14 + r * 38, gw, 32, fill="Paper", name="logo tile"),
-              Image(rx + c * (gw + 10) + 6, ly2 + 17 + r * 38, gw - 12, 26, client_logo(lg),
-                    name=f"client logo {lg}"))
+        c, r = k % 4, k // 4
+        d.add(IN, Image(rx + c * (gw + 6) + 2, ly2 + 24 + r * 32, gw - 4, 24, client_logo(lg),
+                        name=f"client logo {lg}"))
 
     # fold marks (non-printing)
     for pg, xs in ((OUT, (OX_BACK, OX_COVER)), (IN, (IX_M, IX_R))):
