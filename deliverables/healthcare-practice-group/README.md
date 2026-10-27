@@ -31,6 +31,10 @@ All pieces follow the bifold as edited in InDesign. **That InDesign file is the 
 - **Back:** navy callout with "A second opinion you can really trust.", the tagline "The right diagnosis for your next location." and a QR frame (URL TBD).
 - **Alternate back:** road-atlas shield ("Where will you grow next?") with "The right diagnosis for your next location."
 - Check with Cresa marketing whether practice-group cards may vary from the corporate card template.
+- **Concept options** (in `BusinessCard_Concepts/`, shown with Doug McNee's details):
+  - **C, Bold navy:** navy front with white and gold type; white back with a gold edge bar and a large headline.
+  - **D, Vertical:** 2×3.5" portrait, with a gold side bar on the front and a stacked headline and QR on a navy back.
+  - **E, Contour:** subtle map contour lines with a gold location pin; the navy back leads with the diagnosis tagline.
 
 ## Road Atlas trifold notes
 
