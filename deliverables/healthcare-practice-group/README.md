@@ -16,7 +16,7 @@ Editable InDesign files (IDML) plus PDF proofs.
 
 ## Shared style system (from the edited bifold)
 
-All pieces follow the bifold as edited in InDesign. **That InDesign file is the master for the bifold**; the bifold IDML in this folder predates those edits.
+All pieces follow the bifold as edited in InDesign. `Cresa_Healthcare_Bifold.idml` is now **your InDesign-edited file** with the November service-line and Cresa Core™ revisions applied (see `source/edit_bifold.py`). The proof PDF of it comes from an approximate renderer, so check final type fit in InDesign.
 
 - **Practice label:** "HEALTHCARE PRACTICE GROUP" top right, Bold caps, letter-spaced, Bright Blue.
 - **Headlines:** two weights (Light, then Medium). Section headings are Medium, title case: Who We Serve, What We Analyze, What We Deliver, What You Gain, Our Process.
