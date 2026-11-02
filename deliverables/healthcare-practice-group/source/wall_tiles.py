@@ -16,11 +16,6 @@ OLD_WALL = "u7b3 u7b7 u7bc u7c1 u7c6 u7cb u7cf u7d5 u7da u7df u7e3 u7e7".split()
 for el in list(spread):
     if el.get("Self") in OLD_WALL:
         spread.remove(el)
-for el in spread:
-    if el.get("Self") == "u79b":  # divider under the wall
-        m = [float(v) for v in el.get("ItemTransform").split()]
-        m[5] += 6
-        el.set("ItemTransform", " ".join(repr(v) for v in m))
 
 tri = etree.parse(os.path.join(TRI, "Spreads", "Spread_u46e.xml")).getroot().find("Spread")
 SRC = {el.get("Self"): el for el in tri.iter("Rectangle")}
@@ -28,7 +23,7 @@ SRC = {el.get("Self"): el for el in tri.iter("Rectangle")}
 ORDER = [("u1e1a", "u1c98"), ("u1e1b", None), ("u1e1c", None), ("u1e1d", None), ("u1e1e", None), ("u1e1f", None),
          ("u1e20", None), ("u1e21", None), ("u1e22", None), ("u1e23", None), ("u1e24", None), ("u1e25", None)]
 TW, TH, GAP = 82.0, 40.0, (540 - 6 * 82.0) / 5
-ROWS = [124.0, 170.0]
+ROWS = [361.0, 405.0]
 nid = [0x9000]
 
 

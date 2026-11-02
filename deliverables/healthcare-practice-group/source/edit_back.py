@@ -60,28 +60,28 @@ def remove(*sids):
 
 
 # ---------------------------------------------------------------- logo wall to the top
-translate("u79c", 0, -298)          # eyebrow dash
-translate("u7b0", 0, -298)          # "Trusted by healthcare leaders"
+translate("u79c", 0, -56)           # eyebrow dash
+translate("u7b0", 0, -56)           # "Trusted by healthcare leaders"
 for s in "u7b3 u7b7 u7bc u7c1 u7c6 u7cb".split():
     translate(s, 0, -306)
 for s in "u7cf u7d5 u7da u7df u7e3 u7e7".split():
     translate(s, 0, -328)
-translate("u79b", 0, -172)          # divider under the wall
+translate("u79b", 0, -52)           # divider between cases and logo wall
 
 # ---------------------------------------------------------------- two case studies (Fresenius, DaVita)
 CW = 258
 CASES = [(36, 36, "u5fb u601 u615 u62b u641 u657 u66d u683".split()),
          (318, 408, "u70f u716 u72a u740 u756 u76c u782 u798".split())]
-DY = 124
+DY = 0
 for x0, ox, (logo, rule, head, s1, c1, s2, c2, body) in CASES:
     translate(logo, x0 - ox, DY)
-    set_box(rule, x0, 276, x0 + CW, 276)
-    set_box(head, x0, 286, x0 + CW, 316)
+    set_box(rule, x0, 152, x0 + CW, 152)
+    set_box(head, x0, 162, x0 + CW, 192)
     translate(s1, x0 - ox, DY)
     translate(c1, x0 - ox, DY)
     translate(s2, (x0 + 130) - (ox + 84), DY)
     translate(c2, (x0 + 130) - (ox + 84), DY)
-    set_box(body, x0, 360, x0 + CW, 446)
+    set_box(body, x0, 236, x0 + CW, 322)
 DISPATCH_ITEMS = "u686 u68a u69e u6b4 u6ca u6e0 u6f6 u70c".split()
 DISPATCH_STORIES = "u68c u6a2 u6b8 u6ce u6e4 u6fa".split()
 remove(*DISPATCH_ITEMS)
