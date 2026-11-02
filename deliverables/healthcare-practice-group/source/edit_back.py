@@ -128,25 +128,9 @@ items += [Line(36, 458, 576, 458, stroke="Light Gray", sw=1, name="divider"),
                                                 "are no listings to steer you toward and every negotiation is on "
                                                 "your side.")])]
 cx = 318
-items.append(Text(cx, 474, CW, 11, [("Eyebrow", "Where the revenue comes from")]))
-for k, (lab, landlord) in enumerate((("Typical full-service firm", 85), ("Cresa", 0))):
-    y = 492 + k * 44
-    items.append(Text(cx, y, CW, 12, [("Chart Label", lab)]))
-    lw = CW * landlord / 100
-    if landlord:
-        items += [Rect(cx, y + 14, lw, 22, fill="Dark Gray", name="bar landlord"),
-                  Text(cx + 8, y + 20, lw - 16, 12, [("Chart Bar Label", f"{landlord}% landlord")])]
-        items += [Rect(cx + lw, y + 14, CW - lw, 22, fill="Midnight", name="bar occupier"),
-                  Text(cx + lw + 2, y + 20, CW - lw - 8, 12, [("Chart Bar Label Right", f"{100 - landlord}%")])]
-    else:
-        items += [Rect(cx, y + 14, CW, 22, fill="Midnight", name="bar occupier"),
-                  Text(cx + 8, y + 20, CW - 16, 12, [("Chart Bar Label", "100% occupier")])]
-items += [Rect(cx, 584, 8, 8, fill="Dark Gray", name="legend"),
-          Text(cx + 12, 583, 90, 10, [("Caption", "Landlord services")]),
-          Rect(cx + 100, 584, 8, 8, fill="Midnight", name="legend"),
-          Text(cx + 112, 583, 120, 10, [("Caption", "Occupier representation")]),
-          Text(cx, 598, CW, 20, [("Caption", "Share of revenue by client type. Full-service firm figure reflects "
-                                             "industry estimates.")])]
+# frame for the client-supplied square-footage graph (placed in InDesign)
+items.append(Placeholder(cx, 474, CW, 146, "Graph: landlord-side square footage by firm (place in InDesign)",
+                         fill="Light Gray", tint=45, lpad=16, rpad=16, name="No-conflicts graph"))
 
 doc = Doc("edit", 612, 792, 4)
 w = IdmlWriter(doc, None, None)
