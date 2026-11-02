@@ -3,17 +3,8 @@ import glob, os, sys, zipfile
 from lxml import etree
 src, out = sys.argv[1], sys.argv[2]
 REPL = {
-    "Sites weighed on patient access, drive times and clinical talent": "Sites evaluated around your patients and care model",
-    "Consistent standards and reporting at every location": "Portfolio standards that keep each new site on budget",
-    "Critical dates tracked, so you negotiate early with leverage": "Better rates and concessions on space you already occupy",
-    "Lease-level diligence on every acquired location": "Lease-level diligence on acquired sites",
-    ("Cresa Core™ is our occupier-focused intelligence platform. It brings your portfolio and market data into one "
-     "source of truth, then applies enterprise-grade AI so your Cresa team can model scenarios faster and act with "
-     "confidence at every location. Your data stays encrypted, fully governed and never trains outside AI models, so "
-     "your data remains private and secure."):
-    ("Cresa Core™ is our occupier-focused intelligence platform. It brings your portfolio and market data into one "
-     "source of truth, then applies enterprise-grade AI so your Cresa team can model scenarios faster and act with "
-     "confidence across your portfolio. All data is encrypted, fully governed and never used to train outside AI models."),
+    "Renewals, options and expirations flagged automatically, so you can negotiate early.":
+        "Renewals and options flagged automatically, so you negotiate early.",
 }
 done = set()
 for f in glob.glob(os.path.join(src, "Stories", "*.xml")):
