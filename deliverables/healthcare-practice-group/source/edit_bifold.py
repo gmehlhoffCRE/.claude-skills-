@@ -29,7 +29,10 @@ EDITS = {
     "u85f": [None, "Scan to schedule a conversation with our healthcare team."],
     "u399": ["Real estate built around care.\u2028", "One team for every site and stage."],
     "u3af": ["From the first market study to every renewal after, Cresa’s integrated service lines work as one "
-             "team on your side, helping healthcare organizations grow, operate and adapt with confidence."],
+             "team on your side, helping healthcare organizations grow, operate and adapt with confidence. Because we "
+             "represent only occupiers, every recommendation is aligned with your patients, your clinicians and your "
+             "budget. Whether you\u2019re opening a single clinic or managing a national network, the same team "
+             "stays with you from strategy through move-in."],
     "ua00": ["Cresa Core™"],
     "u568": [None, "Recommendations grounded in market data and Cresa Core™ insight that you can defend to "
                    "leadership and lenders."],
@@ -64,6 +67,16 @@ ua6c ua6d ua6e ua6f ua70 ua71 ua72 ua73 ua8a ua8b ua8c ua8d ua8e ua8f ua90""".sp
 REMOVE_STORIES = "u3c8 u3e0 u3f8 u414 u438 u450 ua1d ua3c ua58 ua76 ua93".split()
 sp_tree = etree.parse(SPREAD)
 spread = sp_tree.getroot().find("Spread")
+# taller intro frame (u3c1) for the longer intro
+for tf in spread.iter("TextFrame"):
+    if tf.get("Self") == "u3c1":
+        pts = list(tf.iter("PathPointType"))
+        ymax = max(float(p.get("Anchor").split()[1]) for p in pts)
+        for p in pts:
+            for k in ("Anchor", "LeftDirection", "RightDirection"):
+                x_, y_ = map(float, p.get(k).split())
+                if abs(y_ - ymax) < 0.01:
+                    p.set(k, f"{x_} {y_ + 22}")
 removed = 0
 for el in list(spread):
     if el.get("Self") in REMOVE_ITEMS:
@@ -138,11 +151,11 @@ CORE = [
 items = []
 M = 36
 cw4 = (612 - 2 * M - 3 * 12) / 4
-items.append(Text(M, 194, 300, 22, [("H3", "How We Help")]))
+items.append(Text(M, 210, 300, 22, [("H3", "How We Help")]))
 cw3h = (612 - 2 * M - 2 * 16) / 3
 for k, (ic, t, bullets) in enumerate(HOW_WE_HELP):
     col, row = k % 3, k // 3
-    x, y = M + col * (cw3h + 16), 224 + row * 92
+    x, y = M + col * (cw3h + 16), 238 + row * 86
     items += extra_icon(ic, x, y + 1, 18)
     items.append(Text(x + 26, y, cw3h - 26, 88, [("H4", t)] + [("Bullet", b) for b in bullets]))
 
