@@ -120,15 +120,19 @@ HOW_WE_HELP = [
      ["Sale-leasebacks and financing for owned facilities",
       "Owner-occupied development when owning makes sense"]),
 ]
+CORE_INTRO = ("Cresa Core\u2122 is our occupier-focused intelligence platform. It brings your portfolio and market "
+              "data into one source of truth, then applies enterprise-grade AI so your Cresa team can model "
+              "scenarios faster and act with confidence at every location. Your data stays encrypted, fully governed "
+              "and never trains outside AI models.")
 CORE = [
-    ("pin", "Core Site Selection", "Weighted scoring, drive-time analysis and side-by-side site comparisons."),
-    ("people", "Core Labor Analytics", "200M+ data points on talent, wages and commutes, down to street level."),
-    ("rank", "Core Transaction Management", "Deal tracking, AI market briefs and portfolio impact reports."),
-    ("grid", "Core Project Management", "Budgets, milestones and cash-flow forecasts that keep build-outs on track."),
-    ("workbook", "Core Lease Administration & Accounting", "AI lease abstraction, critical-date alerts and ASC 842 "
-                                                           "compliance."),
-    ("chart", "Core Business Intelligence", "Custom dashboards, KPI alerts and interactive mapping across your "
-                                             "portfolio."),
+    ("network", "Every Location, One View",
+     "Leases, projects and costs for your whole network in one place."),
+    ("calendar", "No Missed Renewals",
+     "Critical dates flagged automatically, so you negotiate early."),
+    ("pin", "Sites Compared Side by Side",
+     "Weighted scoring, drive times and talent data for each site."),
+    ("workbook", "Audit-Ready Reporting",
+     "AI lease abstraction and ASC 842 compliance built in."),
 ]
 
 items = []
@@ -143,14 +147,14 @@ for k, (ic, t, bullets) in enumerate(HOW_WE_HELP):
     items.append(Text(x + 26, y, cw3h - 26, 88, [("H4", t)] + [("Bullet", b) for b in bullets]))
 
 items.append(Text(276, 418, 300, 12, [("Practice Label Right", "Powered by CresaAI  |  Built on OpenAI")]))
-cw3 = (612 - 2 * M - 2 * 10) / 3
+items.append(Text(M, 436, 612 - 2 * M, 44, [("Body Small", CORE_INTRO)]))
+cw4c = (612 - 2 * M - 3 * 10) / 4
 for k, (ic, t, desc) in enumerate(CORE):
-    col, row = k % 3, k // 3
-    x, y = M + col * (cw3 + 10), 440 + row * 80
-    items += [Rect(x, y, cw3, 76, fill=None, stroke="Light Gray", sw=1, name="core card"),
-              Rect(x, y, cw3, 3, fill="Goldenrod", name="core accent")]
-    items += extra_icon(ic, x + 10, y + 14, 16)
-    items.append(Text(x + 34, y + 10, cw3 - 42, 63, [("H4", t), ("Body Small", desc)]))
+    x, y = M + k * (cw4c + 10), 482
+    items += [Rect(x, y, cw4c, 112, fill=None, stroke="Light Gray", sw=1, name="core card"),
+              Rect(x, y, cw4c, 3, fill="Goldenrod", name="core accent")]
+    items += extra_icon(ic, x + 12, y + 12, 16)
+    items.append(Text(x + 12, y + 34, cw4c - 20, 76, [("H4", t), ("Body Small", desc)]))
 
 doc = Doc("edit", 612, 792, 4)
 w = IdmlWriter(doc, None, None)
