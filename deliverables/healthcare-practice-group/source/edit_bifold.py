@@ -29,8 +29,7 @@ EDITS = {
     "u85f": [None, "Scan to schedule a conversation with our healthcare team."],
     "u399": ["Real estate built around care.\u2028", "One team for every site and stage."],
     "u3af": ["From the first market study to every renewal after, Cresa’s integrated service lines work as one "
-             "team on your side. Here’s how each one helps healthcare organizations grow, operate and adapt "
-             "with confidence."],
+             "team on your side, helping healthcare organizations grow, operate and adapt with confidence."],
     "ua00": ["Cresa Core™"],
     "u568": [None, "Recommendations grounded in market data and Cresa Core™ insight that you can defend to "
                    "leadership and lenders."],
@@ -101,23 +100,25 @@ def extra_icon(kind, x, y, s, color="Midnight", sw=1.3):
     return icon(kind, x, y, s, color, sw)
 
 
-SERVICES = [
-    ("key", "Transaction Management",
-     "Leases negotiated for clinics and medical offices, from new sites to renewals, subleases and exits."),
-    ("pin", "Location Advisory",
-     "Site selection that weighs patient access, clinical talent, total occupancy cost and incentives."),
-    ("building", "Project & Development Services",
-     "Clinical build-outs, relocations and multi-site programs delivered on time and on budget."),
-    ("network", "Portfolio Solutions",
-     "Standards, benchmarking and scenario planning across every location you operate."),
-    ("calendar", "Lease Administration",
-     "Critical dates, invoice validation and lease audits across your entire clinic network."),
-    ("target", "Strategic Consulting",
-     "Operating models, cost reduction and M&A support as healthcare organizations combine and grow."),
-    ("people", "Workplace Solutions",
-     "Occupancy planning and test fits for clinical and administrative space before you commit."),
-    ("dollar", "Capital Strategies",
-     "Sale-leasebacks, financing and owner-occupied development that free capital for care."),
+HOW_WE_HELP = [
+    ("pin", "Opening a New Location",
+     ["Sites weighed on patient access, drive times and clinical talent",
+      "Lease terms built for medical build-out and permitted use"]),
+    ("network", "Growing Across Markets",
+     ["Multi-site rollouts managed by one coordinated team",
+      "Consistent standards and reporting at every location"]),
+    ("calendar", "Renewals & Rightsizing",
+     ["Critical dates tracked, so you negotiate early with leverage",
+      "Space matched to how your teams actually use it"]),
+    ("target", "Mergers & Integration",
+     ["Lease-level diligence on every acquired location",
+      "Overlapping sites consolidated and savings captured"]),
+    ("building", "Relocating Without Disruption",
+     ["Build-outs and moves planned around patient care",
+      "Costs, schedules and vendors managed through move-in"]),
+    ("dollar", "Freeing Up Capital",
+     ["Sale-leasebacks and financing for owned facilities",
+      "Owner-occupied development when owning makes sense"]),
 ]
 CORE = [
     ("pin", "Core Site Selection", "Weighted scoring, drive-time analysis and side-by-side site comparisons."),
@@ -133,11 +134,13 @@ CORE = [
 items = []
 M = 36
 cw4 = (612 - 2 * M - 3 * 12) / 4
-for k, (ic, t, desc) in enumerate(SERVICES):
-    col, row = k % 4, k // 4
-    x, y = M + col * (cw4 + 12), 204 + row * 98
+items.append(Text(M, 194, 300, 22, [("H3", "How We Help")]))
+cw3h = (612 - 2 * M - 2 * 16) / 3
+for k, (ic, t, bullets) in enumerate(HOW_WE_HELP):
+    col, row = k % 3, k // 3
+    x, y = M + col * (cw3h + 16), 224 + row * 92
     items += extra_icon(ic, x, y + 1, 18)
-    items.append(Text(x + 26, y, cw4 - 26, 94, [("H4", t), ("Body Small", desc)]))
+    items.append(Text(x + 26, y, cw3h - 26, 88, [("H4", t)] + [("Bullet", b) for b in bullets]))
 
 items.append(Text(276, 418, 300, 12, [("Practice Label Right", "Powered by CresaAI  |  Built on OpenAI")]))
 cw3 = (612 - 2 * M - 2 * 10) / 3
@@ -160,9 +163,14 @@ BODY_SMALL_OPEN = ('<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/B
 BODY_SMALL_LOCAL = ('<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Body Small">'
                     '<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" '
                     'FontStyle="45 Light" PointSize="8.5"><Properties><Leading type="unit">12</Leading></Properties>')
+BULLET_OPEN = ('<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Bullet">'
+               '<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]">')
+BULLET_LOCAL = ('<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Bullet">'
+                '<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" '
+                'FontStyle="45 Light" PointSize="8.5"><Properties><Leading type="unit">11.5</Leading></Properties>')
 new_story_ids = []
 for sid, xml in w.stories:
-    xml = xml.replace(BODY_SMALL_OPEN, BODY_SMALL_LOCAL)
+    xml = xml.replace(BODY_SMALL_OPEN, BODY_SMALL_LOCAL).replace(BULLET_OPEN, BULLET_LOCAL)
     with open(os.path.join(WORK, "Stories", f"Story_{sid}.xml"), "w", encoding="utf-8") as f:
         f.write(xml)
     new_story_ids.append(sid)
