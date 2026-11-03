@@ -72,21 +72,29 @@ def T(x, y, w, h, paras, **kw):   # page coords -> spread coords
 
 
 # ================================================================ inside: top-row case studies
-set_text("u12dc", ["Expanding imaging access across Texas"])
-set_text("u12f3", ["[XX]"]); set_text("u130a", ["imaging centers"])
-set_text("u1321", ["[XX]"]); set_text("u1339", ["markets served"])
-set_text("u1350", ["Site selection, lease negotiation and build-out oversight as MRI Centers of Texas [expanded] its "
-                   "outpatient imaging network across [markets], with leases built around equipment, shielding and "
-                   "power needs. [Add result: savings, timeline or centers opened.]"])
-set_text("u136b", ["A national care network, managed as one"])
-set_text("u1382", ["[XX]"]); set_text("u1399", ["locations"])
-set_text("u13b0", ["[XX]"]); set_text("u13c7", ["states"])
-set_text("u13de", ["Transaction management and portfolio support across Aveanna Healthcare’s [branch] locations in "
-                   "[X] states, with consistent lease terms, every critical date tracked and one point of contact. "
-                   "[Add result: savings, renewals completed or portfolio change.]"])
+set_text("u12dc", ["Two new imaging centers, built to be seen"])
+set_text("u12f3", ["2"]); set_text("u130a", ["new MRI centers"])
+set_text("u1321", ["14.5K"]); set_text("u1339", ["SF across two sites"])
+set_text("u1350", ["To expand in Southeast Texas, MRI Centers of Texas opened centers in Katy and near the Texas "
+                   "Medical Center, with long-term leases, significant landlord-funded improvements and standout "
+                   "signage, including a high-rise pole sign on US-59."])
+set_text("u136b", ["Leverage that turned a renewal into a better move"])
+set_text("u1382", ["$500K"]); set_text("u1399", ["rent savings over 5 years"])
+set_text("u13b0", ["10"]); set_text("u13c7", ["old HVAC units avoided"])
+set_text("u13de", ["Aveanna needed to shed 5,000 SF of its 15,000 SF clinic, including a therapy pool, while facing "
+                   "aging HVAC and a proposed rent increase. Touring alternatives created leverage, but the best "
+                   "answer was a turnkey relocation with all-new HVAC and $500K in rent savings."])
 path, tree, spread = load("Spread_u12c4.xml")
 labels = []
 for el in spread:
+    if el.get("Self") in ("u134d", "u13db"):
+        pts = list(el.iter("PathPointType"))
+        ymax = max(float(p.get("Anchor").split()[1]) for p in pts)
+        for p in pts:
+            for k in ("Anchor", "LeftDirection", "RightDirection"):
+                x_, y_ = map(float, p.get(k).split())
+                if abs(y_ - ymax) < 0.01:
+                    p.set(k, f"{x_} {y_ + 14}")
     if el.get("Self") in ("u12d5", "u1364"):
         for ch in list(el):
             if ch.tag in ("Image", "PDF", "EPS"):
