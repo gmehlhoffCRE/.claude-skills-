@@ -178,6 +178,9 @@ def path_d(el, m):
     return " ".join(d)
 
 
+CLIP = [0]
+
+
 def render_spread(doc, name, hidden_layers, show_labels):
     sp = doc.xml(name).find("Spread")
     pages = []
@@ -237,7 +240,8 @@ def render_spread(doc, name, hidden_layers, show_labels):
                 if os.path.exists(src) and gb is not None:
                     im = mul(mm, mat(img.get("ItemTransform")))
                     gw, gh = float(gb.get("Right")) - float(gb.get("Left")), float(gb.get("Bottom")) - float(gb.get("Top"))
-                    clip = f"clip{len(svg)}"
+                    CLIP[0] += 1
+                    clip = f"clip{CLIP[0]}"
                     svg.append(f'<clipPath id="{clip}"><path d="{d}" transform="translate({-minx},{-miny})"/></clipPath>'
                                f'<g clip-path="url(#{clip})"><image href="file://{src}" x="0" y="0" width="{gw}" '
                                f'height="{gh}" preserveAspectRatio="none" transform="translate({-minx},{-miny}) '

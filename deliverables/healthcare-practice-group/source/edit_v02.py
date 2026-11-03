@@ -123,23 +123,35 @@ for el in spread:
     if el.get("Self") in ("u112f", "u1146", "u115e", "u120c"):
         translate(el, 0, DY)
     if el.get("Self") == "u1116":    # divider under no-conflicts
-        translate(el, 0, 236 - 451.6)
+        translate(el, 0, 338 - 451.6)
 
-items = [
-    T(36, 252, 540, 30, [("H2 Small", [(None, "Local expertise. "), ("Emphasis Medium", "National reach.")])]),
-    Image(36 + PX, 292 + PY, 340, 222, MAP, align="l", valign="t", name="Map: Cresa offices, North America"),
-    T(396, 296, 180, 40, [("Stat Number", "55+")]),
-    T(396, 338, 180, 26, [("Stat Label", "Cresa offices across North America")]),
-    T(396, 376, 180, 140, [("Body Small",
-                            "Your Houston team brings local market knowledge, backed by Cresa’s national "
-                            "healthcare experience and offices across North America. Through "
-                            "Knight Frank Cresa, that reach extends to more than 300 offices worldwide, so we’re "
-                            "where you need us.")]),
+from idmlkit import Rect
+items = [T(36, 236, 300, 18, [("H3", "Why It Matters to You")])]
+WHY = ["No obligations to landlords", "Freedom to negotiate more aggressively", "A platform solely dedicated to occupiers",
+       "Unbiased, objective client representation", "Consistent cost savings for our clients"]
+cw5 = (540 - 4 * 12) / 5
+for k, t in enumerate(WHY):
+    x = 36 + k * (cw5 + 12)
+    items += [Rect(x + PX, 260 + PY, cw5, 2.5, fill="Goldenrod", name="why rule"),
+              T(x, 268, cw5, 10, [("Eyebrow", f"{k + 1:02d}")]),
+              T(x, 282, cw5, 46, [("H4", t)])]
+# offices: map left, copy right
+items += [
+    Image(36 + PX, 356 + PY, 336, 219, MAP, align="l", valign="t", name="Map: Cresa offices, North America"),
+    T(304, 522, 76, 50, [("Stat Number", "55+")]),
+    T(304, 562, 72, 26, [("Stat Label", "Cresa offices in North America")]),
+    T(390, 354, 186, 54, [("H2 Small", [(None, "We think\n"), ("Emphasis Medium", "beyond space.")])]),
+    T(390, 414, 186, 210, [
+        ("Body Small", "By aligning real estate decisions with business needs, Cresa helps you discover unseen "
+                       "opportunities, reduce risk, improve outcomes and secure a competitive edge for your people "
+                       "and your organization, anywhere around the globe."),
+        ("Body Small", " "),
+        ("Body Small", "Each of our services is fully scalable, so your team can move quickly as your needs evolve, "
+                       "regardless of location. By integrating every service line through a single point of "
+                       "contact, we connect the dots so you don\u2019t have to, and you can focus on what matters "
+                       "most: your patients and your organization."),
+    ]),
 ]
-for k, (n, lab) in enumerate((("1,350+", "Team members"), ("720+", "Cities served worldwide"),
-                              ("300+", "Global offices with Knight Frank"))):
-    x = 36 + k * 180
-    items += [T(x, 562, 170, 26, [("Stat Number Small", n)]), T(x, 588, 170, 12, [("Caption", lab)])]
 emit(spread, writer(0x9b00), items)
 tree.write(path, xml_declaration=True, encoding="UTF-8", standalone=True)
 
