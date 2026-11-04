@@ -139,14 +139,9 @@ set_text("u960", ["With 55 offices across North America, Cresa brings local mark
                   "already know the markets, the buildings and the deal terms on the ground."])
 
 # ================================================================ back page layout
-set_box(find(BACK, "u813"), y0=104, y1=230)
+set_box(find(BACK, "u813"), y0=104, y1=212)
 remove(BACK, "u839", "u8c3", "u8d7", "u8ed", "u8f0", "u904", "u91a")     # heading, items 04 and 05
-COLW = (540 - 2 * 12) / 3
-for k, (rule, num, title) in enumerate((("u83c", "u850", "u866"), ("u869", "u87d", "u893"), ("u896", "u8aa", "u8c0"))):
-    x = 36 + k * (COLW + 12)
-    set_box(find(BACK, rule), x0=x, x1=x + COLW, y0=262, y1=264.5)
-    set_box(find(BACK, num), x0=x, x1=x + COLW, y0=270, y1=280)
-    set_box(find(BACK, title), x0=x, x1=x + COLW, y0=286, y1=318)
+remove(BACK, "u83c", "u850", "u866", "u869", "u87d", "u893", "u896", "u8aa", "u8c0")   # stacked under the text instead
 set_box(find(BACK, "u7e9"), y0=334, y1=334)                              # divider above the map section
 MS = 0.78
 scale_to(find(BACK, "u6c0"), MS, 36, 344)                                  # map, 0.78 scale
@@ -165,13 +160,13 @@ for row, ids in ((564, TILES1), (603, TILES2)):
 g = find(BACK, "u816")
 g.set("Name", "Original no-conflicts graphic (pasteboard)")
 move(g, -720, 0)
-set_box(find(BACK, "u7d2"), y0=66.8, y1=250)
+set_box(find(BACK, "u7d2"), y0=66.8, y1=316)
 
 
 # ================================================================ new items
 w = IdmlWriter(Doc("x", 612, 792, 1), None, None)
 w.n = 0xd000
-w.layer_ids = {"Art": "u145", "Placeholder Labels": "u145"}
+w.layer_ids = {"Art": "uchart", "Placeholder Labels": "ub8"}
 w._local, w._xf = True, "1 0 0 1 0 0"
 
 
@@ -180,36 +175,54 @@ def T(x, y, ww, hh, paras, **kw):
 
 
 inside_items = []
-back_items = [T(288, 78, 150, 74, [("H4", "Our competitors represent building owners across the country."),
-                                   ("H4", [("Emphasis Bold", "We represent practices, not landlords.")])])]
-BARS = [("Cresa", 0), ("STREAM", 89), ("COLLIERS", 358), ("NEWMARK", 400), ("CUSHMAN &\nWAKEFIELD", 611),
-        ("JLL", 660), ("CBRE", 920)]
-BASE, MAXH, BW, STEP, X0 = 222.0, 106.0, 30.0, 39.0, 292.0
-for k, (name, v) in enumerate(BARS):
+BASE = 270.0
+back_items = [T(36, 222, 228, 90, [("Bullet", t) for t in (
+    "No obligations to landlords or building owners",
+    "Freedom to negotiate more aggressively on your behalf",
+    "A platform solely dedicated to healthcare practices")]),
+    Rect(276 + PX, 66.8 + PY, 300, BASE - 66.8, fill="Paper", stroke="Light Gray", sw=0.5, name="chart area"),
+    T(290, 80, 150, 74, [("H4", "Our competitors represent building owners across the country."),
+                         ("H4", [("Emphasis Bold", "We represent practices, not landlords.")])])]
+# name, value, fill, tint
+BARS = [("Cresa", 0, None, None), ("Stream", 89, "Dark Gray", None), ("Colliers", 358, "Bright Blue", 55),
+        ("Newmark", 400, "Bright Blue", None), ("Cushman & Wakefield", 611, "Stadium Blue", None),
+        ("JLL", 660, "Midnight", 75), ("CBRE", 920, "Midnight", None)]
+BASE, MAXH, BW, STEP, X0 = 270.0, 176.0, 34.0, 39.0, 290.0
+for k, (name, v, fill, tint) in enumerate(BARS):
     x = X0 + k * STEP
     h = MAXH * v / 920
     if h:
-        back_items.append(Rect(x + PX, BASE - h + PY, BW, h, fill="Midnight", name=f"bar {name}"))
-    label = [("Chart Label", f"{v}"), ("Caption", "million SF" if v else "SF")]
-    back_items.append(T(x - 6, BASE - h - 24, BW + 12, 22, label))
-    if name == "Cresa":
-        back_items.append(Image(x - 2 + PX, BASE + 7 + PY, BW + 4, 9, LOGO, name="bar label Cresa"))
+        back_items.append(Rect(x + PX, BASE - h + PY, BW, h, fill=fill, tint=tint, name=f"bar {name}"))
+    if h >= 30:
+        back_items.append(T(x, BASE - h + 4, BW, 24, [("Chart Bar Label", f"{v}"), ("Caption", "million SF")]))
     else:
-        back_items.append(T(x - 6, BASE + 6, BW + 12, 18, [("Caption", name)]))
-back_items.append(Line(286 + PX, BASE + PY, 566 + PX, BASE + PY, stroke="Midnight", sw=0.75, name="chart baseline"))
+        back_items.append(T(x - 4, BASE - h - 24, BW + 8, 22, [("Chart Label", f"{v}"),
+                                                                ("Caption Dark", "million SF" if v else "SF")]))
+    if name != "Cresa":
+        back_items.append(T(x - 2, BASE + 8, BW + 4, 22, [("zz Placeholder Label", f"{name} logo")],
+                            valign="center", layer="Placeholder Labels"))
+back_items.append(Line(276 + PX, BASE + PY, 576 + PX, BASE + PY, stroke="Midnight", sw=0.75, name="chart baseline"))
+back_items.append(Image(X0 + PX, BASE + 12 + PY, BW, 10, LOGO, name="bar label Cresa"))
 
-LOCAL = {'Chart Label': ('Chart Label', 'FontStyle="65 Medium" PointSize="9" Justification="CenterAlign"'),
-         'Caption': ('Caption', 'PointSize="5.5" Justification="CenterAlign"'),
-         'Chart Bar Label': ('Chart Bar Label', 'PointSize="7" Justification="CenterAlign"')}
+LOCAL = {'Chart Label': 'FontStyle="65 Medium" PointSize="10" Justification="CenterAlign" FillColor="Color/Midnight"',
+         'Caption': 'PointSize="5.5" Leading="7" Justification="CenterAlign" FillColor="Color/Paper"',
+         'Caption Dark': 'PointSize="5.5" Leading="7" Justification="CenterAlign" FillColor="Color/Midnight"',
+         'Chart Bar Label': 'FontStyle="65 Medium" PointSize="10" Leading="12" Justification="CenterAlign"',
+         'Bullet': 'FontStyle="65 Medium" PointSize="10" FillColor="Color/Midnight" SpaceAfter="7"'}
 new_stories = []
 
 
 def emit(spread, items):
     xml = "".join(w.item_xml(0, it) for it in items)
     for sid, sx in w.stories:
-        for style, (_, attrs) in LOCAL.items():
-            sx = sx.replace(f'AppliedParagraphStyle="ParagraphStyle/{style}">',
-                            f'AppliedParagraphStyle="ParagraphStyle/{style}" {attrs}>')
+        sx = sx.replace('ParagraphStyle/Caption Dark"', 'ParagraphStyle/Caption" DARK="1"')
+        for style, attrs in LOCAL.items():
+            if style == "Caption Dark":
+                sx = sx.replace('AppliedParagraphStyle="ParagraphStyle/Caption" DARK="1">',
+                                f'AppliedParagraphStyle="ParagraphStyle/Caption" {attrs}>')
+            else:
+                sx = sx.replace(f'AppliedParagraphStyle="ParagraphStyle/{style}">',
+                                f'AppliedParagraphStyle="ParagraphStyle/{style}" {attrs}>')
         sx = sx.replace('AppliedParagraphStyle="ParagraphStyle/H4">',
                         'AppliedParagraphStyle="ParagraphStyle/H4" PointSize="10.5" Leading="13">')
         open(os.path.join(ST, f"Story_{sid}.xml"), "w", encoding="utf-8").write(sx)
@@ -237,6 +250,10 @@ ids = [s for s in m.group(1).split() if s not in gone_stories] + new_stories
 dm = dm[:m.start(1)] + " ".join(ids) + dm[m.end(1):]
 a = re.search(r'<idPkg:Story src="Stories/Story_[^"]+"\s*/>', dm)
 dm = dm[:a.start()] + "".join(f'<idPkg:Story src="Stories/Story_{s}.xml" />' for s in new_stories) + dm[a.start():]
+dm = dm.replace('<Layer Self="u145" Name="Art"',
+                '<Layer Self="uchart" Name="No-conflicts chart + bullets" Visible="true" Locked="false" IgnoreWrap="false" '
+                'ShowGuides="true" LockGuides="false" UI="true" Expendable="true" Printable="true"><Properties>'
+                '<LayerColor type="enumeration">Green</LayerColor></Properties></Layer><Layer Self="u145" Name="Art"', 1)
 open(dm_path, "w", encoding="utf-8").write(dm)
 shutil.rmtree(os.path.join(WORK, "Links"), ignore_errors=True)
 if os.path.exists(OUT):
