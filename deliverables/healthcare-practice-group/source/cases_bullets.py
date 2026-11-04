@@ -18,21 +18,18 @@ spread = tree.getroot().find("Spread")
 ITEMS = {el.get("Self"): el for el in spread if el.get("Self")}
 
 CASES = {  # body frame/story: (lead-in or None, top y in page coords, bottom y, bullets)
-    ("u1918", "u191b"): (None, 291, 402, ["Site selection for 2 new centers", "Favorable lease terms for the practice",
-                                          "High-visibility signage", "$1.5M in landlord concessions"]),
-    ("u19ac", "u19af"): (None, 291, 402, ["Site selection for a new location", "[XX]% annual rent savings",
+    ("u1918", "u191b"): (None, 334, 404, ["Site selection for 2 new centers", "Favorable lease terms for the practice",
+                                          "High-visibility signage"]),
+    ("u19ac", "u19af"): (None, 334, 404, ["Site selection for a new location", "[XX]% annual rent savings",
                                           "Favorable lease terms for the practice",
                                           "Landlord funding of space improvements"]),
-    ("u1a3e", "u1a41"): (None, 497, 625, ["14-year national partnership with Cresa",
-                                          "Over 2,000 lease transactions across the U.S.",
+    ("u1a3e", "u1a41"): (None, 562, 628, ["Lease transactions across the U.S.",
                                           "Consulting, labor analytics, incentives and project management services"]),
-    ("u1ace", "u1ad1"): (None, 497, 625, ["20-year national partnership with Cresa",
-                                          "Transaction and project management services",
-                                          "430,000 SF headquarters project"]),
+    ("u1ace", "u1ad1"): (None, 562, 628, ["Transaction and project management services",
+                                          "Downtown Denver headquarters relocation and expansion"]),
 }
-LEADS = {"u18a7": "Cresa delivered:", "u193c": "Cresa delivered:"}   # row-one H4 frames keep a lead-in
-REMOVE_FRAMES = ("u18bb u18d2 u18ea u1901 u1950 u1967 u197e u1995 u19e2 u19f9 u1a10 u1a27 u1a72 u1a89 u1aa0 u1ab7 "
-                 "u19cb u1a5b").split()
+LEADS = {}   # descriptive titles stay as they are
+REMOVE_FRAMES = []   # big-number callouts and titles stay
 
 
 def set_y(el, y0, y1):
@@ -55,7 +52,7 @@ for sid in REMOVE_FRAMES:
 
 BULLET = ('<ParagraphStyleRange AppliedParagraphStyle="ParagraphStyle/Bullet">'
           '<CharacterStyleRange AppliedCharacterStyle="CharacterStyle/$ID/[No character style]" FontStyle="45 Light" '
-          'PointSize="10"><Properties><Leading type="unit">14</Leading></Properties><Content>{}</Content>{}'
+          'PointSize="9.5"><Properties><Leading type="unit">13</Leading></Properties><Content>{}</Content>{}'
           '</CharacterStyleRange></ParagraphStyleRange>')
 for (frame, story), (_, y0, y1, bullets) in CASES.items():
     set_y(ITEMS[frame], y0, y1)
@@ -64,6 +61,12 @@ for (frame, story), (_, y0, y1, bullets) in CASES.items():
     body = "".join(BULLET.format(escape(b), "<Br />" if i < len(bullets) - 1 else "") for i, b in enumerate(bullets))
     xml = re.sub(r"<ParagraphStyleRange.*</ParagraphStyleRange>", lambda _: body, xml, flags=re.S)
     open(p, "w", encoding="utf-8").write(xml)
+# typo fix in the MRI callout caption
+cap = os.path.join(WORK, "Stories", "Story_u1904.xml")
+ct = etree.parse(cap)
+for c in ct.iter("Content"):
+    c.text = (c.text or "").replace("secuired buildout allowance", "secured build-out allowance")
+ct.write(cap, xml_declaration=True, encoding="UTF-8", standalone=True)
 for story, lead in LEADS.items():
     p = os.path.join(WORK, "Stories", f"Story_{story}.xml")
     t = etree.parse(p)
