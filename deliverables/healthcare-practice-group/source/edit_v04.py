@@ -113,16 +113,18 @@ def transfer(src, dst, sids, dy):
 
 
 # ================================================================ inside: map section in, national cases + logos out
-transfer(INSIDE, BACK, ["uc3d", "uc3f", "uc56", "uc58", "uae7", "ub1f"], 364 - 441.9)
-transfer(INSIDE, BACK, ["uaee", "ub26"], 0)
-transfer(INSIDE, BACK, ["ub06", "ub3e"], 0)
-transfer(INSIDE, BACK, ["u236"], 0)
 TILES1 = "u1a9 u1b3 u1bd u1c7 u1d0 u1da".split()
 TILES2 = "u1e4 u1ee u1f8 u205 u20f u21a".split()
-transfer(INSIDE, BACK, TILES1, 0)
-transfer(INSIDE, BACK, TILES2, 0)
-MAP_ITEMS = ["u6c0", "u930", "u946", "u95c", "u972"]
-transfer(BACK, INSIDE, MAP_ITEMS, 470 - 385.8)
+transfer(INSIDE, BACK, ["u236"] + TILES1 + TILES2, 0)
+
+
+def scale_to(el, s, x0, y0):
+    """Uniformly scale an element (frame + contents) and put its top-left at page (x0, y0)."""
+    m = mat(el)
+    pts = [tuple(map(float, p.get("Anchor").split())) for p in el.find("Properties/PathGeometry").iter("PathPointType")]
+    lx0, ly0 = min(x for x, _ in pts), min(y for _, y in pts)
+    el.set("ItemTransform", f"{s} 0 0 {s} {PX + x0 - s * lx0} {PY + y0 - s * ly0}")
+
 
 # ================================================================ back page copy
 set_text("u801", ["Your lease is one of your practice’s largest expenses. Most physicians and healthcare executives "
@@ -145,33 +147,26 @@ for k, (rule, num, title) in enumerate((("u83c", "u850", "u866"), ("u869", "u87d
     set_box(find(BACK, rule), x0=x, x1=x + COLW, y0=262, y1=264.5)
     set_box(find(BACK, num), x0=x, x1=x + COLW, y0=270, y1=280)
     set_box(find(BACK, title), x0=x, x1=x + COLW, y0=286, y1=318)
-set_box(find(BACK, "u7e9"), y0=334, y1=334)                              # divider above the national cases
-for s in ("uc3d", "uc56"):
-    el = find(BACK, s)
-    move(el, 0, 344 - bbox(el)[1])
-for lab, bg in (("uc3f", "uc3d"), ("uc58", "uc56")):
-    el = find(BACK, lab)
-    move(el, 0, bbox(find(BACK, bg))[1] + 4 - bbox(el)[1])
-for s in ("uae7", "ub1f"):
-    el = find(BACK, s)
-    move(el, 0, 362 - bbox(el)[1])
-for s in ("uaee", "ub26"):
-    set_box(find(BACK, s), y0=404, y1=404)
-for s in ("ub06", "ub3e"):
-    set_box(find(BACK, s), y0=412, y1=494)
-place(find(BACK, "u236"), 36, 506)
-for row, ids in ((532, TILES1), (580, TILES2)):
-    for s in ids:
-        el = find(BACK, s)
-        move(el, 0, row - bbox(el)[1])
+set_box(find(BACK, "u7e9"), y0=334, y1=334)                              # divider above the map section
+MS = 0.78
+scale_to(find(BACK, "u6c0"), MS, 36, 344)                                  # map, 0.78 scale
+place(find(BACK, "u930"), 250, 466)                                        # "55" over the Atlantic
+place(find(BACK, "u946"), 250, 491)
+set_box(find(BACK, "u95c"), x0=328, x1=576, y0=350, y1=404)
+set_box(find(BACK, "u972"), x0=328, x1=576, y0=414, y1=536)
+place(find(BACK, "u236"), 36, 546)
+TS = 0.85
+TW = 82 * TS
+GAP = (540 - 6 * TW) / 5
+for row, ids in ((564, TILES1), (603, TILES2)):
+    for k, sid in enumerate(ids):
+        scale_to(find(BACK, sid), TS, 36 + k * (TW + GAP), row)
 # original library graphic: kept on the pasteboard, replaced by an editable chart
 g = find(BACK, "u816")
 g.set("Name", "Original no-conflicts graphic (pasteboard)")
 move(g, -720, 0)
 set_box(find(BACK, "u7d2"), y0=66.8, y1=250)
 
-# ================================================================ inside left: map section placement
-set_box(find(INSIDE, "u972"), y1=640)
 
 # ================================================================ new items
 w = IdmlWriter(Doc("x", 612, 792, 1), None, None)
@@ -184,7 +179,7 @@ def T(x, y, ww, hh, paras, **kw):
     return Text(x + PX, y + PY, ww, hh, paras, **kw)
 
 
-inside_items = [Line(36 + PX, 452 + PY, 576 + PX, 452 + PY, stroke="Light Gray", sw=1, name="divider")]
+inside_items = []
 back_items = [T(288, 78, 150, 74, [("H4", "Our competitors represent building owners across the country."),
                                    ("H4", [("Emphasis Bold", "We represent practices, not landlords.")])])]
 BARS = [("Cresa", 0), ("STREAM", 89), ("COLLIERS", 358), ("NEWMARK", 400), ("CUSHMAN &\nWAKEFIELD", 611),
