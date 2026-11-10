@@ -1,0 +1,348 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Downtown West · Concept C</title>
+<style>
+  :root {
+    --navy: #001E5A; --gold: #FFB600;
+    --ink: #1D1D1F; --ink2: #424245; --muted: #6E6E73; --faint: #86868B; --hair: rgba(0,0,0,.08); --tile: #F5F5F7;
+    --pos: #1E9E62; --neu: #F2B705; --neg: #E0453A;
+    --font: Arial, Helvetica, sans-serif;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; }
+  body { background: #FBFBFD; color: var(--ink); font: 15px/1.5 var(--font); -webkit-font-smoothing: antialiased; overflow-x: hidden; }
+  a { color: inherit; text-decoration: none; }
+
+  header { position: sticky; top: 0; z-index: 50; height: 64px; display: flex; align-items: center; gap: 18px; padding: 0 40px;
+    background: rgba(251,251,253,.8); backdrop-filter: saturate(180%) blur(20px); -webkit-backdrop-filter: saturate(180%) blur(20px); border-bottom: 1px solid var(--hair); }
+  header .logo svg { height: 19px; width: auto; display: block; }
+  .vr { width: 1px; height: 26px; background: var(--hair); }
+  header .t { font-size: 14px; font-weight: 700; color: var(--navy); }
+  header .t span { display: block; font-size: 11px; font-weight: 400; color: var(--muted); margin-top: 2px; }
+  .sp { flex: 1; }
+  .seg { display: flex; background: #EDEDF0; border-radius: 999px; padding: 3px; }
+  .seg a { font-size: 13px; font-weight: 700; color: var(--ink2); padding: 7px 18px; border-radius: 999px; }
+  .seg a.on { background: #fff; color: var(--navy); box-shadow: 0 1px 3px rgba(0,0,0,.1); }
+
+  .hero { text-align: center; padding: 72px 40px 0; }
+  .eyebrow { font-size: 13px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; color: #B07D00; }
+  h1 { margin: 12px 0 0; font-size: 60px; line-height: 1.04; letter-spacing: -2px; color: var(--navy); }
+  .lede { margin: 14px auto 0; max-width: 600px; font-size: 20px; color: var(--muted); }
+  .legend { display: flex; justify-content: center; gap: 22px; margin-top: 22px; font-size: 13px; color: var(--muted); }
+  .legend span { display: inline-flex; align-items: center; gap: 7px; }
+
+  /* 3D scene */
+  .scene { position: relative; height: 680px; perspective: 2600px; perspective-origin: 50% 30%; overflow: hidden; cursor: grab; }
+  .plane { position: absolute; left: 50%; top: 50%; width: 1600px; height: 1000px; transform-style: preserve-3d; background: #E6E9EF; border-radius: 40px; }
+  .blk { position: absolute; background: #FFFFFF; border-radius: 10px; }
+  .park { background: #DDEFD8; }
+  .box { position: absolute; transform-style: preserve-3d; }
+  .box > i { position: absolute; display: block; }
+  .box .t { inset: 0; border-radius: 2px; }
+  .box .s { left: 0; top: 100%; width: 100%; transform-origin: top; transform: rotateX(90deg); }
+  .box .n { left: 0; width: 100%; transform-origin: bottom; transform: rotateX(-90deg); }
+  .box .e { top: 0; left: 100%; height: 100%; transform-origin: left; transform: rotateY(-90deg); }
+  .box .w { top: 0; height: 100%; transform-origin: right; transform: rotateY(90deg); }
+  .fill .t { background: #FFFFFF; } .fill .s { background: #DDE2EA; } .fill .e { background: #C9D0DB; } .fill .n { background: #EEF1F5; } .fill .w { background: #E8EBF1; }
+  .feat { cursor: pointer; }
+  .feat .t { background: var(--navy); box-shadow: inset 0 0 0 4px var(--gold); transition: background .3s; }
+  .feat .s { background: #0A2D6E; transition: background .3s; } .feat .e { background: #001544; transition: background .3s; }
+  .feat .n { background: #14387F; } .feat .w { background: #123378; }
+  .feat.hot .t { background: var(--gold); } .feat.hot .s { background: #E3A200; } .feat.hot .e { background: #C68D00; }
+  .shadow { position: absolute; background: rgba(0,30,90,.16); filter: blur(14px); border-radius: 8px; }
+
+  .pins { position: absolute; inset: 0; pointer-events: none; z-index: 5; }
+  .pin { position: absolute; transform: translate(-50%, calc(-100% - 10px)); pointer-events: auto; cursor: pointer; border: 0;
+    display: inline-flex; align-items: center; gap: 8px; padding: 6px 14px 6px 6px; border-radius: 999px; background: #fff; color: var(--navy);
+    font: 700 13px var(--font); white-space: nowrap; box-shadow: 0 10px 28px rgba(0,30,90,.2), 0 0 0 .5px rgba(0,0,0,.06); transition: background .25s, color .25s; }
+  .pin::after { content: ""; position: absolute; left: 50%; top: 100%; width: 2px; height: 10px; background: #fff; transform: translateX(-50%); }
+  .pin .nm { width: 24px; height: 24px; border-radius: 50%; background: var(--navy); color: #fff; display: grid; place-items: center; font-size: 12px; }
+  .pin.on { background: var(--navy); color: #fff; } .pin.on::after { background: var(--navy); } .pin.on .nm { background: var(--gold); color: var(--navy); }
+  .scene .note { position: absolute; left: 40px; bottom: 18px; font-size: 12px; color: var(--faint); z-index: 6; }
+  .scene .drag { position: absolute; right: 40px; bottom: 18px; font-size: 12px; color: var(--faint); z-index: 6; }
+
+  .card { position: absolute; z-index: 10; width: 340px; padding: 24px;
+    background: rgba(255,255,255,.78); backdrop-filter: blur(28px) saturate(180%); -webkit-backdrop-filter: blur(28px) saturate(180%);
+    border: 1px solid rgba(255,255,255,.7); border-radius: 24px; box-shadow: 0 30px 80px rgba(0,30,90,.28);
+    opacity: 0; visibility: hidden; transform: scale(.96) translateY(6px); transition: opacity .25s, transform .35s cubic-bezier(.2,.8,.2,1), visibility .25s; }
+  .card.show { opacity: 1; visibility: visible; transform: none; }
+  .card .no { font-size: 11px; font-weight: 700; letter-spacing: 1.6px; color: #B07D00; text-transform: uppercase; }
+  .card h3 { margin: 6px 0 0; font-size: 26px; letter-spacing: -.6px; color: var(--navy); }
+  .card .addr { color: var(--muted); font-size: 13px; margin-top: 2px; }
+  .card .rent { margin-top: 18px; display: flex; align-items: baseline; gap: 6px; }
+  .card .rent b { font-size: 46px; letter-spacing: -1.6px; color: var(--navy); line-height: 1; }
+  .card .rent span { color: var(--muted); font-size: 13px; }
+  .tiles { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 18px; }
+  .tile { background: rgba(245,245,247,.9); border-radius: 14px; padding: 11px 12px; }
+  .tile small { display: block; font-size: 11px; color: var(--muted); }
+  .tile div { display: flex; align-items: center; gap: 7px; margin-top: 4px; font-weight: 700; font-size: 13px; }
+  .sd { width: 10px; height: 10px; border-radius: 50%; flex: none; display: inline-block; }
+  .sd.pos { background: var(--pos); } .sd.neu { background: var(--neu); } .sd.neg { background: var(--neg); }
+  .card .firms { margin-top: 16px; font-size: 12.5px; color: var(--ink2); line-height: 1.55; }
+  .card .firms small { display: block; font-size: 11px; color: var(--muted); margin-bottom: 2px; }
+  .cta { margin-top: 18px; display: flex; justify-content: center; align-items: center; height: 44px; border-radius: 999px; background: var(--navy); color: #fff; font-weight: 700; font-size: 14px; }
+</style>
+</head>
+<body>
+<header>
+  <div class="logo"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" role="img" aria-label="Cresa" viewBox="0 0 500.66 86.52">
+<defs>
+<clipPath id="clip_0">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M4028.18 742.391V865.227H3905.34V742.391H4028.18"/>
+</clipPath>
+<clipPath id="clip_1">
+<path transform="matrix(.1,0,0,-.1,377.42604,25.223198)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_2">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M4028.18 495.617V618.457H3905.34V495.617H4028.18"/>
+</clipPath>
+<clipPath id="clip_3">
+<path transform="matrix(.1,0,0,-.1,377.42604,51.7716)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_4">
+<path transform="matrix(.1,0,0,-.1,377.42604,25.223198)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_5">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M4028.18 2.07813V124.918H3905.34V2.07813H4028.18"/>
+</clipPath>
+<clipPath id="clip_6">
+<path transform="matrix(.1,0,0,-.1,377.42604,104.8684)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_7">
+<path transform="matrix(.1,0,0,-.1,377.42604,78.32)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_8">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M4266.76 248.848V371.688H4143.92V248.848H4266.76"/>
+</clipPath>
+<clipPath id="clip_9">
+<path transform="matrix(.1,0,0,-.1,403.97444,78.32)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_10">
+<path transform="matrix(.1,0,0,-.1,403.97444,51.7716)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_11">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M4467.72 495.617V618.457H4344.88V495.617H4467.72"/>
+</clipPath>
+<clipPath id="clip_12">
+<path transform="matrix(.1,0,0,-.1,430.52284,51.7716)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_13">
+<path transform="matrix(.1,0,0,-.1,430.52284,25.223198)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_14">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M4732.96 742.391V865.227H4610.12V742.391H4732.96"/>
+</clipPath>
+<clipPath id="clip_15">
+<path transform="matrix(.1,0,0,-.1,457.07124,25.223198)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_16">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M4732.96 248.848V371.688H4610.12V248.848H4732.96"/>
+</clipPath>
+<clipPath id="clip_17">
+<path transform="matrix(.1,0,0,-.1,457.07124,78.32)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_18">
+<path transform="matrix(.1,0,0,-.1,457.07124,51.7716)" d="M0 0V266H266V0Z"/>
+</clipPath>
+<clipPath id="clip_19">
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M5006.59 742.391V865.227H4883.75V742.391H5006.59"/>
+</clipPath>
+<clipPath id="clip_20">
+<path transform="matrix(.1,0,0,-.1,483.61964,25.223198)" d="M0 0V266H266V0Z"/>
+</clipPath>
+</defs>
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M536.297 697.02C502.324 725.66 456.727 739.984 399.434 739.984 350.629 739.984 309.773 730.957 276.898 712.926 243.996 694.883 217.742 671.012 198.117 641.32 178.48 611.609 164.43 577.387 155.953 538.68 147.445 499.941 143.223 459.902 143.223 418.527 143.223 380.328 147.719 343.18 156.746 307.133 165.75 271.047 179.828 238.949 198.922 210.852 218.016 182.73 242.938 160.18 273.711 143.223 304.477 126.242 341.07 117.758 383.516 117.758 450.355 117.758 502.594 135.258 540.273 170.27 577.918 205.281 600.988 254.621 609.496 318.273H747.938C733.07 216.422 695.156 137.898 634.16 82.7461 573.137 27.5664 490.145 0 385.109 0 322.496 0 267.078 10.0898 218.816 30.2344 170.527 50.375 130.219 79.0156 97.875 116.164 65.4922 153.289 41.1016 197.574 24.6641 249.051 8.19922 300.488 0 356.988 0 418.527 0 480.043 7.95313 537.605 23.8711 591.195 39.7813 644.754 63.8984 691.449 96.2813 731.23 128.625 771.02 169.207 802.293 218.016 825.125 266.797 847.926 323.57 859.336 388.297 859.336 434.965 859.336 478.734 853.766 519.59 842.625 560.418 831.488 596.492 814.234 627.797 790.906 659.082 767.563 684.805 738.121 704.973 702.59 725.117 667.035 737.848 624.859 743.172 576.078H603.137C592.516 628.047 570.234 668.367 536.297 697.02" fill="#001E5A"/>
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M994.594 840.242V666.789H997.777C1030.64 733.613 1070.98 782.953 1118.72 814.777 1166.45 846.602 1226.93 861.449 1300.13 859.336V716.113C1246.03 716.113 1199.87 708.68 1161.69 693.836 1123.49 678.965 1092.71 657.23 1069.38 628.59 1046.03 599.949 1029.05 565.184 1018.46 524.355 1007.84 483.504 1002.55 436.559 1002.55 383.516V17.5H867.277V840.242H994.594" fill="#001E5A"/>
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M1896.1 598.355C1883.89 626.996 1867.45 651.66 1846.77 672.359 1826.08 693.043 1801.66 709.469 1773.57 721.684 1745.45 733.871 1714.41 739.984 1680.47 739.984 1645.46 739.984 1613.88 733.871 1585.79 721.684 1557.66 709.469 1533.52 692.773 1513.38 671.555 1493.21 650.324 1477.29 625.648 1465.63 597.555 1453.95 569.434 1447.06 539.473 1444.95 507.645H1917.58C1915.44 539.473 1908.28 569.703 1896.1 598.355ZM1928.72 70.0117C1867.18 23.3164 1789.73 0 1696.38 0 1630.59 0 1573.57 10.6094 1525.31 31.8242 1477.02 53.0313 1436.44 82.7461 1403.57 120.945 1370.67 159.129 1346.01 204.738 1329.57 257.793 1313.11 310.836 1303.84 368.648 1301.72 431.262 1301.72 493.84 1311.27 551.129 1330.36 603.125 1349.47 655.094 1376.24 700.207 1410.74 738.395 1445.19 776.59 1486.05 806.281 1533.26 827.512 1580.46 848.715 1632.18 859.336 1688.43 859.336 1761.62 859.336 1822.35 844.219 1870.64 813.988 1918.9 783.742 1957.62 745.285 1986.81 698.613 2015.97 651.918 2036.14 600.988 2047.28 545.832 2058.42 490.664 2062.93 438.141 2060.8 388.297H1444.95C1443.87 352.211 1448.13 318 1457.68 285.645 1467.23 253.273 1482.59 224.633 1503.83 199.711 1525.04 174.777 1552.09 154.883 1584.98 140.035 1617.86 125.168 1656.6 117.758 1701.16 117.758 1758.45 117.758 1805.39 131.008 1842 157.535 1878.59 184.051 1902.71 224.375 1914.41 278.48H2048.08C2030.03 186.188 1990.23 116.684 1928.72 70.0117" fill="#001E5A"/>
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M2277.22 201.305C2289.94 180.617 2306.65 164.156 2327.34 151.969 2348.04 139.766 2371.35 131.008 2397.36 125.711 2423.35 120.387 2450.14 117.758 2477.73 117.758 2498.94 117.758 2521.22 119.352 2544.56 122.535 2567.89 125.711 2589.38 131.527 2609.02 140.035 2628.64 148.52 2644.82 160.969 2657.55 177.434 2670.29 193.871 2676.66 214.828 2676.66 240.293 2676.66 275.305 2663.37 301.809 2636.87 319.863 2610.34 337.883 2577.19 352.48 2537.41 363.621 2497.62 374.762 2454.38 384.84 2407.71 393.867 2361.02 402.855 2317.79 415.59 2278.01 432.051 2238.23 448.488 2205.06 471.559 2178.55 501.273 2152.02 530.965 2138.77 572.348 2138.77 625.402 2138.77 666.789 2148.04 702.32 2166.62 732.031 2185.17 761.723 2209.04 785.867 2238.23 804.441 2267.39 822.988 2300.29 836.785 2336.9 845.813 2373.49 854.816 2409.82 859.336 2445.9 859.336 2492.57 859.336 2535.55 855.359 2574.81 847.406 2614.04 839.441 2648.81 825.645 2679.04 806.02 2709.27 786.387 2733.39 759.883 2751.45 726.465 2769.47 693.043 2780.09 651.387 2783.28 601.531H2648.01C2645.87 628.047 2638.98 650.078 2627.32 667.578 2615.64 685.078 2600.79 699.133 2582.76 709.754 2564.71 720.336 2544.82 728.043 2523.09 732.824 2501.33 737.602 2479.32 739.984 2457.04 739.984 2436.87 739.984 2416.46 738.395 2395.77 735.207 2375.08 732.031 2356.24 726.465 2339.28 718.496 2322.3 710.543 2308.49 699.922 2297.91 686.672 2287.29 673.395 2281.99 656.168 2281.99 634.949 2281.99 611.609 2290.19 592.23 2306.65 576.867 2323.09 561.48 2344.05 548.746 2369.51 538.68 2394.98 528.578 2423.62 520.105 2455.45 513.215 2487.28 506.301 2519.11 499.137 2550.94 491.727 2584.87 484.293 2618.02 475.266 2650.39 464.68 2682.75 454.059 2711.39 440.004 2736.33 422.504 2761.24 405.004 2781.41 382.973 2796.8 356.457 2812.16 329.93 2819.88 297.031 2819.88 257.793 2819.88 207.926 2809.53 166.539 2788.85 133.676 2768.16 100.777 2741.1 74.2461 2707.68 54.1055 2674.26 33.9375 2636.6 19.8828 2594.69 11.9297 2552.78 3.97656 2511.14 0 2469.77 0 2424.15 0 2380.65 4.76953 2339.28 14.3125 2297.91 23.8594 2261.3 39.5078 2229.48 61.2695 2197.65 82.9922 2172.19 111.645 2153.09 147.199 2133.99 182.73 2123.38 225.969 2121.27 276.898H2256.52C2257.57 247.184 2264.49 221.992 2277.22 201.305" fill="#001E5A"/>
+<path transform="matrix(.1,0,0,-.1,0,86.52)" d="M3384.82 414.551C3357.22 408.711 3328.33 403.93 3298.08 400.227 3267.85 396.496 3237.35 392.273 3206.58 387.492 3175.79 382.727 3148.23 375.008 3123.83 364.422 3099.41 353.801 3079.53 338.688 3064.15 319.063 3048.76 299.426 3041.08 272.637 3041.08 238.699 3041.08 216.422 3045.58 197.574 3054.6 182.211 3063.61 166.813 3075.29 154.363 3089.62 144.816 3103.94 135.258 3120.9 128.355 3140.54 124.117 3160.16 119.867 3180.06 117.758 3200.22 117.758 3244.78 117.758 3282.97 123.848 3314.79 136.059 3346.62 148.238 3372.6 163.637 3392.77 182.211 3412.91 200.762 3427.78 220.93 3437.33 242.676 3446.88 264.414 3451.66 284.852 3451.66 303.945V442.402C3434.67 429.668 3412.4 420.367 3384.82 414.551ZM3574.19 0C3539.18 0 3511.33 9.82031 3490.64 29.4297 3469.96 49.0547 3459.61 81.1523 3459.61 125.711 3422.46 81.1523 3379.25 49.0547 3329.91 29.4297 3280.58 9.82031 3227.27 0 3169.98 0 3132.83 0 3097.82 3.97656 3064.95 11.9297 3032.05 19.8828 3003.14 33.1367 2978.22 51.7109 2953.29 70.2578 2933.66 94.1328 2919.34 123.328 2905.02 152.496 2897.86 187.781 2897.86 229.152 2897.86 275.824 2905.81 314.023 2921.73 343.738 2937.64 373.426 2958.58 397.57 2984.59 416.145 3010.58 434.695 3040.29 448.762 3073.71 458.309 3107.12 467.855 3141.34 475.82 3176.35 482.18 3213.47 489.59 3248.76 495.16 3282.18 498.891 3315.6 502.594 3345.04 507.895 3370.49 514.809 3395.96 521.688 3416.1 531.766 3430.97 545.043 3445.81 558.293 3453.25 577.672 3453.25 603.125 3453.25 632.813 3447.68 656.684 3436.54 674.742 3425.4 692.773 3411.07 706.566 3393.57 716.113 3376.06 725.66 3356.43 732.031 3334.69 735.207 3312.93 738.395 3291.45 739.984 3270.23 739.984 3212.94 739.984 3165.21 729.094 3127.01 707.355 3088.83 685.609 3068.14 644.508 3064.95 584.031H2929.68C2931.8 634.949 2942.42 677.926 2961.51 712.926 2980.6 747.938 3006.07 776.309 3037.89 798.066 3069.72 819.805 3106.33 835.465 3147.7 845.012 3189.08 854.57 3232.57 859.336 3278.2 859.336 3315.32 859.336 3352.19 856.68 3388.79 851.383 3425.4 846.059 3458.55 835.191 3488.26 818.754 3517.95 802.293 3541.81 779.223 3559.87 749.531 3577.9 719.816 3586.93 681.102 3586.93 633.367V210.063C3586.93 178.234 3588.77 154.883 3592.5 140.035 3596.2 125.168 3608.65 117.758 3629.89 117.758 3641.55 117.758 3655.36 120.387 3671.26 125.711V20.6875C3647.92 6.90234 3615.56 0 3574.19 0" fill="#001E5A"/>
+<g clip-path="url(#clip_0)">
+<g clip-path="url(#clip_1)">
+<path transform="matrix(.1,0,0,-.1,377.42604,25.223198)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+<g clip-path="url(#clip_2)">
+<g clip-path="url(#clip_3)">
+<path transform="matrix(.1,0,0,-.1,377.42604,51.7716)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+<g clip-path="url(#clip_4)">
+<path transform="matrix(.1,0,0,-.1,377.42604,25.223198)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+<g clip-path="url(#clip_5)">
+<g clip-path="url(#clip_6)">
+<path transform="matrix(.1,0,0,-.1,377.42604,104.8684)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+<g clip-path="url(#clip_7)">
+<path transform="matrix(.1,0,0,-.1,377.42604,78.32)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+<g clip-path="url(#clip_8)">
+<g clip-path="url(#clip_9)">
+<path transform="matrix(.1,0,0,-.1,403.97444,78.32)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+<g clip-path="url(#clip_10)">
+<path transform="matrix(.1,0,0,-.1,403.97444,51.7716)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+<g clip-path="url(#clip_11)">
+<g clip-path="url(#clip_12)">
+<path transform="matrix(.1,0,0,-.1,430.52284,51.7716)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+<g clip-path="url(#clip_13)">
+<path transform="matrix(.1,0,0,-.1,430.52284,25.223198)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+<g clip-path="url(#clip_14)">
+<g clip-path="url(#clip_15)">
+<path transform="matrix(.1,0,0,-.1,457.07124,25.223198)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+<g clip-path="url(#clip_16)">
+<g clip-path="url(#clip_17)">
+<path transform="matrix(.1,0,0,-.1,457.07124,78.32)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+<g clip-path="url(#clip_18)">
+<path transform="matrix(.1,0,0,-.1,457.07124,51.7716)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+<g clip-path="url(#clip_19)">
+<g clip-path="url(#clip_20)">
+<path transform="matrix(.1,0,0,-.1,483.61964,25.223198)" d="M265.484 0V265.484H0V0H265.484" fill="#FFB600"/>
+</g>
+</g>
+</svg></div><div class="vr"></div>
+  <div class="t">Downtown West Options<span>Prepared for Holland &amp; Knight</span></div>
+  <div class="sp"></div>
+  <nav class="seg"><a class="on" href="#">Model</a><a href="#">Matrix</a></nav>
+</header>
+
+<section class="hero">
+  <div class="eyebrow">Holland &amp; Knight · Downtown West</div>
+  <h1>See the whole skyline.</h1>
+  <p class="lede">Six options, in context. Move your cursor to tilt the model — hover a tower for its scorecard.</p>
+  <div class="legend"><span><i class="sd pos"></i>Favorable</span><span><i class="sd neu"></i>Neutral</span><span><i class="sd neg"></i>Unfavorable</span></div>
+</section>
+
+<section class="scene" id="scene">
+  <div class="plane" id="plane"></div>
+  <div class="pins" id="pins"></div>
+  <div class="card" id="card"></div>
+  <div class="note">Illustrative massing · heights and positions not to scale</div>
+  <div class="drag">Move cursor to tilt</div>
+</section>
+
+<script>
+const BUILDINGS = [
+  { name: "910 Louisiana", address: "910 Louisiana St", rent: 44, x: 54.69, y: 40.5, h: 300,
+    s: { space: "pos", ownership: "pos", amenities: "pos", parking: "neu" }, firms: ["Baker Botts", "Fisher Phillips", "Jordan Lynch Cancienne"] },
+  { name: "1000 Louisiana", address: "1000 Louisiana St", rent: 49, x: 44.06, y: 40.5, h: 400,
+    s: { space: "pos", ownership: "neg", amenities: "pos", parking: "neg" }, firms: ["Greenberg Traurig", "Polsinelli", "Sidley Austin", "Susman Godfrey", "Morgan Lewis", "Foley & Lardner"] },
+  { name: "1111 Bagby", address: "1111 Bagby St", rent: 54, x: 33.44, y: 21.5, h: 290,
+    s: { space: "pos", ownership: "pos", amenities: "pos", parking: "pos" }, firms: ["Nelson Mullins"] },
+  { name: "700 Louisiana", address: "700 Louisiana St", rent: 49, x: 75.94, y: 40.5, h: 330,
+    s: { space: "pos", ownership: "pos", amenities: "pos", parking: "neg" }, firms: ["Quinn Emanuel", "Kilpatrick Townsend", "Weil", "Mayer Brown", "O'Melveny & Myers", "Hicks Thomas", "Wright Close & Barger"] },
+  { name: "Allen Center", address: "1200 Smith St & 333 Clay St", rent: 45, x: 17.5, y: 21.5, h: 240, campus: true,
+    s: { space: "pos", ownership: "neu", amenities: "pos", parking: "pos" }, firms: ["Chamberlain Hrdlicka", "Ogletree Deakins", "Mehaffy Weber"] },
+  { name: "717 Texas", address: "717 Texas Ave", rent: 48, x: 86.56, y: 59.5, h: 280,
+    s: { space: "pos", ownership: "pos", amenities: "pos", parking: "pos" }, firms: ["Jones Day", "Steptoe", "Blank Rome", "Womble Bond Dickinson", "Shackleford, Bowen, McKinley & Norton", "Michelman & Robinson", "Scott Patton PC", "Shipley Snell Montgomery"] },
+];
+const CATS = [["space", "Available Space"], ["ownership", "Ownership"], ["amenities", "Amenities"], ["parking", "Parking"]];
+const LBL = { pos: "Favorable", neu: "Neutral", neg: "Unfavorable" };
+const $ = s => document.querySelector(s);
+const scene = $("#scene"), plane = $("#plane"), pinsEl = $("#pins"), card = $("#card");
+
+let cur = null, tm;
+const later = () => { clearTimeout(tm); tm = setTimeout(hide, 220); };
+
+// ---- Build the model ----
+const W = 1600, H = 1000, R = 15, VX = [110,280,450,620,790,960,1130,1300,1470], HY = [120,310,500,690,880];
+let seed = 11; const rnd = () => (seed = seed * 16807 % 2147483647) / 2147483647;
+const html = [];
+const box = (x, y, w, d, h, cls, attrs = "") =>
+  `<div class="shadow" style="left:${x + h * .12}px;top:${y + h * .08}px;width:${w}px;height:${d}px"></div>` +
+  `<div class="box ${cls}" ${attrs} style="left:${x}px;top:${y}px;width:${w}px;height:${d}px">` +
+  `<i class="t" style="transform:translateZ(${h}px)"></i><i class="s" style="height:${h}px"></i><i class="n" style="top:${-h}px;height:${h}px"></i>` +
+  `<i class="e" style="width:${h}px"></i><i class="w" style="left:${-h}px;width:${h}px"></i></div>`;
+const xs = [0, ...VX, W], ys = [0, ...HY, H];
+const feat = BUILDINGS.map((b, i) => ({ i, cx: b.x * 16, cy: b.y * 10 }));
+for (let i = 0; i < xs.length - 1; i++) for (let j = 0; j < ys.length - 1; j++) {
+  const x0 = xs[i] + (i ? R : 0), x1 = xs[i + 1] - (i + 1 < xs.length - 1 ? R : 0), y0 = ys[j] + (j ? R : 0), y1 = ys[j + 1] - (j + 1 < ys.length - 1 ? R : 0);
+  html.push(`<div class="blk ${j === 0 ? "park" : ""}" style="left:${x0}px;top:${y0}px;width:${x1 - x0}px;height:${y1 - y0}px"></div>`);
+  if (j === 0 || (j === 1 && x0 < VX[2])) continue;
+  if (feat.some(f => !BUILDINGS[f.i].campus && f.cx > x0 && f.cx < x1 && f.cy > y0 && f.cy < y1)) continue;
+  const c = 1 + Math.floor(rnd() * 2), r = 1 + Math.floor(rnd() * 2), lw = (x1 - x0 - 16) / c, lh = (y1 - y0 - 16) / r;
+  for (let a = 0; a < c; a++) for (let b = 0; b < r; b++) {
+    const pd = 6 + rnd() * 8;
+    html.push(box(x0 + 8 + a * lw + pd, y0 + 8 + b * lh + pd, lw - pd * 2, lh - pd * 2, 14 + Math.pow(rnd(), 2) * 130, "fill"));
+  }
+}
+BUILDINGS.forEach((b, i) => {
+  if (b.campus) {
+    const cy = (HY[0] + HY[1]) / 2;
+    [[95, 86, 200], [280, 104, b.h], [395, 78, 210]].forEach(([cx, t, h], k) =>
+      html.push(box(cx - t / 2, cy - t / 2, t, t, h, "feat", `data-i="${i}"${k === 1 ? ` data-anchor="${i}" data-h="${h}"` : ""}`)));
+  } else {
+    const t = 100; html.push(box(b.x * 16 - t / 2, b.y * 10 - t / 2, t, t, b.h, "feat", `data-i="${i}" data-anchor="${i}" data-h="${b.h}"`));
+  }
+});
+plane.innerHTML = html.join("");
+// anchor point = centre of each tower's roof
+document.querySelectorAll("[data-anchor]").forEach(el => {
+  const a = document.createElement("i"); a.className = "anchor";
+  a.style.cssText = `position:absolute;left:50%;top:50%;width:1px;height:1px;transform:translateZ(${el.dataset.h}px)`;
+  el.appendChild(a);
+});
+const anchors = BUILDINGS.map((_, i) => document.querySelector(`[data-anchor="${i}"] .anchor`));
+const pins = BUILDINGS.map((b, i) => {
+  const p = document.createElement("button"); p.className = "pin"; p.innerHTML = `<span class="nm">${i + 1}</span>${b.name}`;
+  p.onmouseenter = () => show(i); p.onmouseleave = later; pinsEl.appendChild(p); return p;
+});
+document.querySelectorAll(".feat").forEach(el => { el.onmouseenter = () => show(+el.dataset.i); el.onmouseleave = later; });
+
+// ---- Camera: intro fly-in, then cursor parallax ----
+const cam = { rx: 0, rz: 0, k: 0.52 }, target = { rx: 56, rz: -30, k: 0.6 };
+let start = performance.now();
+scene.addEventListener("mousemove", e => {
+  const r = scene.getBoundingClientRect(), mx = (e.clientX - r.left) / r.width - .5, my = (e.clientY - r.top) / r.height - .5;
+  target.rz = -30 + mx * 16; target.rx = 56 - my * 10;
+});
+scene.addEventListener("mouseleave", () => { target.rz = -30; target.rx = 56; });
+function fit() { return Math.min(scene.clientWidth / 1750, scene.clientHeight / 900); }
+function frame(now) {
+  const ease = Math.min(1, (now - start) / 2200), e = 1 - Math.pow(1 - ease, 3);
+  const f = ease < 1 ? 0.035 + e * 0.04 : 0.08;
+  cam.rx += (target.rx - cam.rx) * f; cam.rz += (target.rz - cam.rz) * f; cam.k += (target.k - cam.k) * f;
+  plane.style.transform = `translate(-50%, -42%) scale(${cam.k / 0.6 * fit()}) rotateX(${cam.rx}deg) rotateZ(${cam.rz}deg)`;
+  const s = scene.getBoundingClientRect();
+  anchors.forEach((a, i) => { const r = a.getBoundingClientRect(); pins[i].style.left = r.left - s.left + "px"; pins[i].style.top = r.top - s.top + "px"; });
+  if (cur != null) place(cur);
+  requestAnimationFrame(frame);
+}
+requestAnimationFrame(frame);
+
+// ---- Scorecard ----
+card.onmouseenter = () => clearTimeout(tm); card.onmouseleave = later;
+function show(i) {
+  clearTimeout(tm); cur = i; const b = BUILDINGS[i];
+  pins.forEach((p, k) => p.classList.toggle("on", k === i));
+  document.querySelectorAll(".feat").forEach(el => el.classList.toggle("hot", +el.dataset.i === i));
+  card.innerHTML = `<div class="no">Option ${String(i + 1).padStart(2, "0")}</div><h3>${b.name}</h3><div class="addr">${b.address}, Houston</div>
+    <div class="rent"><b>$${b.rent.toFixed(2)}</b><span>/ SF gross</span></div>
+    <div class="tiles">${CATS.map(([k, l]) => `<div class="tile"><small>${l}</small><div><i class="sd ${b.s[k]}"></i>${LBL[b.s[k]]}</div></div>`).join("")}</div>
+    <div class="firms"><small>Other law firms</small>${b.firms.join(" · ")}</div><a class="cta" href="#">View details →</a>`;
+  place(i); card.classList.add("show");
+}
+function place(i) {
+  const s = scene.getBoundingClientRect(), r = pins[i].getBoundingClientRect();
+  let left = r.right - s.left + 24, top = r.top - s.top - 40;
+  if (left + card.offsetWidth > s.width - 20) left = r.left - s.left - 24 - card.offsetWidth;
+  card.style.left = Math.max(20, left) + "px"; card.style.top = Math.max(20, Math.min(top, s.height - card.offsetHeight - 20)) + "px";
+}
+function hide() { cur = null; card.classList.remove("show"); pins.forEach(p => p.classList.remove("on")); document.querySelectorAll(".feat.hot").forEach(el => el.classList.remove("hot")); }
+</script>
+</body>
+</html>
