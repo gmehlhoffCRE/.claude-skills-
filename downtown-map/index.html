@@ -80,29 +80,40 @@
   .hotspot:hover, .hotspot:focus-visible, .hotspot.active { transform: translate(-50%, -50%) scale(1.2); outline: none; }
   @keyframes pulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.7); opacity: 0; } }
 
-  /* ---------- Scorecard popup ---------- */
+  /* ---------- Hover card ---------- */
   .card {
     position: absolute; z-index: 5; width: 300px;
-    background: var(--white); border-radius: 8px; overflow: hidden;
-    box-shadow: 0 14px 36px rgba(0, 20, 60, .4);
-    opacity: 0; visibility: hidden; transform: translateY(4px);
-    transition: opacity .12s ease, transform .12s ease, visibility .12s;
+    background: var(--white); border-radius: 10px; overflow: hidden;
+    box-shadow: 0 24px 50px rgba(0, 15, 45, .45), 0 0 0 1px rgba(0, 30, 90, .06);
+    opacity: 0; visibility: hidden; transform: translateY(8px) scale(.98);
+    transition: opacity .18s ease, transform .25s cubic-bezier(.2,.8,.2,1), visibility .18s;
   }
-  .card.show { opacity: 1; visibility: visible; transform: translateY(0); }
-  .card .hd { background: var(--navy); color: var(--white); padding: 12px 16px; border-bottom: 3px solid var(--gold); }
-  .card .name { margin: 0; font-size: 17px; font-weight: 700; }
-  .card .addr { font-size: 12px; color: rgba(255,255,255,.75); margin-top: 2px; }
-  .card .rent { display: flex; justify-content: space-between; align-items: baseline; padding: 10px 16px; border-bottom: 1px solid var(--light); }
-  .card .rent .lbl { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; }
-  .card .rent .val { font-size: 20px; font-weight: 700; color: var(--navy); }
-  .card .rent .val small { font-size: 12px; color: var(--gray); font-weight: 400; }
-  .card ul.scores { list-style: none; margin: 0; padding: 6px 16px; }
-  .card ul.scores li { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-bottom: 1px solid #f0f0f0; font-weight: 700; }
-  .card ul.scores li:last-child { border-bottom: 0; }
-  .card .firms { background: var(--bg); padding: 10px 16px 12px; border-top: 1px solid var(--light); }
-  .card .firms .lbl { font-size: 11px; color: var(--gray); text-transform: uppercase; letter-spacing: .5px; font-weight: 700; margin-bottom: 4px; }
-  .card .firms p { margin: 0; font-size: 12px; color: var(--navy); line-height: 1.5; }
-  .card .actions { padding: 12px 16px 14px; }
+  .card.show { opacity: 1; visibility: visible; transform: none; }
+  .card .art { height: 160px; position: relative; background: linear-gradient(170deg, #0B3A8C, var(--navy)); overflow: hidden; }
+  .card .art > svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; display: block; }
+  .card .art .photo { position: absolute; inset: 0; height: auto; }
+  .card .price {
+    position: absolute; right: 12px; top: 12px; z-index: 1;
+    background: #0056DA; color: #fff; border-radius: 999px; padding: 5px 11px;
+    font-size: 13px; font-weight: 700; letter-spacing: -.1px; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+  }
+  .card .price small { font-size: 10px; font-weight: 700; opacity: .85; }
+  .card .fb { padding: 16px 18px 6px; }
+  .card .nm { font-size: 21px; font-weight: 700; color: var(--navy); letter-spacing: -.5px; line-height: 1.15; }
+  .card .ad { font-size: 12px; color: #5A6580; margin-top: 2px; }
+  .card .srows { margin-top: 12px; }
+  .card .sr { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-top: 1px solid #E4E8F0; font-weight: 700; font-size: 13px; color: #2B3350; }
+  .card .sr .score { width: 22px; height: 22px; font-size: 15px; }
+  .card .firms { padding: 10px 18px 12px; border-top: 1px solid #E4E8F0; background: #F6F7FB; }
+  .card .firms .lbl { font-size: 10px; letter-spacing: 1.2px; text-transform: uppercase; color: #5A6580; font-weight: 700; margin-bottom: 4px; }
+  .card .firms ul { list-style: none; margin: 0; padding: 0; font-size: 12px; color: var(--navy); line-height: 1.5; }
+  .card .firms ul.two { column-count: 2; column-gap: 14px; }
+  .card .firms li { break-inside: avoid; }
+  .card .actions { padding: 10px 18px 14px; background: #F6F7FB; }
+  .card .actions .btn { border-radius: 6px; padding: 9px 14px; }
+
+  /* Google base map */
+  .gmap { position: absolute; inset: 0; }
 
   .btn {
     display: inline-flex; align-items: center; justify-content: center; gap: 8px;
@@ -173,7 +184,6 @@
   .photo.ph { display: grid; place-items: center; background: linear-gradient(135deg, #0B2B6E, #001E5A); }
   .photo.ph svg { width: 34px; height: 34px; opacity: .55; }
   .photo.ph span { position: absolute; bottom: 8px; left: 0; right: 0; text-align: center; font-size: 10px; letter-spacing: .6px; text-transform: uppercase; color: rgba(255,255,255,.5); font-weight: 700; }
-  .card .photo { height: 120px; }
   .hero-photo { width: 220px; height: 140px; border-radius: 6px; border: 2px solid var(--gold); flex: none; }
 
   /* ---------- Matrix view ---------- */
@@ -383,18 +393,27 @@
    Best with a 16:10 image. Press "E" on the map, then click, to get x/y.
    ============================================================ */
 const AERIAL_IMAGE = "";
-/* Building photos: set each building's  photo: "910-louisiana.jpg"  (file next to this page, or a URL).
-   Until a photo is added, a branded placeholder is shown. */
+
+/* GOOGLE BASE MAP — paste a Google Maps JavaScript API key to use real satellite imagery
+   (the same aerial photography as Google Earth). Leave empty to use the drawn map.
+   In Google Cloud: enable "Maps JavaScript API", then restrict the key to your site's address. */
+const GOOGLE_MAPS_API_KEY = "";
+const GOOGLE_MAP_TYPE = "hybrid";   // "satellite" = imagery only · "hybrid" = imagery + street names
+/* BUILDING PHOTOS: drop files into a "photos" folder next to this page, named by building id:
+   photos/910-louisiana.jpg · photos/1000-louisiana.jpg · photos/1111-bagby.jpg
+   photos/700-louisiana.jpg · photos/allen-center.jpg · photos/717-texas.jpg
+   (Or set a building's  photo: "https://..."  to use a web address.) Until then, a placeholder shows. */
 
 /* ============================================================
    2) BUILDING DATA  (from V2 Downtown West matrix – Holland & Knight)
    Scores: "pos" = favorable (green), "neu" = neutral (yellow), "neg" = unfavorable (red)
-   x / y = marker position as % of map width / height.
+   x / y = marker position on the drawn map (% of width / height).
+   lat / lng = marker position on the Google map (approximate — press "E" on the map and click a roof to get exact values).
    ============================================================ */
 const BUILDINGS = [
   {
     id: "910-louisiana", name: "910 Louisiana", address: "910 Louisiana St, Houston, TX",
-    photo: "", rent: 44, x: 54.69, y: 40.5,
+    photo: "", lat: 29.759, lng: -95.3673, rent: 44, x: 54.69, y: 40.5,
     space:     { score: "pos", detail: ["Floors 47–48, 50", "Floors 29–31"] },
     ownership: { score: "pos", detail: ["Enterprise Products Partners L.P."] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Fitness Center", "Rooftop Terrace", "Tenant Lounge", "Conference Center", "Tunnel Access"] },
@@ -403,7 +422,7 @@ const BUILDINGS = [
   },
   {
     id: "1000-louisiana", name: "1000 Louisiana", address: "1000 Louisiana St, Houston, TX",
-    photo: "", rent: 49, x: 44.06, y: 40.5,
+    photo: "", lat: 29.758, lng: -95.3684, rent: 49, x: 44.06, y: 40.5,
     space:     { score: "pos", detail: ["Floors 68–71"] },
     ownership: { score: "neg", detail: ["MetLife and New York State Common Fund"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Fitness Center", "Tenant Lounge", "Sky Lobby", "Conference Center", "Premium Parking", "Tunnel Access"] },
@@ -412,7 +431,7 @@ const BUILDINGS = [
   },
   {
     id: "1111-bagby", name: "1111 Bagby", address: "1111 Bagby St, Houston, TX",
-    photo: "", rent: 54, x: 33.44, y: 21.5,
+    photo: "", lat: 29.7567, lng: -95.3698, rent: 54, x: 33.44, y: 21.5,
     space:     { score: "pos", detail: ["Floors 14–17", "Floors 48–49"] },
     ownership: { score: "pos", detail: ["AEW Capital Management"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Fitness Center", "Conference Center", "Sky Lobby Terrace", "Sky Bridge Access"] },
@@ -421,7 +440,7 @@ const BUILDINGS = [
   },
   {
     id: "700-louisiana", name: "700 Louisiana", address: "700 Louisiana St, Houston, TX",
-    photo: "", rent: 49, x: 75.94, y: 40.5,
+    photo: "", lat: 29.7603, lng: -95.3656, rent: 49, x: 75.94, y: 40.5,
     space:     { score: "pos", detail: ["Floors 17–20"] },
     ownership: { score: "pos", detail: ["M-M Properties"] },
     amenities: { score: "pos", detail: ["Fitness Center", "Conference Center", "Lobby Coffee Bar", "Premium Parking", "Tunnel Access"] },
@@ -430,7 +449,7 @@ const BUILDINGS = [
   },
   {
     id: "allen-center", name: "Allen Center", address: "1200 Smith St & 333 Clay St, Houston, TX",
-    photo: "", rent: 45, x: 17.5, y: 21.5, campus: true,
+    photo: "", lat: 29.7577, lng: -95.3711, rent: 45, x: 17.5, y: 21.5, campus: true,
     space:     { score: "pos", detail: ["Floors 22–23 | 25–30 (1200 Smith – Two Allen Center)", "Floors 26–27 (333 Clay – Three Allen Center)"] },
     ownership: { score: "neu", detail: ["BGRE"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Onsite Hotel", "Fitness Club", "Conference Center", "Premium Parking", "Tunnel Access"] },
@@ -439,7 +458,7 @@ const BUILDINGS = [
   },
   {
     id: "717-texas", name: "717 Texas", address: "717 Texas Ave, Houston, TX",
-    photo: "", rent: 48, x: 86.56, y: 59.5,
+    photo: "", lat: 29.7612, lng: -95.3638, rent: 48, x: 86.56, y: 59.5,
     space:     { score: "pos", detail: ["Floors 23–26", "Floors 29–30"] },
     ownership: { score: "pos", detail: ["New York Life Real Estate Investors"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Onsite Hotel", "Conference Center", "Fitness Center", "Rooftop Terrace", "Tunnel Access", "Premium Parking"] },
@@ -468,16 +487,69 @@ const stage = $("#stage"), card = $("#card"), coordsBox = $("#coords");
 const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 const icon = (s, cls = "") => `<i class="score ${s} ${cls}" title="${SCORE[s].label}" aria-label="${SCORE[s].label}">${SCORE[s].sym}</i>`;
 const rentFmt = r => `$${r.toFixed(2)}`;
-const photo = (b, cls = "") => b.photo
-  ? `<div class="photo ${cls}" role="img" aria-label="${esc(b.name)}" style="background-image:url('${esc(b.photo)}')"></div>`
-  : `<div class="photo ph ${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB600" stroke-width="1.6"><path d="M4 21V7l6-3v17M10 21V9l10 3v9M2 21h20M13 14h1M17 14h1M13 17h1M17 17h1M6 10h1M6 13h1M6 16h1"/></svg><span>Photo coming soon</span></div>`;
+// Photos: uses b.photo if set, otherwise looks for photos/<id>.jpg next to this page.
+// The placeholder sits underneath, so it shows through until a photo exists.
+const photoSrc = b => b.photo || `photos/${b.id}.jpg`;
+const photoLayer = b => `<div role="img" aria-label="${esc(b.name)}" style="position:absolute;inset:0;background:url('${esc(photoSrc(b))}') center/cover no-repeat"></div>`;
+const photo = (b, cls = "") =>
+  `<div class="photo ph ${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB600" stroke-width="1.6"><path d="M4 21V7l6-3v17M10 21V9l10 3v9M2 21h20M13 14h1M17 14h1M13 17h1M17 17h1M6 10h1M6 13h1M6 16h1"/></svg><span>Photo coming soon</span>${photoLayer(b)}</div>`;
+
+// Placeholder art for the card until a building photo is added
+function skyline(seed) {
+  let v = seed * 9301 + 49297; const r = () => (v = (v * 9301 + 49297) % 233280) / 233280; let p = "";
+  for (let x = 0; x < 300; x += 22 + r() * 10) { const h = 30 + r() * 60; p += `<rect x="${x}" y="${120 - h}" width="${16 + r() * 8}" height="${h}" fill="#fff" fill-opacity="${.08 + r() * .1}"/>`; }
+  p += `<rect x="122" y="18" width="56" height="102" fill="#FFB600"/><rect x="132" y="8" width="36" height="12" fill="#FFB600"/>`;
+  for (let y = 28; y < 112; y += 12) for (let x = 130; x < 172; x += 10) p += `<rect x="${x}" y="${y}" width="5" height="6" fill="#001E5A" fill-opacity=".45"/>`;
+  return `<svg viewBox="0 0 300 120" aria-hidden="true">${p}</svg>`;
+}
 
 // ---------- Background ----------
-if (AERIAL_IMAGE) {
+let gmap = null;
+if (GOOGLE_MAPS_API_KEY) {
+  const div = document.createElement("div"); div.className = "gmap"; stage.prepend(div);
+  window.initGoogleMap = () => {
+    gmap = new google.maps.Map(div, {
+      mapTypeId: GOOGLE_MAP_TYPE, tilt: 0, disableDefaultUI: true, zoomControl: true, fullscreenControl: true,
+      gestureHandling: "greedy", clickableIcons: false,
+    });
+    const bounds = new google.maps.LatLngBounds();
+    BUILDINGS.forEach(b => bounds.extend({ lat: b.lat, lng: b.lng }));
+    gmap.fitBounds(bounds, 90);
+    // Keep the HTML markers glued to their buildings as the map moves.
+    const ov = new google.maps.OverlayView();
+    ov.onAdd = () => {}; ov.onRemove = () => {};
+    ov.draw = placeMarkers;
+    ov.setMap(gmap);
+    window.__ov = ov;
+    gmap.addListener("bounds_changed", placeMarkers);
+    gmap.addListener("dragstart", () => { pinned = null; hide(); });
+    gmap.addListener("click", e => {
+      if (!stage.classList.contains("edit")) return;
+      const txt = `lat: ${e.latLng.lat().toFixed(6)}, lng: ${e.latLng.lng().toFixed(6)}`;
+      coordsBox.textContent = txt + "  (copied)"; navigator.clipboard?.writeText(txt).catch(() => {});
+    });
+  };
+  const sc = document.createElement("script");
+  sc.src = `https://maps.googleapis.com/maps/api/js?key=${encodeURIComponent(GOOGLE_MAPS_API_KEY)}&callback=initGoogleMap&v=weekly`;
+  sc.async = true;
+  sc.onerror = () => { div.remove(); stage.prepend(drawSchematicMap()); };
+  document.head.appendChild(sc);
+  document.querySelector(".hint").textContent = "Hover a building to see its scorecard · Drag to pan, scroll to zoom";
+} else if (AERIAL_IMAGE) {
   const img = new Image(); img.src = AERIAL_IMAGE; img.alt = "Aerial view of downtown";
   stage.prepend(img);
 } else {
   stage.prepend(drawSchematicMap());
+}
+
+function placeMarkers() {
+  const proj = window.__ov && window.__ov.getProjection();
+  if (!proj) return;
+  document.querySelectorAll(".hotspot").forEach((el, i) => {
+    const pt = proj.fromLatLngToContainerPixel(new google.maps.LatLng(BUILDINGS[i].lat, BUILDINGS[i].lng));
+    el.style.left = pt.x + "px"; el.style.top = pt.y + "px";
+    el.style.visibility = pt.x < -20 || pt.y < -20 || pt.x > stage.clientWidth + 20 || pt.y > stage.clientHeight + 20 ? "hidden" : "visible";
+  });
 }
 
 function drawSchematicMap() {
@@ -606,11 +678,13 @@ function show(b, el) {
   document.querySelectorAll(".hotspot.active").forEach(h => h.classList.remove("active"));
   el.classList.add("active");
   card.innerHTML = `
-    ${photo(b)}
-    <div class="hd"><p class="name">${esc(b.name)}</p><div class="addr">${esc(b.address)}</div></div>
-    <div class="rent"><span class="lbl">Asking Rent (Gross)</span><span class="val">${rentFmt(b.rent)} <small>/ SF</small></span></div>
-    <ul class="scores">${CATEGORIES.map(c => `<li><span>${c.label}</span>${icon(b[c.key].score)}</li>`).join("")}</ul>
-    <div class="firms"><div class="lbl">Other Law Firms</div><p>${b.firms.map(esc).join(" · ")}</p></div>
+    <div class="art">${skyline(BUILDINGS.indexOf(b) + 3)}${photoLayer(b)}<div class="price">${rentFmt(b.rent)}<small> /SF</small></div></div>
+    <div class="fb">
+      <div class="nm">${esc(b.name)}</div><div class="ad">${esc(b.address)}</div>
+      <div class="srows">${CATEGORIES.map(c => `<div class="sr"><span>${c.label}</span>${icon(b[c.key].score)}</div>`).join("")}</div>
+    </div>
+    <div class="firms"><div class="lbl">Other law firms</div>
+      <ul class="${b.firms.length > 3 ? "two" : ""}">${b.firms.map(f => `<li>${esc(f)}</li>`).join("")}</ul></div>
     <div class="actions"><a class="btn" href="#building/${b.id}">View Details →</a></div>`;
 
   const s = stage.getBoundingClientRect(), h = el.getBoundingClientRect();
