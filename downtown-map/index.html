@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Downtown Building Map</title>
+<style>
+  :root {
+    --bg: #0f1216;
+    --panel: #ffffff;
+    --ink: #1b1f24;
+    --muted: #6b7380;
+    --line: #e4e7eb;
+    --accent: #e8573a;
+    --accent-soft: rgba(232, 87, 58, .25);
+    --good: #2f9e6b;
+    --warn: #d99a1e;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; height: 100%; }
+  body {
+    background: var(--bg);
+    color: #e9edf2;
+    font: 14px/1.4 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    display: flex; flex-direction: column;
+  }
+  header {
+    display: flex; align-items: baseline; justify-content: space-between; gap: 16px;
+    padding: 14px 20px; flex-wrap: wrap;
+  }
+  header h1 { margin: 0; font-size: 18px; font-weight: 650; letter-spacing: .2px; }
+  header p { margin: 0; color: #9aa4b2; font-size: 13px; }
+
+  .stage-wrap { flex: 1; display: flex; align-items: center; justify-content: center; padding: 0 16px 16px; min-height: 0; }
+  /* The stage keeps a fixed aspect ratio so % hotspot positions line up with the image */
+  .stage {
+    position: relative;
+    width: min(100%, calc((100vh - 120px) * 1.6));
+    aspect-ratio: 16 / 10;
+    border-radius: 10px; overflow: hidden;
+    box-shadow: 0 10px 40px rgba(0,0,0,.5);
+    background: #2a2f36;
+  }
+  .stage > img, .stage > svg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; display: block; }
+
+  /* Hotspots */
+  .hotspot {
+    position: absolute; transform: translate(-50%, -50%);
+    width: 26px; height: 26px; border-radius: 50%;
+    background: var(--accent); border: 3px solid #fff;
+    box-shadow: 0 2px 8px rgba(0,0,0,.45);
+    cursor: pointer; padding: 0;
+    display: grid; place-items: center;
+    color: #fff; font-weight: 700; font-size: 11px;
+    transition: transform .15s ease;
+    z-index: 2;
+  }
+  .hotspot::before {
+    content: ""; position: absolute; inset: -9px; border-radius: 50%;
+    background: var(--accent-soft); animation: pulse 2s ease-out infinite; z-index: -1;
+  }
+  .hotspot:hover, .hotspot:focus-visible, .hotspot.active { transform: translate(-50%, -50%) scale(1.25); outline: none; }
+  @keyframes pulse { 0% { transform: scale(.6); opacity: 1; } 100% { transform: scale(1.6); opacity: 0; } }
+
+  /* Popup */
+  .popup {
+    position: absolute; z-index: 5; width: 280px;
+    background: var(--panel); color: var(--ink);
+    border-radius: 10px; box-shadow: 0 12px 32px rgba(0,0,0,.35);
+    pointer-events: none; opacity: 0; transform: translateY(4px);
+    transition: opacity .12s ease, transform .12s ease;
+    overflow: hidden;
+  }
+  .popup.show { opacity: 1; transform: translateY(0); }
+  .popup .hd { padding: 12px 14px 10px; border-bottom: 1px solid var(--line); }
+  .popup .name { font-size: 15px; font-weight: 700; margin: 0; }
+  .popup .addr { color: var(--muted); font-size: 12px; margin-top: 2px; }
+  .popup .tag {
+    display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 600;
+    padding: 2px 8px; border-radius: 99px; background: #f1f3f5; color: #3b4350;
+  }
+  .popup dl { display: grid; grid-template-columns: 1fr 1fr; gap: 10px 12px; margin: 0; padding: 12px 14px; }
+  .popup dt { font-size: 11px; color: var(--muted); text-transform: uppercase; letter-spacing: .4px; }
+  .popup dd { margin: 2px 0 0; font-weight: 650; font-variant-numeric: tabular-nums; }
+  .popup .bar { height: 6px; border-radius: 3px; background: #edf0f3; margin-top: 5px; overflow: hidden; }
+  .popup .bar > span { display: block; height: 100%; background: var(--good); }
+  .popup .note { padding: 0 14px 12px; font-size: 12px; color: #4a525e; }
+
+  /* Coordinate picker (press "E") */
+  .coords {
+    position: absolute; left: 10px; bottom: 10px; z-index: 6;
+    background: rgba(0,0,0,.75); color: #fff; font: 12px ui-monospace, monospace;
+    padding: 6px 10px; border-radius: 6px; display: none;
+  }
+  .edit .coords { display: block; }
+  .edit { cursor: crosshair; }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>Downtown Building Map</h1>
+  <p>Hover a marker to see building details · press <b>E</b> to pick coordinates for new hotspots</p>
+</header>
+
+<div class="stage-wrap">
+  <div class="stage" id="stage">
+    <div class="popup" id="popup"></div>
+    <div class="coords" id="coords">Click the map to copy x/y</div>
+  </div>
+</div>
+
+<script>
+/* ============================================================
+   1) AERIAL IMAGE
+   Put a path or URL to your own aerial photo here, e.g. "downtown.jpg".
+   Leave it empty to use the built-in illustrated map.
+   For best results, use a 16:10 image (e.g. 1600x1000).
+   ============================================================ */
+const AERIAL_IMAGE = "";
+
+/* ============================================================
+   2) BUILDING DATA
+   x / y = position of the marker as a % of the image width / height.
+   Press "E" on the page and click a spot to get these numbers.
+   ============================================================ */
+const BUILDINGS = [
+  { name: "Meridian Tower", address: "100 Main St", x: 18.75, y: 30, cls: "Class A",
+    sf: 612000, floors: 42, built: 2009, occupancy: 91, rent: "$48.50 FS",
+    note: "Sublease availability on floors 28–30." },
+  { name: "Commerce Plaza", address: "250 Commerce Ave", x: 43.75, y: 10, cls: "Class A",
+    sf: 455000, floors: 34, built: 1998, occupancy: 84, rent: "$42.00 FS",
+    note: "Lobby and amenity renovation completed 2024." },
+  { name: "The Exchange", address: "1 Exchange Pl", x: 68.75, y: 30, cls: "Trophy",
+    sf: 820000, floors: 55, built: 2018, occupancy: 96, rent: "$62.00 FS",
+    note: "LEED Platinum. Rooftop terrace, conference center." },
+  { name: "Riverside Center", address: "400 River Rd", x: 81.25, y: 70, cls: "Class A",
+    sf: 380000, floors: 26, built: 2014, occupancy: 88, rent: "$45.75 FS",
+    note: "Waterfront views; direct access to riverwalk." },
+  { name: "Union Bank Building", address: "75 Union St", x: 31.25, y: 50, cls: "Class B",
+    sf: 210000, floors: 18, built: 1972, occupancy: 72, rent: "$29.00 FS",
+    note: "Historic façade. Value-add repositioning planned." },
+  { name: "Market Street Lofts", address: "520 Market St", x: 6.25, y: 70, cls: "Creative",
+    sf: 96000, floors: 6, built: 1924, occupancy: 79, rent: "$34.00 NNN",
+    note: "Converted warehouse; exposed brick and timber." },
+  { name: "Civic Center One", address: "300 Civic Way", x: 56.25, y: 70, cls: "Class A",
+    sf: 298000, floors: 22, built: 2006, occupancy: 93, rent: "$44.25 FS",
+    note: "Across from transit hub; 4/1,000 parking." },
+  { name: "Harbor Point", address: "900 Harbor Blvd", x: 93.75, y: 10, cls: "Class B+",
+    sf: 175000, floors: 14, built: 1989, occupancy: 81, rent: "$33.50 FS",
+    note: "Spec suites available, move-in ready." },
+];
+
+/* ============================================================
+   Below this line you shouldn't need to edit anything.
+   ============================================================ */
+const stage = document.getElementById("stage");
+const popup = document.getElementById("popup");
+const coordsBox = document.getElementById("coords");
+
+// ---- Background: photo or illustrated map ----
+if (AERIAL_IMAGE) {
+  const img = new Image();
+  img.src = AERIAL_IMAGE; img.alt = "Aerial view of downtown";
+  stage.prepend(img);
+} else {
+  stage.prepend(drawIllustratedMap());
+}
+
+function drawIllustratedMap() {
+  const W = 1600, H = 1000, BLOCK = 200, ST = 14; // block pitch, half street width
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  const ns = "http://www.w3.org/2000/svg";
+  const svg = document.createElementNS(ns, "svg");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  svg.setAttribute("preserveAspectRatio", "xMidYMid slice");
+  const parts = [];
+  const featured = new Set(BUILDINGS.map(b => `${Math.floor(b.x * W / 100 / BLOCK)},${Math.floor(b.y * H / 100 / BLOCK)}`));
+
+  parts.push(`<defs>
+    <filter id="sh" x="-20%" y="-20%" width="160%" height="160%"><feDropShadow dx="10" dy="12" stdDeviation="4" flood-color="#000" flood-opacity=".45"/></filter>
+    <pattern id="trees" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="11" cy="11" r="8" fill="#3f6b3a"/><circle cx="8" cy="8" r="4" fill="#4f8048"/></pattern>
+  </defs>
+  <rect width="${W}" height="${H}" fill="#3a3f46"/>`);
+
+  for (let c = 0; c < W / BLOCK; c++) {
+    for (let r = 0; r < 4; r++) {
+      const bx = c * BLOCK + ST, by = r * BLOCK + ST, bw = BLOCK - ST * 2;
+      parts.push(`<rect x="${bx}" y="${by}" width="${bw}" height="${bw}" fill="#8d9097"/>`); // sidewalk
+      const ix = bx + 6, iy = by + 6, iw = bw - 12;
+      if (c === 3 && r === 2) { // park
+        parts.push(`<rect x="${ix}" y="${iy}" width="${iw}" height="${iw}" fill="#5c8a4f"/>
+          <rect x="${ix}" y="${iy}" width="${iw}" height="${iw}" fill="url(#trees)" opacity=".85"/>
+          <path d="M${ix} ${iy + iw / 2} H${ix + iw} M${ix + iw / 2} ${iy} V${iy + iw}" stroke="#c9c2a8" stroke-width="6"/>
+          <circle cx="${ix + iw / 2}" cy="${iy + iw / 2}" r="16" fill="#6fa3c7" stroke="#c9c2a8" stroke-width="5"/>`);
+        continue;
+      }
+      if (featured.has(`${c},${r}`)) {
+        const t = iw * 0.62, tx = ix + (iw - t) / 2, ty = iy + (iw - t) / 2;
+        parts.push(`<rect x="${ix}" y="${iy}" width="${iw}" height="${iw}" fill="#7a7d84"/>
+          <g filter="url(#sh)"><rect x="${tx}" y="${ty}" width="${t}" height="${t}" rx="4" fill="#b9c3cf"/></g>
+          <rect x="${tx + 14}" y="${ty + 14}" width="${t - 28}" height="${t - 28}" rx="3" fill="#cfd7e0"/>
+          <rect x="${tx + t / 2 - 18}" y="${ty + t / 2 - 12}" width="36" height="24" fill="#9aa4b0"/>
+          <circle cx="${tx + 26}" cy="${ty + t - 26}" r="7" fill="#8a939e"/>`);
+        continue;
+      }
+      // regular block: split into lots
+      const cols = 1 + Math.floor(rnd() * 3), rows = 1 + Math.floor(rnd() * 2);
+      const lw = iw / cols, lh = iw / rows;
+      for (let i = 0; i < cols; i++) for (let j = 0; j < rows; j++) {
+        const pad = 4 + rnd() * 8;
+        const x = ix + i * lw + pad, y = iy + j * lh + pad, w = lw - pad * 2, h = lh - pad * 2;
+        if (rnd() < 0.12) { // surface parking
+          parts.push(`<rect x="${x}" y="${y}" width="${w}" height="${h}" fill="#55595f"/>`);
+          for (let k = x + 6; k < x + w - 4; k += 10) parts.push(`<line x1="${k}" y1="${y + 4}" x2="${k}" y2="${y + h / 3}" stroke="#e6e6e6" stroke-width="1.5" opacity=".6"/>`);
+          continue;
+        }
+        const g = 120 + Math.floor(rnd() * 70), tint = rnd() < .25 ? 18 : 0;
+        const fill = `rgb(${g + tint},${g},${g - tint})`;
+        const tall = rnd() < .35 ? ' filter="url(#sh)"' : "";
+        parts.push(`<g${tall}><rect x="${x}" y="${y}" width="${w}" height="${h}" rx="2" fill="${fill}"/></g>`);
+        const n = Math.floor(rnd() * 3);
+        for (let k = 0; k < n; k++) {
+          const s = 8 + rnd() * 12;
+          parts.push(`<rect x="${x + 6 + rnd() * (w - s - 12)}" y="${y + 6 + rnd() * (h - s - 12)}" width="${s}" height="${s}" fill="rgb(${g - 25},${g - 25},${g - 22})"/>`);
+        }
+      }
+    }
+  }
+  // lane markings
+  for (let c = 1; c < W / BLOCK; c++) parts.push(`<line x1="${c * BLOCK}" y1="0" x2="${c * BLOCK}" y2="${H}" stroke="#d9c35a" stroke-width="1.5" stroke-dasharray="14 12" opacity=".7"/>`);
+  for (let r = 1; r <= 4; r++) parts.push(`<line x1="0" y1="${r * BLOCK}" x2="${W}" y2="${r * BLOCK}" stroke="#d9c35a" stroke-width="1.5" stroke-dasharray="14 12" opacity=".7"/>`);
+  // riverwalk + river
+  parts.push(`<path d="M0 830 C 300 815, 600 845, 900 828 S 1400 815, 1600 832 V1000 H0Z" fill="#7d9a6e"/>
+    <path d="M0 855 C 300 840, 600 870, 900 853 S 1400 840, 1600 857 V1000 H0Z" fill="#2f5d7c"/>
+    <path d="M0 900 C 300 885, 600 915, 900 898 S 1400 885, 1600 902" stroke="#4d7fa0" stroke-width="3" fill="none" opacity=".6"/>
+    <path d="M0 950 C 300 935, 600 965, 900 948 S 1400 935, 1600 952" stroke="#4d7fa0" stroke-width="3" fill="none" opacity=".4"/>`);
+  svg.innerHTML = parts.join("");
+  return svg;
+}
+
+// ---- Hotspots ----
+const fmt = n => n.toLocaleString("en-US");
+let pinned = null;
+
+BUILDINGS.forEach((b, i) => {
+  const el = document.createElement("button");
+  el.className = "hotspot";
+  el.style.left = b.x + "%";
+  el.style.top = b.y + "%";
+  el.textContent = i + 1;
+  el.setAttribute("aria-label", b.name);
+  el.addEventListener("mouseenter", () => !pinned && show(b, el));
+  el.addEventListener("mouseleave", () => !pinned && hide());
+  el.addEventListener("focus", () => show(b, el));
+  el.addEventListener("blur", () => !pinned && hide());
+  el.addEventListener("click", e => { // tap/click pins the popup (useful on touch screens)
+    e.stopPropagation();
+    if (pinned === el) { pinned = null; hide(); return; }
+    pinned = el; show(b, el);
+  });
+  stage.appendChild(el);
+});
+stage.addEventListener("click", () => { if (pinned) { pinned = null; hide(); } });
+document.addEventListener("keydown", e => { if (e.key === "Escape") { pinned = null; hide(); } });
+
+function show(b, el) {
+  document.querySelectorAll(".hotspot.active").forEach(h => h.classList.remove("active"));
+  el.classList.add("active");
+  const occColor = b.occupancy >= 90 ? "var(--good)" : b.occupancy >= 80 ? "var(--warn)" : "var(--accent)";
+  popup.innerHTML = `
+    <div class="hd">
+      <p class="name">${b.name}</p>
+      <div class="addr">${b.address}</div>
+      <span class="tag">${b.cls}</span>
+    </div>
+    <dl>
+      <div><dt>Size</dt><dd>${fmt(b.sf)} SF</dd></div>
+      <div><dt>Floors</dt><dd>${b.floors}</dd></div>
+      <div><dt>Year Built</dt><dd>${b.built}</dd></div>
+      <div><dt>Asking Rent</dt><dd>${b.rent}</dd></div>
+      <div style="grid-column: 1 / -1"><dt>Occupancy</dt><dd>${b.occupancy}%</dd>
+        <div class="bar"><span style="width:${b.occupancy}%;background:${occColor}"></span></div></div>
+    </dl>
+    ${b.note ? `<div class="note">${b.note}</div>` : ""}`;
+
+  // Position the popup next to the marker, flipping sides so it stays inside the map
+  const s = stage.getBoundingClientRect(), h = el.getBoundingClientRect();
+  const px = h.left - s.left + h.width / 2, py = h.top - s.top + h.height / 2;
+  const pw = popup.offsetWidth, ph = popup.offsetHeight, gap = 22;
+  let left = px + gap, top = py - ph / 2;
+  if (left + pw > s.width - 8) left = px - gap - pw;
+  left = Math.max(8, Math.min(left, s.width - pw - 8));
+  top = Math.max(8, Math.min(top, s.height - ph - 8));
+  popup.style.left = left + "px";
+  popup.style.top = top + "px";
+  popup.classList.add("show");
+}
+function hide() {
+  popup.classList.remove("show");
+  document.querySelectorAll(".hotspot.active").forEach(h => h.classList.remove("active"));
+}
+window.addEventListener("resize", () => { pinned = null; hide(); });
+
+// ---- Coordinate picker: press E, then click anywhere on the map ----
+document.addEventListener("keydown", e => {
+  if (e.key.toLowerCase() === "e" && !e.metaKey && !e.ctrlKey) stage.classList.toggle("edit");
+});
+stage.addEventListener("click", e => {
+  if (!stage.classList.contains("edit")) return;
+  const s = stage.getBoundingClientRect();
+  const x = ((e.clientX - s.left) / s.width * 100).toFixed(2);
+  const y = ((e.clientY - s.top) / s.height * 100).toFixed(2);
+  const txt = `x: ${x}, y: ${y}`;
+  coordsBox.textContent = txt + "  (copied)";
+  navigator.clipboard?.writeText(txt).catch(() => {});
+});
+</script>
+</body>
+</html>
