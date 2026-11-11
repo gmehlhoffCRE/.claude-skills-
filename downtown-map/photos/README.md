@@ -11,7 +11,7 @@ Drop one photo per building in this folder, named exactly:
 | Allen Center | `allen-center.jpg` |
 | 717 Texas | `717-texas.jpg` |
 
-Landscape photos around 1200 × 800 work best. They appear automatically on the hover card,
+Landscape photos around 1200 × 800 work best. They appear automatically on
 the building detail page and the matrix. Until a photo is added, a placeholder shows.
 
 ## Keeping the single HTML file self-contained
