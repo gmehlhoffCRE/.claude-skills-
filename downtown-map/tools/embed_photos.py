@@ -20,6 +20,14 @@ for bid in ids:
 block = ('/* EMBEDDED PHOTOS — generated from the photos/ folder so this one file works on its own.\n'
          '   (Regenerate after changing a photo.) */\n'
          'const PHOTO_DATA = {\n' + ',\n'.join(entries) + '\n};\n')
+
+# The aerial still (last frame of the flyover) — embedded too, so the map works without the media/ folder.
+still = ROOT + 'media/orbit-end.jpg'
+if os.path.exists(still):
+    out = os.path.join(tmp, 'still.jpg')
+    subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', still, '-vf', "scale='min(1920,iw)':-2", '-q:v', '4', out], check=True)
+    block += 'const STILL_DATA = "data:image/jpeg;base64,' + base64.b64encode(open(out, 'rb').read()).decode() + '";\n'
+    print('still', os.path.getsize(out) // 1024, 'KB')
 start, end = '<!--PHOTO_DATA_START-->', '<!--PHOTO_DATA_END-->'
 script = f'{start}<script>\n{block}</script>{end}\n'
 if start in s:
