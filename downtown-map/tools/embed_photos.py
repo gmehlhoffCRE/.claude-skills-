@@ -28,6 +28,15 @@ if os.path.exists(still):
     subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', still, '-vf', "scale='min(1920,iw)':-2", '-q:v', '4', out], check=True)
     block += 'const STILL_DATA = "data:image/jpeg;base64,' + base64.b64encode(open(out, 'rb').read()).decode() + '";\n'
     print('still', os.path.getsize(out) // 1024, 'KB')
+
+# A lighter copy of the flyover (1600px) — used when media/orbit.mp4 isn't next to the HTML.
+video = ROOT + 'media/orbit.mp4'
+if os.path.exists(video):
+    out = os.path.join(tmp, 'video.mp4')
+    subprocess.run(['ffmpeg', '-loglevel', 'error', '-y', '-i', video, '-vf', "scale='min(1600,iw)':-2", '-c:v', 'libx264',
+                    '-preset', 'slow', '-crf', '28', '-pix_fmt', 'yuv420p', '-an', '-movflags', '+faststart', out], check=True)
+    block += 'const VIDEO_DATA = "data:video/mp4;base64,' + base64.b64encode(open(out, 'rb').read()).decode() + '";\n'
+    print('video', os.path.getsize(out) // 1024, 'KB')
 start, end = '<!--PHOTO_DATA_START-->', '<!--PHOTO_DATA_END-->'
 script = f'{start}<script>\n{block}</script>{end}\n'
 if start in s:
