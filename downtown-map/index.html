@@ -101,13 +101,12 @@
     transition: opacity .18s ease, transform .25s cubic-bezier(.2,.8,.2,1), visibility .18s;
   }
   .card.show { opacity: 1; visibility: visible; transform: none; }
-  .card .art { height: 160px; position: relative; background: linear-gradient(170deg, #0B3A8C, var(--navy)); overflow: hidden; }
-  .card .art > svg { position: absolute; left: 0; right: 0; bottom: 0; width: 100%; display: block; }
-  .card .art .photo { position: absolute; inset: 0; height: auto; }
+  .card { border-top: 4px solid var(--navy); }
+  .card .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
   .card .price {
-    position: absolute; right: 12px; top: 12px; z-index: 1;
+    flex: none; margin-top: 2px; white-space: nowrap;
     background: #0056DA; color: #fff; border-radius: 999px; padding: 5px 11px;
-    font-size: 13px; font-weight: 700; letter-spacing: -.1px; box-shadow: 0 2px 8px rgba(0,0,0,.25);
+    font-size: 13px; font-weight: 700; letter-spacing: -.1px;
   }
   .card .price small { font-size: 10px; font-weight: 700; opacity: .85; }
   .card .fb { padding: 16px 18px 6px; }
@@ -425,21 +424,23 @@ const INTRO_VIDEO = "";
    In Google Cloud: enable "Maps JavaScript API", then restrict the key to your site's address. */
 const GOOGLE_MAPS_API_KEY = "";
 const GOOGLE_MAP_TYPE = "hybrid";   // "satellite" = imagery only · "hybrid" = imagery + street names
-/* BUILDING PHOTOS: drop files into a "photos" folder next to this page, named by building id:
+/* BUILDING PHOTOS: each building's photo is set in its data below (photos/<id>.jpg).
+   To swap one, replace the file in the "photos" folder with the same name:
    photos/910-louisiana.jpg · photos/1000-louisiana.jpg · photos/1111-bagby.jpg
    photos/700-louisiana.jpg · photos/allen-center.jpg · photos/717-texas.jpg
-   (Or set a building's  photo: "https://..."  to use a web address.) Until then, a placeholder shows. */
+   (Or set a building's  photo: "https://..."  to use a web address.) If a file is missing, a placeholder shows. */
 
 /* ============================================================
    2) BUILDING DATA  (from V2 Downtown West matrix – Holland & Knight)
    Scores: "pos" = favorable (green), "neu" = neutral (yellow), "neg" = unfavorable (red)
+   name = property name (CoStar export) · photo = building photo (photos/ folder)
    x / y = marker position on the drawn map (% of width / height).
    lat / lng = marker position on the Google map (approximate — press "E" on the map and click a roof to get exact values).
    ============================================================ */
 const BUILDINGS = [
   {
     id: "910-louisiana", name: "910 Louisiana", address: "910 Louisiana St, Houston, TX",
-    photo: "", lat: 29.759, lng: -95.3673, rent: 44, x: 54.69, y: 40.5,
+    photo: "photos/910-louisiana.jpg", lat: 29.759, lng: -95.3673, rent: 44, x: 54.69, y: 40.5,
     space:     { score: "pos", detail: ["Floors 47–48, 50", "Floors 29–31"] },
     ownership: { score: "pos", detail: ["Enterprise Products Partners L.P."] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Fitness Center", "Rooftop Terrace", "Tenant Lounge", "Conference Center", "Tunnel Access"] },
@@ -447,8 +448,8 @@ const BUILDINGS = [
     firms: ["Baker Botts", "Fisher Phillips", "Jordan Lynch Cancienne"],
   },
   {
-    id: "1000-louisiana", name: "1000 Louisiana", address: "1000 Louisiana St, Houston, TX",
-    photo: "", lat: 29.758, lng: -95.3684, rent: 49, x: 44.06, y: 40.5,
+    id: "1000-louisiana", name: "Wells Fargo Plaza", address: "1000 Louisiana St, Houston, TX",
+    photo: "photos/1000-louisiana.jpg", lat: 29.758, lng: -95.3684, rent: 49, x: 44.06, y: 40.5,
     space:     { score: "pos", detail: ["Floors 68–71"] },
     ownership: { score: "neg", detail: ["MetLife and New York State Common Fund"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Fitness Center", "Tenant Lounge", "Sky Lobby", "Conference Center", "Premium Parking", "Tunnel Access"] },
@@ -456,8 +457,8 @@ const BUILDINGS = [
     firms: ["Greenberg Traurig", "Polsinelli", "Sidley Austin", "Susman Godfrey", "Morgan Lewis", "Foley & Lardner"],
   },
   {
-    id: "1111-bagby", name: "1111 Bagby", address: "1111 Bagby St, Houston, TX",
-    photo: "", lat: 29.7567, lng: -95.3698, rent: 54, x: 33.44, y: 21.5,
+    id: "1111-bagby", name: "Heritage Plaza", address: "1111 Bagby St, Houston, TX",
+    photo: "photos/1111-bagby.jpg", lat: 29.7567, lng: -95.3698, rent: 54, x: 33.44, y: 21.5,
     space:     { score: "pos", detail: ["Floors 14–17", "Floors 48–49"] },
     ownership: { score: "pos", detail: ["AEW Capital Management"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Fitness Center", "Conference Center", "Sky Lobby Terrace", "Sky Bridge Access"] },
@@ -465,8 +466,8 @@ const BUILDINGS = [
     firms: ["Nelson Mullins"],
   },
   {
-    id: "700-louisiana", name: "700 Louisiana", address: "700 Louisiana St, Houston, TX",
-    photo: "", lat: 29.7603, lng: -95.3656, rent: 49, x: 75.94, y: 40.5,
+    id: "700-louisiana", name: "TC Energy Center", address: "700 Louisiana St, Houston, TX",
+    photo: "photos/700-louisiana.jpg", lat: 29.7603, lng: -95.3656, rent: 49, x: 75.94, y: 40.5,
     space:     { score: "pos", detail: ["Floors 17–20"] },
     ownership: { score: "pos", detail: ["M-M Properties"] },
     amenities: { score: "pos", detail: ["Fitness Center", "Conference Center", "Lobby Coffee Bar", "Premium Parking", "Tunnel Access"] },
@@ -474,8 +475,8 @@ const BUILDINGS = [
     firms: ["Quinn Emanuel", "Kilpatrick Townsend", "Weil", "Mayer Brown", "O'Melveny & Myers", "Hicks Thomas", "Wright Close & Barger"],
   },
   {
-    id: "allen-center", name: "Allen Center", address: "1200 Smith St & 333 Clay St, Houston, TX",
-    photo: "", lat: 29.7577, lng: -95.3711, rent: 45, x: 17.5, y: 21.5, campus: true,
+    id: "allen-center", name: "Two & Three Allen Center", address: "1200 Smith St & 333 Clay St, Houston, TX",
+    photo: "photos/allen-center.jpg", lat: 29.7577, lng: -95.3711, rent: 45, x: 17.5, y: 21.5, campus: true,
     space:     { score: "pos", detail: ["Floors 22–23 | 25–30 (1200 Smith – Two Allen Center)", "Floors 26–27 (333 Clay – Three Allen Center)"] },
     ownership: { score: "neu", detail: ["BGRE"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Onsite Hotel", "Fitness Club", "Conference Center", "Premium Parking", "Tunnel Access"] },
@@ -484,7 +485,7 @@ const BUILDINGS = [
   },
   {
     id: "717-texas", name: "717 Texas", address: "717 Texas Ave, Houston, TX",
-    photo: "", lat: 29.7612, lng: -95.3638, rent: 48, x: 86.56, y: 59.5,
+    photo: "photos/717-texas.jpg", lat: 29.7612, lng: -95.3638, rent: 48, x: 86.56, y: 59.5,
     space:     { score: "pos", detail: ["Floors 23–26", "Floors 29–30"] },
     ownership: { score: "pos", detail: ["New York Life Real Estate Investors"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Onsite Hotel", "Conference Center", "Fitness Center", "Rooftop Terrace", "Tunnel Access", "Premium Parking"] },
@@ -737,9 +738,9 @@ function show(b, el) {
   document.querySelectorAll(".hotspot.active").forEach(h => h.classList.remove("active"));
   el.classList.add("active");
   card.innerHTML = `
-    <div class="art">${skyline(BUILDINGS.indexOf(b) + 3)}${photoLayer(b)}<div class="price">${rentFmt(b.rent)}<small> /SF</small></div></div>
     <div class="fb">
-      <div class="nm">${esc(b.name)}</div><div class="ad">${esc(b.address)}</div>
+      <div class="head"><div><div class="nm">${esc(b.name)}</div><div class="ad">${esc(b.address)}</div></div>
+        <div class="price">${rentFmt(b.rent)}<small> /SF</small></div></div>
       <div class="srows">${CATEGORIES.map(c => `<div class="sr"><span>${c.label}</span>${icon(b[c.key].score)}</div>`).join("")}</div>
     </div>
     <div class="firms${firmsOpen ? " open" : ""}">
