@@ -101,18 +101,21 @@
     transition: opacity .18s ease, transform .25s cubic-bezier(.2,.8,.2,1), visibility .18s;
   }
   .card.show { opacity: 1; visibility: visible; transform: none; }
-  .card { border-top: 4px solid var(--navy); }
-  .card .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; }
+  .card .head {
+    display: flex; justify-content: space-between; align-items: flex-start; gap: 14px;
+    background: var(--navy); color: #fff; padding: 24px 18px 22px;
+  }
   .card .price {
     flex: none; margin-top: 2px; white-space: nowrap;
     background: #0056DA; color: #fff; border-radius: 999px; padding: 5px 11px;
     font-size: 13px; font-weight: 700; letter-spacing: -.1px;
   }
   .card .price small { font-size: 10px; font-weight: 700; opacity: .85; }
-  .card .fb { padding: 16px 18px 6px; }
-  .card .nm { font-size: 21px; font-weight: 700; color: var(--navy); letter-spacing: -.5px; line-height: 1.15; }
-  .card .ad { font-size: 12px; color: #5A6580; margin-top: 2px; }
-  .card .srows { margin-top: 12px; }
+  .card .fb { padding: 6px 18px 6px; }
+  .card .nm { font-size: 21px; font-weight: 700; color: #fff; letter-spacing: -.5px; line-height: 1.15; }
+  .card .ad { font-size: 12px; color: rgba(255,255,255,.78); margin-top: 6px; }
+  .card .srows { margin-top: 0; }
+  .card .srows .sr:first-child { border-top: 0; }
   .card .sr { display: flex; justify-content: space-between; align-items: center; padding: 7px 0; border-top: 1px solid #E4E8F0; font-weight: 700; font-size: 13px; color: #2B3350; }
   .card .sr .score { width: 22px; height: 22px; font-size: 15px; }
   .card .firms { padding: 10px 18px 12px; border-top: 1px solid #E4E8F0; background: #F6F7FB; }
@@ -754,9 +757,9 @@ function show(b, el) {
   document.querySelectorAll(".hotspot.active").forEach(h => h.classList.remove("active"));
   el.classList.add("active");
   card.innerHTML = `
+    <div class="head"><div><div class="nm">${esc(b.name)}</div><div class="ad">${esc(b.address)}</div></div>
+      <div class="price">${rentFmt(b.rent)}<small> /SF</small></div></div>
     <div class="fb">
-      <div class="head"><div><div class="nm">${esc(b.name)}</div><div class="ad">${esc(b.address)}</div></div>
-        <div class="price">${rentFmt(b.rent)}<small> /SF</small></div></div>
       <div class="srows">${CATEGORIES.map(c => `<div class="sr"><span>${c.label}</span>${icon(b[c.key].score)}</div>`).join("")}</div>
     </div>
     <div class="firms${firmsOpen ? " open" : ""}">
