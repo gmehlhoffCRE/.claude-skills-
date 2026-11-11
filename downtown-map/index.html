@@ -75,11 +75,11 @@
   .hotspot::before, .hotspot::after {
     /* inset:-2px = exactly the dot's outer edge (its 2px border), so the ring scales from the dot's centre */
     content: ""; position: absolute; inset: -2px; transform-origin: 50% 50%;
-    border-radius: 50%; background: rgba(0, 30, 90, .18); border: 1.5px solid rgba(0, 30, 90, .35);
+    border-radius: 50%; background: rgba(0, 30, 90, .08); border: 1px solid rgba(0, 30, 90, .18);
     animation: ripple 4.2s ease-out infinite; z-index: -1; pointer-events: none;
   }
   .hotspot::after { animation-delay: 2.1s; }
-  @keyframes ripple { 0% { transform: scale(1); opacity: .8; } 100% { transform: scale(1.9); opacity: 0; } }
+  @keyframes ripple { 0% { transform: scale(1); opacity: .6; } 100% { transform: scale(1.7); opacity: 0; } }
   .hotspot:hover, .hotspot:focus-visible, .hotspot.active { transform: translate(-50%, -50%) scale(1.25); outline: none; }
 
   /* Intro orbit video: plays over the map, then fades to the still with hotspots */
