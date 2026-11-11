@@ -13,3 +13,14 @@ Drop one photo per building in this folder, named exactly:
 
 Landscape photos around 1200 × 800 work best. They appear automatically on the hover card,
 the building detail page and the matrix. Until a photo is added, a placeholder shows.
+
+## Keeping the single HTML file self-contained
+
+`index.html` carries its own embedded copy of these photos, so it works even when it's
+opened or shared without this folder. After replacing a photo here, refresh the embedded copies:
+
+```bash
+python3 downtown-map/tools/embed_photos.py
+```
+
+(Requires ffmpeg.)
