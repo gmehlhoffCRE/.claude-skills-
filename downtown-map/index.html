@@ -220,7 +220,7 @@
   .mx th.rh, .mx td.rh { position: sticky; left: 0; z-index: 1; background: var(--navy); color: var(--white); font-weight: 700; border-left: 0; border-bottom-color: rgba(255,255,255,.15); }
   .mx thead th { background: var(--white); padding: 0; }
   .mx thead th.rh { background: var(--navy); padding: 12px 14px; vertical-align: bottom; }
-  .mx .bh .photo { height: 120px; }
+  .mx .bh .photo { height: 240px; }
   .mx .bh .meta { padding: 10px 14px 12px; border-top: 3px solid var(--gold); }
   .mx .bh a.bname { color: var(--navy); font-size: 16px; font-weight: 700; text-decoration: none; }
   .mx .bh a.bname:hover { text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; }
@@ -434,6 +434,7 @@ const GOOGLE_MAP_TYPE = "hybrid";   // "satellite" = imagery only · "hybrid" = 
    2) BUILDING DATA  (from V2 Downtown West matrix – Holland & Knight)
    Scores: "pos" = favorable (green), "neu" = neutral (yellow), "neg" = unfavorable (red)
    name = property name (CoStar export) · photo = building photo (photos/ folder)
+   focus = optional point of the photo to keep in view, e.g. "50% 40%" (left→right, top→bottom)
    x / y = marker position on the drawn map (% of width / height).
    lat / lng = marker position on the Google map (approximate — press "E" on the map and click a roof to get exact values).
    ============================================================ */
@@ -449,7 +450,7 @@ const BUILDINGS = [
   },
   {
     id: "1000-louisiana", name: "Wells Fargo Plaza", address: "1000 Louisiana St, Houston, TX",
-    photo: "photos/1000-louisiana.jpg", lat: 29.758, lng: -95.3684, rent: 49, x: 44.06, y: 40.5,
+    photo: "photos/1000-louisiana.jpg", focus: "50% 5%", lat: 29.758, lng: -95.3684, rent: 49, x: 44.06, y: 40.5,
     space:     { score: "pos", detail: ["Floors 68–71"] },
     ownership: { score: "neg", detail: ["MetLife and New York State Common Fund"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Fitness Center", "Tenant Lounge", "Sky Lobby", "Conference Center", "Premium Parking", "Tunnel Access"] },
@@ -517,7 +518,7 @@ const rentFmt = r => `$${r.toFixed(2)}`;
 // Photos: uses b.photo if set, otherwise looks for photos/<id>.jpg next to this page.
 // The placeholder sits underneath, so it shows through until a photo exists.
 const photoSrc = b => b.photo || `photos/${b.id}.jpg`;
-const photoLayer = b => `<div role="img" aria-label="${esc(b.name)}" style="position:absolute;inset:0;background:url('${esc(photoSrc(b))}') center/cover no-repeat"></div>`;
+const photoLayer = b => `<div role="img" aria-label="${esc(b.name)}" style="position:absolute;inset:0;background:url('${esc(photoSrc(b))}') ${esc(b.focus || "center")}/cover no-repeat"></div>`;
 const photo = (b, cls = "") =>
   `<div class="photo ph ${cls}"><svg viewBox="0 0 24 24" fill="none" stroke="#FFB600" stroke-width="1.6"><path d="M4 21V7l6-3v17M10 21V9l10 3v9M2 21h20M13 14h1M17 14h1M13 17h1M17 17h1M6 10h1M6 13h1M6 16h1"/></svg><span>Photo coming soon</span>${photoLayer(b)}</div>`;
 
