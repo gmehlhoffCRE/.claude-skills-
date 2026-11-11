@@ -207,22 +207,22 @@
   .hero-photo { width: 220px; height: 140px; border-radius: 6px; border: 2px solid var(--gold); flex: none; }
 
   /* ---------- Matrix view ---------- */
-  #matrixView { display: none; padding: 24px; }
+  #matrixView { display: none; padding: 24px 16px; }
   .view-matrix #mapView { display: none; }
   .view-matrix #matrixView { display: block; }
-  .matrix-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; max-width: 1400px; margin: 0 auto 14px; flex-wrap: wrap; }
+  .matrix-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 12px; max-width: 1680px; margin: 0 auto 14px; flex-wrap: wrap; }
   .matrix-head h2 { margin: 0; font-size: 24px; }
   .matrix-head p { margin: 2px 0 0; color: var(--gray); font-size: 13px; }
-  .mx-scroll { max-width: 1400px; margin: 0 auto; overflow-x: auto; background: var(--white); border: 1px solid var(--light); border-radius: 8px; }
-  table.mx { border-collapse: collapse; width: 100%; min-width: 1080px; table-layout: fixed; }
-  .mx th, .mx td { vertical-align: top; text-align: left; border-bottom: 1px solid var(--light); border-left: 1px solid var(--light); padding: 12px 14px; font-size: 13px; }
-  .mx col.rowhead { width: 150px; }
+  .mx-scroll { max-width: 1680px; margin: 0 auto; overflow-x: auto; background: var(--white); border: 1px solid var(--light); border-radius: 8px; }
+  table.mx { border-collapse: collapse; width: 100%; min-width: 1402px; table-layout: fixed; }
+  .mx th, .mx td { vertical-align: top; text-align: left; border-bottom: 1px solid var(--light); border-left: 1px solid var(--light); padding: 12px 12px; font-size: 13px; }
+  .mx col.rowhead { width: 130px; }
   .mx th.rh, .mx td.rh { position: sticky; left: 0; z-index: 1; background: var(--navy); color: var(--white); font-weight: 700; border-left: 0; border-bottom-color: rgba(255,255,255,.15); }
   .mx thead th { background: var(--white); padding: 0; }
   .mx thead th.rh { background: var(--navy); padding: 12px 14px; vertical-align: bottom; }
   .mx .bh .photo { height: 240px; }
   .mx .bh .meta { padding: 10px 14px 12px; border-top: 3px solid var(--gold); }
-  .mx .bh a.bname { color: var(--navy); font-size: 16px; font-weight: 700; text-decoration: none; }
+  .mx .bh a.bname { color: var(--navy); font-size: 15px; font-weight: 700; text-decoration: none; white-space: nowrap; }
   .mx .bh a.bname:hover { text-decoration: underline; text-decoration-color: var(--gold); text-decoration-thickness: 2px; }
   .mx .bh .addr { color: var(--gray); font-size: 11px; margin-top: 2px; font-weight: 400; }
   .mx .rentrow td:not(.rh) { font-size: 20px; font-weight: 700; color: var(--navy); }
@@ -477,7 +477,7 @@ const BUILDINGS = [
   },
   {
     id: "allen-center", name: "Two & Three Allen Center", address: "1200 Smith St & 333 Clay St, Houston, TX",
-    photo: "photos/allen-center.jpg", lat: 29.7577, lng: -95.3711, rent: 45, x: 17.5, y: 21.5, campus: true,
+    photo: "photos/allen-center.jpg", focus: "25% 50%", lat: 29.7577, lng: -95.3711, rent: 45, x: 17.5, y: 21.5, campus: true,
     space:     { score: "pos", detail: ["Floors 22–23 | 25–30 (1200 Smith – Two Allen Center)", "Floors 26–27 (333 Clay – Three Allen Center)"] },
     ownership: { score: "neu", detail: ["BGRE"] },
     amenities: { score: "pos", detail: ["Onsite Dining", "Onsite Hotel", "Fitness Club", "Conference Center", "Premium Parking", "Tunnel Access"] },
