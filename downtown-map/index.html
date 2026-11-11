@@ -237,6 +237,19 @@
   .mx td ul { margin: 0; padding-left: 16px; color: #26324a; }
   .mx td li { margin: 2px 0; }
   .mx .tallyrow .t { display: inline-flex; align-items: center; gap: 4px; margin-right: 10px; font-weight: 700; }
+  .mx .tallyrow td { border-top: 2px solid var(--navy); }
+  /* Collapsible category rows */
+  .mx .rtog { all: unset; box-sizing: border-box; width: 100%; display: flex; justify-content: space-between; align-items: center; gap: 8px; cursor: pointer; color: inherit; font-weight: 700; }
+  .mx .rtog:focus-visible { outline: 2px solid var(--gold); outline-offset: 4px; }
+  .mx .rtog .chev { font-size: 12px; opacity: .8; transition: transform .2s ease; }
+  .mx tr.cat.open .rtog .chev { transform: rotate(180deg); }
+  .mx tr.cat:not(.open) .more { display: none; }
+  .mx tr.cat:not(.open) .cell-score { margin-bottom: 0; }
+  .mx tr.cat.open .fcount { display: none; }
+  .mx .fcount { font-weight: 700; color: var(--navy); }
+  .mx-tools { display: flex; gap: 8px; }
+  .mx-tools button { height: 32px; padding: 0 12px; border-radius: 6px; border: 1px solid #E4E8F0; background: #fff; color: #2B3350; font: 700 12px var(--font); cursor: pointer; }
+  .mx-tools button:hover { background: #F4F7FC; }
   .btn.sm { width: auto; padding: 7px 12px; font-size: 12px; }
 
   @media (max-width: 720px) {
@@ -829,12 +842,31 @@ function renderDetail(b) {
 }
 
 // ---------- Matrix page: every building side by side ----------
+// Which matrix category rows are expanded (all start collapsed; remembered while the page is open)
+const mxOpen = new Set();
+const MX_KEYS = [...CATEGORIES.map(c => c.key), "firms"];
+const rowToggle = (label, key) => `<button type="button" class="rtog" aria-expanded="${mxOpen.has(key)}">${label}<span class="chev">▾</span></button>`;
+document.getElementById("matrixView").addEventListener("click", e => {
+  const all = e.target.closest("[data-all]");
+  if (all) {
+    MX_KEYS.forEach(k => all.dataset.all === "open" ? mxOpen.add(k) : mxOpen.delete(k));
+    document.querySelectorAll(".mx tr.cat").forEach(tr => { tr.classList.toggle("open", all.dataset.all === "open"); tr.querySelector(".rtog").setAttribute("aria-expanded", all.dataset.all === "open"); });
+    return;
+  }
+  const tog = e.target.closest(".rtog");
+  if (!tog) return;
+  const tr = tog.closest("tr"), k = tr.dataset.k, open = !tr.classList.contains("open");
+  open ? mxOpen.add(k) : mxOpen.delete(k);
+  tr.classList.toggle("open", open); tog.setAttribute("aria-expanded", open);
+});
+
 function renderMatrix() {
   const list = arr => `<ul>${arr.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`;
   const tally = b => { const c = { pos: 0, neu: 0, neg: 0 }; CATEGORIES.forEach(k => c[b[k.key].score]++); return c; };
   $("#matrixView").innerHTML = `
     <div class="matrix-head">
-      <div><h2>Downtown West Matrix</h2><p>All ${BUILDINGS.length} options side by side · click a building name for full details</p></div>
+      <div><h2>Downtown West Matrix</h2><p>All ${BUILDINGS.length} options side by side · click a category to see the full answers</p></div>
+      <div class="mx-tools"><button type="button" data-all="open">Expand all</button><button type="button" data-all="close">Collapse all</button></div>
     </div>
     <div class="mx-scroll"><table class="mx">
       <colgroup><col class="rowhead">${BUILDINGS.map(() => "<col>").join("")}</colgroup>
@@ -842,11 +874,12 @@ function renderMatrix() {
         <th class="bh">${photo(b)}<div class="meta"><a class="bname" href="#building/${b.id}">${esc(b.name)}</a><div class="addr">${esc(b.address)}</div></div></th>`).join("")}</tr></thead>
       <tbody>
         <tr class="rentrow"><td class="rh">Asking Rent (Gross)</td>${BUILDINGS.map(b => `<td>${rentFmt(b.rent)} <small>/ SF</small></td>`).join("")}</tr>
-        <tr class="tallyrow"><td class="rh">Score Summary</td>${BUILDINGS.map(b => { const c = tally(b);
+        ${CATEGORIES.map(c => `<tr class="cat${mxOpen.has(c.key) ? " open" : ""}" data-k="${c.key}"><td class="rh">${rowToggle(c.label, c.key)}</td>${BUILDINGS.map(b => { const d = b[c.key];
+          return `<td class="${d.score}"><div class="cell-score">${icon(d.score)} ${SCORE[d.score].label}</div><div class="more">${list(d.detail)}</div></td>`; }).join("")}</tr>`).join("")}
+        <tr class="cat${mxOpen.has("firms") ? " open" : ""}" data-k="firms"><td class="rh">${rowToggle("Other Law Firms", "firms")}</td>${BUILDINGS.map(b =>
+          `<td><span class="fcount">${b.firms.length} firm${b.firms.length === 1 ? "" : "s"}</span><div class="more">${list(b.firms)}</div></td>`).join("")}</tr>
+        <tr class="tallyrow"><td class="rh">Overall Score</td>${BUILDINGS.map(b => { const c = tally(b);
           return `<td><span class="t">${icon("pos")} ${c.pos}</span><span class="t">${icon("neu")} ${c.neu}</span><span class="t">${icon("neg")} ${c.neg}</span></td>`; }).join("")}</tr>
-        ${CATEGORIES.map(c => `<tr><td class="rh">${c.label}</td>${BUILDINGS.map(b => { const d = b[c.key];
-          return `<td class="${d.score}"><div class="cell-score">${icon(d.score)} ${SCORE[d.score].label}</div>${list(d.detail)}</td>`; }).join("")}</tr>`).join("")}
-        <tr><td class="rh">Other Law Firms</td>${BUILDINGS.map(b => `<td>${list(b.firms)}</td>`).join("")}</tr>
         <tr><td class="rh"></td>${BUILDINGS.map(b => `<td><a class="btn sm" href="#building/${b.id}">View Details →</a></td>`).join("")}</tr>
       </tbody>
     </table></div>`;
