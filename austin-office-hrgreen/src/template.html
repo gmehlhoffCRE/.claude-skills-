@@ -197,8 +197,8 @@
   .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line-soft); color: var(--ink2); font-weight: 400; vertical-align: middle; }
   .tbl.prop td, .tbl.prop td * { color: var(--ink2); font-weight: 400; }
   .tbl.prop td .tsub { font-size: inherit; }
-  .tbl.prop td { white-space: nowrap; height: 58px; }
-  .tbl.prop td:nth-child(4) > div { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .tbl.prop td { white-space: nowrap; height: 54px; }
+  .tbl.prop td.c-address, .tbl.prop td.c-name { max-width: 240px; overflow: hidden; text-overflow: ellipsis; }
   .tbl.prop td.c-contig { min-width: 240px; }
   .tbl.prop td.c-owner span { display: block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
   .tbl tr:hover td { background: var(--blue-softer); cursor: pointer; }
@@ -610,17 +610,38 @@ const overlap = (a, b) => { const A = new Set(toks(a)), B = toks(b); if (!A.size
 function attachPhotos(buildings) {
   const byAddr = {};
   PHOTOS.forEach((p) => { (byAddr[addrKey(p.a)] = byAddr[addrKey(p.a)] || []).push(p); });
-  buildings.forEach((b) => {
+  const res = buildings.map((b) => {
     const cands = byAddr[addrKey(b.address)] || [];
-    let best = null;
-    if (cands.length === 1) best = cands[0];
-    else if (cands.length > 1) {
-      best = cands.find((p) => nameKey(p.n) === nameKey(b.name)) ||
-        cands.slice().sort((x, y) => overlap(b.name, y.n) - overlap(b.name, x.n))[0];
-    } else {
-      best = PHOTOS.find((p) => p.n && nameKey(p.n) === nameKey(b.name)) || null; // address typo fallback
+    if (cands.length === 1) return { best: cands[0], sure: true, cands };
+    if (cands.length > 1) {
+      const exact = cands.find((p) => nameKey(p.n) === nameKey(b.name));
+      if (exact) return { best: exact, sure: true, cands };
+      const ranked = cands.slice().sort((x, y) => overlap(b.name, y.n) - overlap(b.name, x.n));
+      // A tie means the name can't tell the buildings at this address apart.
+      return { best: ranked[0], sure: overlap(b.name, ranked[0].n) > overlap(b.name, ranked[1].n), cands };
     }
+    const byName = PHOTOS.find((p) => p.n && nameKey(p.n) === nameKey(b.name)) || null; // address typo fallback
+    return { best: byName, sure: !!byName, cands };
+  });
+  // Elimination: at a shared address, if every other building is matched for sure, the one left is this one.
+  res.forEach((r, i) => {
+    if (r.sure || r.cands.length < 2) return;
+    const sameAddr = res.filter((o, j) => j !== i && o.cands === r.cands);
+    const claimed = new Set(sameAddr.filter((o) => o.sure).map((o) => o.best));
+    const left = r.cands.filter((p) => !claimed.has(p));
+    const unsureHere = sameAddr.filter((o) => !o.sure).length;
+    if (left.length === 1 && unsureHere === 0) { r.best = left[0]; r.sure = true; }
+  });
+  buildings.forEach((b, i) => {
+    const { best, sure } = res[i];
     b.photo = best ? best.src : null;
+    // CoStar's name often carries the building number the sheet leaves off ("Cielo Center" -> "Cielo Center II").
+    if (best && best.n && sure) {
+      const sheetName = b.name === b.address ? "" : b.name;
+      const extra = sheetName && best.n.toLowerCase().startsWith(sheetName.toLowerCase()) ? best.n.slice(sheetName.length) : null;
+      if (!sheetName) b.name = best.n;
+      else if (extra && /^\s*[-,]?\s*(bldg\.?|building|tower|phase|plaza)?\s*([IVX]+|\d+|[A-Z])\b/i.test(extra)) b.name = best.n;
+    }
   });
 }
 
@@ -1677,7 +1698,8 @@ function ListPanel({ list, labels, sort, setSort, activeId, hoveredId, selectedI
 const TABLE_COLS = [
   { k: "num", label: "#", get: (b, l) => l[b.id], r: true },
   { k: "photo", label: "", sort: false },
-  { k: "name", label: "Property", get: (b) => b.name },
+  { k: "address", label: "Address", get: (b) => b.address },
+  { k: "name", label: "Property name", get: (b) => (b.name === b.address ? "" : b.name), fmt: (b) => (b.name === b.address ? "—" : b.name) },
   { k: "submarket", label: "Submarket", get: (b) => b.submarket },
   { k: "cls", label: "Class", get: (b) => b.cls },
   { k: "rba", label: "RBA (SF)", get: (b) => b.rba, fmt: (b) => fmtInt(b.rba), r: true },
@@ -1722,7 +1744,6 @@ function TableView({ list, labels, selectedIds, onToggle, onOpen, canAdd }) {
                     {TABLE_COLS.map((c) => (
                       <td key={c.k} className={(c.r ? "r " : "") + "c-" + c.k}>
                         {c.k === "photo" ? (b.photo ? <img src={b.photo} alt="" loading="lazy" /> : null)
-                          : c.k === "name" ? <><div>{b.name}</div><div className="tsub">{b.address}</div></>
                           : c.fmt ? c.fmt(b) : (c.get(b, labels) ?? "—")}
                       </td>
                     ))}
