@@ -1044,10 +1044,9 @@ function LayerToggles({ layers, show, setShow, offices = [] }) {
 // ===================== DRIVE TIME =====================
 // Estimates work instantly from straight-line distance (calibrated effective speeds by time of day).
 // "Use Google drive times" replaces them with Google's traffic-aware times, cached in this browser.
-// One scenario: a typical weekday 8:00 AM drive from home to the office, using Google's historical traffic
-// averages for that time (not live traffic). One Google run covers every employee × location pair.
-const PEAKS = { am: "typical weekday 8 AM" };
-const PEAK_HINT = { am: "Home → office, typical weekday 8:00 AM (Google historical traffic)" };
+// One scenario: Google's standard home → office drive time (no live traffic). One run covers every pair.
+const PEAKS = { am: "typical drive" };
+const PEAK_HINT = { am: "Home → office, Google's standard drive time (no live traffic)" };
 const SPEED = { am: 24, pm: 21, off: 34 };
 const TARGETS = [20, 30, 45];
 const DRIVE_CACHE_KEY = LOCAL_CACHE_KEY + ":drive";
@@ -1074,7 +1073,8 @@ function readDriveCache() { try { return JSON.parse(localStorage.getItem(DRIVE_C
 function writeDriveCache(c) { try { localStorage.setItem(DRIVE_CACHE_KEY, JSON.stringify(c)); } catch (e) {} }
 
 // Fetch drive times from Google's Routes API (computeRouteMatrix) for every (employee point × place) pair not
-// cached yet. Departure is a future weekday at 8:00 AM, so Google uses its historical traffic for that time.
+// cached yet. TRAFFIC_UNAWARE = Google's standard drive time (no live or rush-hour traffic), billed on the
+// "Compute Route Matrix Essentials" SKU, whose first 10,000 elements each month are free.
 const ROUTES_URL = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix";
 async function fetchGoogleTimes(emps, places, peak, cache, onProgress) {
   const homes = [...new Map(emps.map((e) => [ptKey(e), e])).values()];
@@ -1086,12 +1086,11 @@ async function fetchGoogleTimes(emps, places, peak, cache, onProgress) {
     const hs = homes.slice(i, i + CH), ds = dests.slice(j, j + CH);
     if (hs.some((h) => ds.some((d) => bucket[ptKey(h) + ">" + ptKey(d)] == null))) todo.push([hs, ds]);
   }
-  const departureTime = nextWeekday(peak).toISOString();
   const wp = (p) => ({ waypoint: { location: { latLng: { latitude: p.lat, longitude: p.lng } } } });
   let done = 0;
   for (const [hs, ds] of todo) {
     const body = JSON.stringify({ origins: hs.map(wp), destinations: ds.map(wp), travelMode: "DRIVE",
-      routingPreference: "TRAFFIC_AWARE", departureTime });
+      routingPreference: "TRAFFIC_UNAWARE" });
     let rows, tries = 0;
     for (;;) {
       let res, text;
@@ -1277,7 +1276,7 @@ function exportDriveMatrix(roster, places, minutes, homeOf, useGoogle) {
     const h = homeOf(e);
     return [i + 1, officeShort(e.office), e.dept, e.zip, h ? minutes(e, h) : "", ...places.map((p) => minutes(e, p))].map(escC).join(",");
   });
-  const note = useGoogle ? "Minutes, home to office, typical weekday 8 AM (Google historical traffic)" : "Minutes, estimated from distance";
+  const note = useGoogle ? "Minutes, home to office, Google standard drive time (no live traffic)" : "Minutes, estimated from distance";
   const csv = [escC(note), head.map(escC).join(","), ...lines].join("\n");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
@@ -1382,14 +1381,14 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
           {cm.fetching != null ? (
             <span className="src-chip live"><span className="spin" />Getting Google times… {Math.round(cm.fetching * 100)}%</span>
           ) : cm.useGoogle && cover > 0.98 ? (
-            <><span className="src-chip live" title={PEAK_HINT[cm.peak]}>Google drive times · typical weekday 8 AM</span>
+            <><span className="src-chip live" title={PEAK_HINT[cm.peak]}>Google drive times</span>
               {cm.isAdmin && <button className="btn sm" onClick={() => cm.setUseGoogle(false)}>Use estimates</button>}</>
           ) : (
             <><span className="src-chip est" title="Straight-line distance at typical Austin speeds for the time of day">
                 {cm.useGoogle && cover > 0 ? "Partly estimated" : "Estimated"}</span>
               {cm.isAdmin && <button className="btn sm primary" onClick={() => {
                 if (!need) { cm.setUseGoogle(true); return; }
-                if (confirm(`Look up ${need.toLocaleString()} drive times from Google (typical weekday 8 AM, historical traffic)?\n\nThis is billed to the Maps key. Results are saved for everyone who opens this page, so it only needs doing once. Buildings or employees added later cost only their new pairs.`)) cm.fetchGoogle(mapped);
+                if (confirm(`Look up ${need.toLocaleString()} drive times from Google?\n\nGoogle's first 10,000 each month are free (Route Matrix Essentials); beyond that it's billed to the Maps key. Results are saved for everyone who opens this page, so it only needs doing once. Buildings or employees added later cost only their new pairs.`)) cm.fetchGoogle(mapped);
               }}>{need ? `Get Google drive times (${need.toLocaleString()})` : "Use Google drive times"}</button>}</>
           )}
         </div>
@@ -1444,7 +1443,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
         </div>
         <div className="dt-legend">
           <span><i className="d-good" />≤ {target} min</span><span><i className="d-mid" />{target + 1}–{target + 15}</span><span><i className="d-far" />{target + 15}+ min</span>
-          <span className="dt-note">{cm.useGoogle && cover > 0.98 ? PEAK_HINT[cm.peak] : "Estimated from distance · typical weekday morning speeds"}</span>
+          <span className="dt-note">{cm.useGoogle && cover > 0.98 ? PEAK_HINT[cm.peak] : "Estimated from distance at typical Austin speeds"}</span>
         </div>
       </div>
 
@@ -1834,7 +1833,7 @@ function CompareView({ all, selectedIds, onRemove, onClear, amenCols, goTo, cm }
       return [label, (b) => (st[b.id] ? fmt(fn(st[b.id])) : "—"), null, null, (b) => bv != null && st[b.id] && fn(st[b.id]) === bv];
     };
     ROWS.push(
-      [`Drive time · weekday 8 AM${cm.useGoogle ? "" : " (est.)"}`, null],
+      [`Drive time${cm.useGoogle ? " · Google" : " (est.)"}`, null],
       row("Average drive", (s) => s.avg, (v) => v + " min", true),
       row(`Within ${cm.target} min`, (s) => s.within, (v) => v + "%", false),
       row("Team hrs / week", (s) => s.hrsWk, (v) => v.toLocaleString(), true),

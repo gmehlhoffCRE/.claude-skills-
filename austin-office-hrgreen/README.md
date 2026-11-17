@@ -37,7 +37,7 @@ The script adds **Latitude / Longitude** columns to the last three tabs and fill
 ## Drive times
 
 - **Estimated** (default): straight-line distance at typical Austin speeds for the time of day. Instant and free.
-- **Google drive times**: Uses Google's **Routes API** (enable it on the Maps key), typical weekday 8 AM from historical traffic. Only logins in `DRIVE_TIME_ADMINS` see the button; results are saved to Firebase (`datasets/aus-office-hrgreen/drivetimes`) so everyone else reuses them. Billed per lookup — the button shows the count before it runs.
+- **Google drive times**: Uses Google's **Routes API** (enable it on the Maps key), standard drive times without traffic (Compute Route Matrix Essentials — first 10,000 lookups a month free). Only logins in `DRIVE_TIME_ADMINS` see the button; results are saved to Firebase (`datasets/aus-office-hrgreen/drivetimes`) so everyone else reuses them. Billed per lookup — the button shows the count before it runs.
 
 ## Rebuilding
 
