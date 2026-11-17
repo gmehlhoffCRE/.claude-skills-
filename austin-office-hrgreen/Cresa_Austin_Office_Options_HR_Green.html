@@ -219,8 +219,8 @@
   .cmp img { width: 100%; height: 130px; object-fit: cover; border-radius: 8px; display: block; }
   .cmp .cname { font-size: 14px; font-weight: 700; color: var(--navy); margin-top: 8px; }
   .cmp .caddr { font-size: 11.5px; color: var(--ink3); font-weight: 400; }
-  .cmp .best { color: var(--ok); font-weight: 700; }
-  .cmp .best::after { content: " ★"; color: var(--gold); }
+  .cmp tbody td { color: var(--ink2); font-weight: 400; }
+  .cmp tbody td .yes { color: var(--ok); font-weight: 700; }
   .cmp .grp td { background: var(--blue-softer); font-weight: 700; color: var(--navy); }
   .cmp .grp td:first-child { background: var(--blue-softer); color: var(--navy); }
   .yes { color: var(--ok); font-weight: 700; }
@@ -1875,7 +1875,7 @@ function CompareView({ all, selectedIds, onRemove, onClear, amenCols, goTo, cm }
     ["Year built", (b) => b.yearBuilt || "—"],
     ["Year renovated", (b) => b.yearReno || "—"],
     ["% Leased", (b) => fmtPct(b.leased)],
-    ["Contiguous 9,000+ SF", (b) => (b.contig ? <span className="yes">{/^(y|yes|true)$/i.test(b.contigText) ? "Yes" : b.contigText}</span> : <span className="no">No</span>)],
+    ["Available 9K+ SF suites", (b) => (b.contig ? (/^(y|yes|true)$/i.test(b.contigText) ? "Yes" : b.contigText) : "—")],
     ["Economics ($/SF/yr)", null],
     ["Direct asking rent", (b) => fmtRent(b.rent), "rent", true],
     ["OPEX", (b) => fmtRent(b.opex), "opex", true],
@@ -1901,7 +1901,6 @@ function CompareView({ all, selectedIds, onRemove, onClear, amenCols, goTo, cm }
   return (
     <div className="panel">
       <div className="panel-h"><span className="panel-t">Comparing {items.length} buildings</span>
-        <span style={{ fontSize: 12, color: "var(--ink4)" }}>★ = best value among these</span>
         <button className="btn sm" style={{ marginLeft: "auto" }} onClick={onClear}>Clear all</button></div>
       <div className="cmp-wrap">
         <table className="cmp">
@@ -1918,9 +1917,7 @@ function CompareView({ all, selectedIds, onRemove, onClear, amenCols, goTo, cm }
             {ROWS.map(([label, fn, key, low, isBest]) => fn == null
               ? <tr key={label} className="grp"><td>{label}</td>{items.map((b) => <td key={b.id}></td>)}</tr>
               : <tr key={label}><td>{label}</td>{items.map((b) => {
-                  const bv = key ? best(key, low) : null;
-                  const win = isBest ? isBest(b) : bv != null && b[key] === bv;
-                  return <td key={b.id} className={win ? "best" : ""}>{fn(b)}</td>;
+                  return <td key={b.id}>{fn(b)}</td>;
                 })}</tr>)}
             {amenUsed.length > 0 && <tr className="grp"><td>Amenities</td>{items.map((b) => <td key={b.id}>{b.amenities.length} total</td>)}</tr>}
             {amenUsed.map((a) => (
