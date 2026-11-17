@@ -320,6 +320,7 @@
   .db-group select { border: 1px solid var(--line); border-radius: 7px; padding: 6px 8px; font-size: 12.5px; color: var(--ink); background: #fff; max-width: 210px; }
   .db-n { font-size: 12px; color: var(--ink3); font-variant-numeric: tabular-nums; }
   .db-src { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .db-ok { flex-basis: 100%; font-size: 12px; color: var(--ok); background: #E6F5EF; border-radius: 6px; padding: 7px 10px; }
   .db-err { flex-basis: 100%; font-size: 12px; color: var(--bad); background: #FBE9E9; border-radius: 6px; padding: 7px 10px; }
   .seg { display: inline-flex; background: var(--blue-softer); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
   .seg button { border: none; background: none; padding: 6px 11px; font-size: 12.5px; font-weight: 600; color: var(--ink3); border-radius: 6px; cursor: pointer; }
@@ -499,6 +500,9 @@ const GOOGLE_MAPS_API_KEY = "AIzaSyAbuuXR2lkGck7cG94qS11CfWWHbLq8AlU";
 const LOCAL_CACHE_KEY = "cresa:" + FIREBASE_DATASET + ":v1";
 const LOGO = "__LOGO__";
 const MAX_COMPARE = 6;
+// Only these logins see "Get Google drive times" (each run is billed to the Maps key).
+// Their results are saved to Firebase, so every other viewer gets the Google times for free.
+const DRIVE_TIME_ADMINS = [/* "your.login@cresa.com" */].map((e) => e.toLowerCase());
 const AUSTIN = { lat: 30.33, lng: -97.77 };
 
 // Known amenity columns. Any column to the right of "Match Note" is also treated as an amenity,
@@ -984,8 +988,10 @@ function LayerToggles({ layers, show, setShow, offices = [] }) {
 // ===================== DRIVE TIME =====================
 // Estimates work instantly from straight-line distance (calibrated effective speeds by time of day).
 // "Use Google drive times" replaces them with Google's traffic-aware times, cached in this browser.
-const PEAKS = { am: "AM peak", pm: "PM peak", off: "Off-peak" };
-const PEAK_HINT = { am: "Home → office, weekday 8:00 AM", pm: "Office → home, weekday 5:30 PM", off: "Home → office, weekday 11:00 AM" };
+// One scenario: a typical weekday 8:00 AM drive from home to the office, using Google's historical traffic
+// averages for that time (not live traffic). One Google run covers every employee × location pair.
+const PEAKS = { am: "typical weekday 8 AM" };
+const PEAK_HINT = { am: "Home → office, typical weekday 8:00 AM (Google historical traffic)" };
 const SPEED = { am: 24, pm: 21, off: 34 };
 const TARGETS = [20, 30, 45];
 const DRIVE_CACHE_KEY = LOCAL_CACHE_KEY + ":drive";
@@ -1100,6 +1106,30 @@ function useCommute(layers) {
   const [useGoogle, setUseGoogle] = useState(() => Object.keys(readDriveCache()).length > 0);
   const [fetching, setFetching] = useState(null); // null | 0..1
   const [error, setError] = useState(null);
+  const [notice, setNotice] = useState(null);
+  const isAdmin = DRIVE_TIME_ADMINS.includes(String(window.__cresaUserEmail || "").toLowerCase());
+
+  // Load the shared Google drive times (fetched once by an admin) from Firebase.
+  useEffect(() => {
+    if (window.__AUS_TEST_PAYLOAD) return;
+    let alive = true;
+    (async () => {
+      try {
+        const token = await waitForIdToken();
+        const raw = await firebaseGet("drivetimes", token, 20000);
+        if (!alive || typeof raw !== "string") return;
+        const shared = JSON.parse(raw);
+        setCache((c) => {
+          const m = { ...c };
+          Object.keys(shared).forEach((k) => { if (k !== "updatedAt") m[k] = { ...(shared[k] || {}), ...(c[k] || {}) }; });
+          writeDriveCache(m);
+          return m;
+        });
+        setUseGoogle(true);
+      } catch (e) { /* none shared yet, or no access: estimates still work */ }
+    })();
+    return () => { alive = false; };
+  }, []);
 
   const offices = useMemo(() => layers.offices.map((o) => ({ ...o, key: o.code || o.name })), [layers.offices]);
   const homeOf = useCallback((e) => {
@@ -1119,13 +1149,25 @@ function useCommute(layers) {
   }, [useGoogle, cache, peak]);
 
   const fetchGoogle = async (places) => {
-    setError(null); setFetching(0);
+    if (!isAdmin) return;
+    setError(null); setNotice(null); setFetching(0);
     const c = { ...cache };
     try {
       await fetchGoogleTimes(layers.employees, [...places, ...offices], peak, c, setFetching);
-      setCache({ ...c }); setUseGoogle(true);
-    } catch (err) { setError(err.message); setCache({ ...c }); }
+      setUseGoogle(true);
+    } catch (err) { setError(err.message); }
+    setCache({ ...c });
     setFetching(null);
+    // Share with every viewer so nobody else has to pay for the same lookups.
+    try {
+      const token = await waitForIdToken();
+      const url = `${FIREBASE_DB_URL}/datasets/${encodeURIComponent(FIREBASE_DATASET)}/drivetimes.json?auth=${encodeURIComponent(token)}`;
+      const res = await fetch(url, { method: "PUT", body: JSON.stringify(JSON.stringify({ ...c, updatedAt: Date.now() })) });
+      if (!res.ok) throw new Error("HTTP " + res.status);
+      setNotice("Saved for everyone — other viewers now see these Google drive times.");
+    } catch (e) {
+      setError("Google times are saved in this browser only: Firebase didn't accept the shared copy (" + e.message + "). A database rule allowing your login to write datasets/" + FIREBASE_DATASET + "/drivetimes fixes this.");
+    }
   };
   const coverage = (places) => {
     if (!useGoogle || !layers.employees.length) return 0;
@@ -1144,7 +1186,7 @@ function useCommute(layers) {
   };
 
   return { peak, setPeak, target, setTarget, office, setOffice, dept, setDept, officeNames, depts, roster, offices, homeOf,
-    minutes, useGoogle, setUseGoogle, fetching, error, fetchGoogle, coverage, lookupsNeeded, hasData: layers.employees.length > 0 };
+    minutes, useGoogle, setUseGoogle, fetching, error, notice, isAdmin, fetchGoogle, coverage, lookupsNeeded, hasData: layers.employees.length > 0 };
 }
 
 function Seg({ value, options, onChange }) {
@@ -1170,6 +1212,21 @@ function DistBar({ s, target }) {
 
 const bandOf = (m, t) => (m <= t ? "good" : m <= t + 15 ? "mid" : "far");
 const fmtDeltaHrs = (h) => (h == null ? "—" : h === 0 ? "±0" : (h < 0 ? "−" : "+") + Math.abs(h).toLocaleString());
+
+function exportDriveMatrix(roster, places, minutes, homeOf, useGoogle) {
+  const escC = (v) => { const t = v == null ? "" : String(v); return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
+  const head = ["Employee", "Office", "Department", "Home ZIP", "Today (own office)", ...places.map((p) => p.name)];
+  const lines = roster.map((e, i) => {
+    const h = homeOf(e);
+    return [i + 1, officeShort(e.office), e.dept, e.zip, h ? minutes(e, h) : "", ...places.map((p) => minutes(e, p))].map(escC).join(",");
+  });
+  const note = useGoogle ? "Minutes, home to office, typical weekday 8 AM (Google historical traffic)" : "Minutes, estimated from distance";
+  const csv = [escC(note), head.map(escC).join(","), ...lines].join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = "HR_Green_Austin_Drive_Times.csv";
+  a.click();
+}
 
 function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, onToggle, canAdd, onOpenBuilding }) {
   const [sk, setSk] = useState("rank"), [dir, setDir] = useState(1);
@@ -1246,8 +1303,6 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
   return (
     <div className="drive">
       <div className="panel drive-bar">
-        <div className="db-group"><span className="db-l">When</span>
-          <Seg value={cm.peak} onChange={cm.setPeak} options={Object.entries(PEAKS)} /></div>
         <div className="db-group"><span className="db-l">Target</span>
           <Seg value={target} onChange={cm.setTarget} options={TARGETS.map((t) => [t, t + " min"])} /></div>
         <div className="db-group"><span className="db-l">Who</span>
@@ -1266,19 +1321,23 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
             {nFilters > 0 && <> · <button className="link" onClick={() => goTo("map")}>{nFilters} filter{nFilters > 1 ? "s" : ""} on</button></>}</span>
         </div>
         <div className="db-src">
+          <button className="btn sm" onClick={() => exportDriveMatrix(roster, mapped, minutes, homeOf, cm.useGoogle && cover > 0.98)} title="Every employee's drive time to every building shown">{I.dl} Drive-time table</button>
           {cm.fetching != null ? (
             <span className="src-chip live"><span className="spin" />Getting Google times… {Math.round(cm.fetching * 100)}%</span>
           ) : cm.useGoogle && cover > 0.98 ? (
-            <><span className="src-chip live" title={PEAK_HINT[cm.peak]}>Google drive times · {PEAKS[cm.peak]}</span>
-              <button className="btn sm" onClick={() => cm.setUseGoogle(false)}>Use estimates</button></>
+            <><span className="src-chip live" title={PEAK_HINT[cm.peak]}>Google drive times · typical weekday 8 AM</span>
+              {cm.isAdmin && <button className="btn sm" onClick={() => cm.setUseGoogle(false)}>Use estimates</button>}</>
           ) : (
-            <><span className="src-chip est" title="Straight-line distance at typical Austin speeds for the time of day">Estimated</span>
-              <button className="btn sm primary" onClick={() => {
-                if (!need || confirm(`Look up ${need.toLocaleString()} drive times from Google for ${PEAKS[cm.peak]}? They're billed to the Maps key and saved in this browser.`)) cm.fetchGoogle(mapped);
-              }}>{need ? "Get Google drive times" : "Use Google drive times"}</button></>
+            <><span className="src-chip est" title="Straight-line distance at typical Austin speeds for the time of day">
+                {cm.useGoogle && cover > 0 ? "Partly estimated" : "Estimated"}</span>
+              {cm.isAdmin && <button className="btn sm primary" onClick={() => {
+                if (!need) { cm.setUseGoogle(true); return; }
+                if (confirm(`Look up ${need.toLocaleString()} drive times from Google (typical weekday 8 AM, historical traffic)?\n\nThis is billed to the Maps key. Results are saved for everyone who opens this page, so it only needs doing once. Buildings or employees added later cost only their new pairs.`)) cm.fetchGoogle(mapped);
+              }}>{need ? `Get Google drive times (${need.toLocaleString()})` : "Use Google drive times"}</button>}</>
           )}
         </div>
         {cm.error && <div className="db-err">{cm.error}</div>}
+        {cm.notice && <div className="db-ok">{cm.notice}</div>}
       </div>
 
       <div className="panel drive-table">
@@ -1328,7 +1387,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
         </div>
         <div className="dt-legend">
           <span><i className="d-good" />≤ {target} min</span><span><i className="d-mid" />{target + 1}–{target + 15}</span><span><i className="d-far" />{target + 15}+ min</span>
-          <span className="dt-note">{cm.useGoogle && cover > 0.98 ? PEAK_HINT[cm.peak] : "Estimates · switch to Google times for traffic-aware results"}</span>
+          <span className="dt-note">{cm.useGoogle && cover > 0.98 ? PEAK_HINT[cm.peak] : "Estimated from distance · typical weekday morning speeds"}</span>
         </div>
       </div>
 
@@ -1351,7 +1410,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
             </div>
             <div className="ins-big">
               <div><b>{focus.s.good}</b><span>of {focus.s.n} within {target} min</span></div>
-              <div><b>{focus.s.avg}<small> min</small></b><span>average {cm.peak === "pm" ? "drive home" : "drive in"}</span></div>
+              <div><b>{focus.s.avg}<small> min</small></b><span>average drive in</span></div>
               {focus.s.deltaHrs != null && <div><b className={focus.s.deltaHrs < 0 ? "good" : focus.s.deltaHrs > 0 ? "bad" : ""}>{fmtDeltaHrs(focus.s.deltaHrs)}<small> hrs</small></b><span>team time / week vs today</span></div>}
             </div>
             {focus.s.nBase > 0 && (
@@ -1718,7 +1777,7 @@ function CompareView({ all, selectedIds, onRemove, onClear, amenCols, goTo, cm }
       return [label, (b) => (st[b.id] ? fmt(fn(st[b.id])) : "—"), null, null, (b) => bv != null && st[b.id] && fn(st[b.id]) === bv];
     };
     ROWS.push(
-      [`Drive time · ${PEAKS[cm.peak]}${cm.useGoogle ? "" : " (est.)"}`, null],
+      [`Drive time · weekday 8 AM${cm.useGoogle ? "" : " (est.)"}`, null],
       row("Average drive", (s) => s.avg, (v) => v + " min", true),
       row(`Within ${cm.target} min`, (s) => s.within, (v) => v + "%", false),
       row("Team hrs / week", (s) => s.hrsWk, (v) => v.toLocaleString(), true),
