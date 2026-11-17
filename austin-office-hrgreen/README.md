@@ -37,7 +37,7 @@ The script adds **Latitude / Longitude** columns to the last three tabs and fill
 ## Drive times
 
 - **Estimated** (default): straight-line distance at typical Austin speeds for the time of day. Instant and free.
-- **Google drive times**: the button fetches traffic-aware times from Google for the buildings shown, cached in that browser. It needs the **Distance Matrix API** enabled on the Maps key and is billed per lookup (the page shows the count before it runs).
+- **Google drive times**: Uses Google's **Routes API** (enable it on the Maps key), typical weekday 8 AM from historical traffic. Only logins in `DRIVE_TIME_ADMINS` see the button; results are saved to Firebase (`datasets/aus-office-hrgreen/drivetimes`) so everyone else reuses them. Billed per lookup — the button shows the count before it runs.
 
 ## Rebuilding
 

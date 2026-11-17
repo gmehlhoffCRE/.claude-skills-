@@ -1041,47 +1041,48 @@ function nextWeekday(peak) {
 function readDriveCache() { try { return JSON.parse(localStorage.getItem(DRIVE_CACHE_KEY) || "{}"); } catch (e) { return {}; } }
 function writeDriveCache(c) { try { localStorage.setItem(DRIVE_CACHE_KEY, JSON.stringify(c)); } catch (e) {} }
 
-// Fetch traffic-aware drive times from Google for every (employee point × place) pair not cached yet.
+// Fetch drive times from Google's Routes API (computeRouteMatrix) for every (employee point × place) pair not
+// cached yet. Departure is a future weekday at 8:00 AM, so Google uses its historical traffic for that time.
+const ROUTES_URL = "https://routes.googleapis.com/distanceMatrix/v2:computeRouteMatrix";
 async function fetchGoogleTimes(emps, places, peak, cache, onProgress) {
-  const g = await loadGoogleMapsScript(GOOGLE_MAPS_API_KEY);
-  const svc = new g.DistanceMatrixService();
   const homes = [...new Map(emps.map((e) => [ptKey(e), e])).values()];
   const dests = [...new Map(places.map((p) => [ptKey(p), p])).values()];
   const bucket = (cache[peak] = cache[peak] || {});
+  const CH = 25; // 25 × 25 = 625 pairs, the per-request maximum
   const todo = [];
-  for (let i = 0; i < homes.length; i += 10) for (let j = 0; j < dests.length; j += 10) {
-    const hs = homes.slice(i, i + 10), ds = dests.slice(j, j + 10);
+  for (let i = 0; i < homes.length; i += CH) for (let j = 0; j < dests.length; j += CH) {
+    const hs = homes.slice(i, i + CH), ds = dests.slice(j, j + CH);
     if (hs.some((h) => ds.some((d) => bucket[ptKey(h) + ">" + ptKey(d)] == null))) todo.push([hs, ds]);
   }
-  const departureTime = nextWeekday(peak);
+  const departureTime = nextWeekday(peak).toISOString();
+  const wp = (p) => ({ waypoint: { location: { latLng: { latitude: p.lat, longitude: p.lng } } } });
   let done = 0;
   for (const [hs, ds] of todo) {
-    const outbound = peak !== "pm"; // PM peak = office → home
-    const req = {
-      origins: (outbound ? hs : ds).map((p) => ({ lat: p.lat, lng: p.lng })),
-      destinations: (outbound ? ds : hs).map((p) => ({ lat: p.lat, lng: p.lng })),
-      travelMode: "DRIVING", drivingOptions: { departureTime, trafficModel: "bestguess" },
-    };
-    let res, tries = 0;
+    const body = JSON.stringify({ origins: hs.map(wp), destinations: ds.map(wp), travelMode: "DRIVE",
+      routingPreference: "TRAFFIC_AWARE", departureTime });
+    let rows, tries = 0;
     for (;;) {
-      try { res = await svc.getDistanceMatrix(req); break; }
-      catch (err) {
-        const code = (err && (err.code || err.message)) || "";
-        if (/OVER_QUERY_LIMIT/.test(code) && tries++ < 4) { await new Promise((r) => setTimeout(r, 1500 * tries)); continue; }
-        if (/REQUEST_DENIED|not authorized|not enabled|ApiNotActivated/i.test(code)) {
-          throw new Error("Google drive times aren't turned on for this Maps key. Enable the Distance Matrix API on the key in Google Cloud, or keep using estimates.");
-        }
-        throw new Error("Google drive times failed (" + code + "). Showing estimates.");
+      let res, text;
+      try {
+        res = await fetch(ROUTES_URL, { method: "POST", body, headers: { "Content-Type": "application/json",
+          "X-Goog-Api-Key": GOOGLE_MAPS_API_KEY, "X-Goog-FieldMask": "originIndex,destinationIndex,duration,condition" } });
+        text = await res.text();
+      } catch (e) { throw new Error("Couldn't reach Google (" + e.message + "). Showing estimates."); }
+      if (res.ok) { rows = JSON.parse(text || "[]"); break; }
+      if ((res.status === 429 || res.status >= 500) && tries++ < 4) { await new Promise((r) => setTimeout(r, 1500 * tries)); continue; }
+      let msg = text; try { msg = JSON.parse(text).error.message; } catch (e) {}
+      if (res.status === 403 || res.status === 401) {
+        throw new Error("Google refused the request: " + msg + " — enable the Routes API for this Maps key (and add it to the key's API restrictions), then try again.");
       }
+      throw new Error("Google drive times failed (" + res.status + "): " + msg);
     }
-    res.rows.forEach((row, oi) => row.elements.forEach((el, di) => {
-      if (el.status !== "OK") return;
-      const h = outbound ? hs[oi] : hs[di], d = outbound ? ds[di] : ds[oi];
-      bucket[ptKey(h) + ">" + ptKey(d)] = Math.round(((el.duration_in_traffic || el.duration).value) / 60);
-    }));
+    (Array.isArray(rows) ? rows : []).forEach((el) => {
+      if (el.condition !== "ROUTE_EXISTS" || !el.duration) return;
+      const h = hs[el.originIndex || 0], d = ds[el.destinationIndex || 0];
+      bucket[ptKey(h) + ">" + ptKey(d)] = Math.round(parseInt(el.duration, 10) / 60);
+    });
     done++;
     onProgress(done / todo.length);
-    await new Promise((r) => setTimeout(r, 120));
   }
   writeDriveCache(cache);
 }
@@ -1131,7 +1132,7 @@ function useCommute(layers) {
   const [fetching, setFetching] = useState(null); // null | 0..1
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
-  const isAdmin = DRIVE_TIME_ADMINS.includes(String(window.__cresaUserEmail || "").toLowerCase());
+  const isAdmin = DRIVE_TIME_ADMINS.includes(String(window.__cresaUserEmail || "").toLowerCase()) || !!(window.__AUS_TEST_PAYLOAD && window.__AUS_TEST_ADMIN);
 
   // Load the shared Google drive times (fetched once by an admin) from Firebase.
   useEffect(() => {
