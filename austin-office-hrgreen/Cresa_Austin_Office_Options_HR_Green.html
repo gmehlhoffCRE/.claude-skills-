@@ -1559,10 +1559,6 @@ function ListPanel({ list, labels, sort, setSort, activeId, hoveredId, selectedI
                   <span>{fmtK(b.rba)} SF</span>
                   <span>{fmtPct(b.leased)} leased</span>
                 </div>
-                <div className="c-sub">
-                  {[b.cls && "Class " + b.cls, b.submarket].filter(Boolean).join(" · ")}
-                  {b.contig && <> · <span className="c-fit">9,000+ SF contiguous</span></>}
-                </div>
               </div>
               <label className="cmp-box" onClick={(e) => e.stopPropagation()} title="Add to compare">
                 <input type="checkbox" checked={sel} disabled={!sel && !canAdd} onChange={() => onToggle(b.id)} />
