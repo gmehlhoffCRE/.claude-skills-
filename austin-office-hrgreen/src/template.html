@@ -197,7 +197,10 @@
   .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line-soft); color: var(--ink2); font-weight: 400; vertical-align: middle; }
   .tbl.prop td, .tbl.prop td * { color: var(--ink2); font-weight: 400; }
   .tbl.prop td .tsub { font-size: inherit; }
-  .tbl.prop td:nth-child(4) { min-width: 220px; }
+  .tbl.prop td { white-space: nowrap; height: 58px; }
+  .tbl.prop td:nth-child(4) > div { max-width: 260px; overflow: hidden; text-overflow: ellipsis; }
+  .tbl.prop td.c-contig { min-width: 240px; }
+  .tbl.prop td.c-owner span { display: block; max-width: 220px; overflow: hidden; text-overflow: ellipsis; }
   .tbl tr:hover td { background: var(--blue-softer); cursor: pointer; }
   .tbl tr.sel td { background: #FFFBEE; }
   .tbl .tname { font-weight: 700; color: var(--ink); }
@@ -1685,9 +1688,9 @@ const TABLE_COLS = [
   { k: "rent", label: "Direct rent", get: (b) => b.rent, fmt: (b) => fmtRent(b.rent), r: true },
   { k: "opex", label: "OPEX", get: (b) => b.opex, fmt: (b) => fmtRent(b.opex), r: true },
   { k: "totalRent", label: "Total rent", get: (b) => b.totalRent, fmt: (b) => fmtRent(b.totalRent), r: true },
-  { k: "contig", label: "9K+ contig.", get: (b) => (b.contig ? 1 : 0), fmt: (b) => (b.contig ? <span title={b.contigText}>{/^(y|yes|true)$/i.test(b.contigText) ? "Yes" : b.contigText}</span> : "—") },
+  { k: "contig", label: "Available 9K+ SF suites", get: (b) => (b.contig ? 1 : 0), fmt: (b) => (b.contig ? <span title={b.contigText}>{/^(y|yes|true)$/i.test(b.contigText) ? "Yes" : b.contigText}</span> : "—") },
   { k: "amenityCount", label: "Amenities", get: (b) => b.amenityCount, r: true },
-  { k: "owner", label: "Owner", get: (b) => b.owner },
+  { k: "owner", label: "Owner", get: (b) => b.owner, fmt: (b) => <span title={b.owner}>{b.owner || "—"}</span> },
 ];
 
 function TableView({ list, labels, selectedIds, onToggle, onOpen, canAdd }) {
@@ -1717,7 +1720,7 @@ function TableView({ list, labels, selectedIds, onToggle, onOpen, canAdd }) {
                   <tr key={b.id} className={sel ? "sel" : ""} onClick={() => onOpen(b.id)}>
                     <td onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={sel} disabled={!sel && !canAdd} onChange={() => onToggle(b.id)} /></td>
                     {TABLE_COLS.map((c) => (
-                      <td key={c.k} className={c.r ? "r" : ""}>
+                      <td key={c.k} className={(c.r ? "r " : "") + "c-" + c.k}>
                         {c.k === "photo" ? (b.photo ? <img src={b.photo} alt="" loading="lazy" /> : null)
                           : c.k === "name" ? <><div>{b.name}</div><div className="tsub">{b.address}</div></>
                           : c.fmt ? c.fmt(b) : (c.get(b, labels) ?? "—")}
