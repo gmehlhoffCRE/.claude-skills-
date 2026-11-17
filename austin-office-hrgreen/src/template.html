@@ -194,7 +194,10 @@
     color: var(--ink3); padding: 10px 10px; border-bottom: 1px solid var(--line); white-space: nowrap; cursor: pointer; user-select: none; }
   .tbl th.r, .tbl td.r { text-align: right; }
   .tbl th .arr { color: var(--navy); margin-left: 3px; }
-  .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line-soft); color: var(--ink2); vertical-align: middle; }
+  .tbl td { padding: 8px 10px; border-bottom: 1px solid var(--line-soft); color: var(--ink2); font-weight: 400; vertical-align: middle; }
+  .tbl.prop td, .tbl.prop td * { color: var(--ink2); font-weight: 400; }
+  .tbl.prop td .tsub { font-size: inherit; }
+  .tbl.prop td:nth-child(4) { min-width: 220px; }
   .tbl tr:hover td { background: var(--blue-softer); cursor: pointer; }
   .tbl tr.sel td { background: #FFFBEE; }
   .tbl .tname { font-weight: 700; color: var(--ink); }
@@ -234,7 +237,7 @@
   /* ---------- HTML map pins ---------- */
   .pin-layer { position: absolute; left: 0; top: 0; }
   .pin { position: absolute; left: 0; top: 0; will-change: transform; cursor: pointer; }
-  .pin > :first-child:not(.pin-tip), .pin::before { pointer-events: none; }
+  .pin-face { cursor: pointer; }
   .pin-face { position: absolute; left: 0; top: 0; transform: translate(-50%, -50%); display: flex; align-items: center; justify-content: center; }
   .pin-tip { position: absolute; left: 0; bottom: 14px; transform: translate(-50%, 4px); background: #fff; color: var(--ink2);
     border-radius: 8px; box-shadow: var(--shadow2); padding: 7px 10px; white-space: nowrap; font: 12px/1.35 Arial, sans-serif;
@@ -281,6 +284,22 @@
   .layer-row input { accent-color: var(--navy); margin: 0; }
   .layer-row .n { margin-left: auto; color: var(--ink4); font-size: 11px; font-variant-numeric: tabular-nums; }
   .lg { display: inline-block; flex: none; }
+  .maplayers { display: grid; gap: 2px; margin: 0 -6px; }
+  .ml-row { display: flex; align-items: center; gap: 10px; padding: 7px 6px; border-radius: 7px; cursor: pointer; }
+  .ml-row:hover { background: var(--blue-softer); }
+  .ml-row.off { cursor: default; }
+  .ml-row.off:hover { background: none; }
+  .ml-row.off .ml-ic, .ml-row.off .ml-t { opacity: .5; }
+  .ml-ic { width: 16px; display: flex; justify-content: center; }
+  .ml-t { flex: 1; font-size: 13px; color: var(--ink2); line-height: 1.25; }
+  .ml-t small { display: block; font-size: 11px; color: var(--ink4); }
+  .switch { appearance: none; -webkit-appearance: none; width: 32px; height: 18px; border-radius: 9px; background: #CBD3E1; position: relative;
+    cursor: pointer; margin: 0; flex: none; transition: background .15s ease-out; }
+  .switch::after { content: ""; position: absolute; top: 2px; left: 2px; width: 14px; height: 14px; border-radius: 50%; background: #fff;
+    box-shadow: 0 1px 2px rgba(0,30,90,.3); transition: transform .15s ease-out; }
+  .switch:checked { background: var(--navy); }
+  .switch:checked::after { transform: translateX(14px); }
+  .switch:disabled { cursor: not-allowed; opacity: .5; }
   .layers .layer-key { position: fixed; display: none; }
   .map-key { position: absolute; right: 64px; bottom: 28px; z-index: 2; display: flex; gap: 12px; background: #fff; box-shadow: var(--shadow2);
     border-radius: 8px; padding: 7px 11px; font-size: 12px; color: var(--ink2); }
@@ -820,7 +839,7 @@ const STAR_SVG = "<svg viewBox='0 0 24 24' width='14' height='14'><path fill='cu
 
 // Shared map. `items`: [{key, lat, lng, cls, html, tip, label, ...}] — any mix of layers.
 // `state(el, it)` restyles pins without rebuilding them (hover / active / selection).
-function MapCanvas({ items, state, stateKey, fitKey, fitTo, onClick, onHover, children }) {
+function MapCanvas({ items, state, stateKey, fitKey, fitTo, focus, onClick, onHover, children }) {
   const el = useRef(null), mapRef = useRef(null), layer = useRef(null);
   const [status, setStatus] = useState("loading");
   const [type, setType] = useState("cresa");
@@ -886,6 +905,26 @@ function MapCanvas({ items, state, stateKey, fitKey, fitTo, onClick, onHover, ch
     ro.observe(el.current);
     return () => ro.disconnect();
   }, [status]);
+
+  // Bring the opened building into view (it may be off-screen or under the detail card).
+  useEffect(() => {
+    if (status !== "ready" || !mapRef.current || !focus || focus.lat == null) return;
+    const m = mapRef.current, g = window.google.maps, pos = new g.LatLng(focus.lat, focus.lng);
+    const b = m.getBounds(), proj = m.getProjection();
+    if (!b || !proj) { m.panTo(pos); return; }
+    // Keep the pin clear of the 340px detail card on the left.
+    const scale = Math.pow(2, m.getZoom()), w = el.current.offsetWidth;
+    const ne = proj.fromLatLngToPoint(b.getNorthEast()), sw = proj.fromLatLngToPoint(b.getSouthWest());
+    const pt = proj.fromLatLngToPoint(pos);
+    const x = (pt.x - sw.x) * scale, y = (pt.y - ne.y) * scale, h = el.current.offsetHeight;
+    const safeLeft = w > 700 ? 380 : 40;
+    if (x < safeLeft || x > w - 60 || y < 70 || y > h - 40) {
+      const target = w > 700 ? safeLeft + (w - safeLeft) / 2 : w / 2;
+      const center = proj.fromLatLngToPoint(m.getCenter());
+      const dx = (x - target) / scale, dy = (y - h / 2) / scale;
+      m.panTo(proj.fromPointToLatLng(new g.Point(center.x + dx, center.y + dy)));
+    }
+  }, [status, focus && focus.key]);
 
   return (
     <>
@@ -1162,17 +1201,23 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
     const out = [];
     if (showComp) out.push(...competitorItems(layers.competitors));
     out.push(...officeItems(cm.offices));
-    if (focus) roster.forEach((e, i) => {
-      const m = minutes(e, focus.b);
-      out.push({ key: "e" + i, lat: e.lat, lng: e.lng, cls: "pin-emp band-" + bandOf(m, target), tip: `<b>${m} min</b><span>${esc(e.dept || "Employee")}${e.zip ? " · " + esc(e.zip) : ""}</span>` });
-    });
+    // Employee dots are built once; their colour and minutes are set in pinState so hovering never rebuilds pins.
+    roster.forEach((e, i) => out.push({ key: "e" + i, kind: "emp", emp: e, lat: e.lat, lng: e.lng, cls: "pin-emp",
+      tip: `<b class="emp-min"></b><span>${esc(e.dept || "Employee")}${e.zip ? " · " + esc(e.zip) : ""}</span>` }));
     rows.forEach((r) => out.push({ key: r.b.id, id: r.b.id, kind: "bldg", lat: r.b.lat, lng: r.b.lng, cls: "pin-bldg", html: String(rank[r.b.id]),
       tip: `<b>${esc(r.b.name)}</b><span>${r.s.avg} min avg · ${r.s.within}% ≤ ${target}</span>` }));
     return out;
-  }, [rows, focus && focus.b.id, roster, minutes, target, showComp, layers.competitors, cm.offices, rank]);
+  }, [rows, roster, target, showComp, layers.competitors, cm.offices, rank]);
 
-  const stateKey = [focusId, sel && sel.b.id, selectedIds.join(",")].join("|");
+  const stateKey = [focusId, sel && sel.b.id, selectedIds.join(","), cm.peak, cm.useGoogle, target, items.length].join("|");
   const pinState = (el, it) => {
+    if (it.kind === "emp") {
+      const m = focus ? minutes(it.emp, focus.b) : null;
+      const band = m == null ? "" : bandOf(m, target);
+      ["good", "mid", "far"].forEach((k) => el.classList.toggle("band-" + k, band === k));
+      const t = el.querySelector(".emp-min"); if (t) t.textContent = m == null ? "" : m + " min to " + focus.b.name;
+      return;
+    }
     if (it.kind !== "bldg") return;
     el.classList.toggle("act", sel && it.id === sel.b.id);
     el.classList.toggle("hov", it.id === hoverId);
@@ -1425,7 +1470,34 @@ const bounds = (list, key) => {
   return v.length ? [Math.min(...v), Math.max(...v)] : [null, null];
 };
 
-function FiltersPanel({ all, amenCols, f, setF, onReset, shown }) {
+// "Show on map" toggles. Always listed, so it's clear what can be added even before the sheet has the data.
+function MapLayersSection({ show, setShow, counts }) {
+  const rows = [
+    ["office", "Current offices", <i className="lg lg-office" />, "Add a “Current Offices” tab to the sheet (Name, Address, Code)."],
+    ["comp", "Competitors", <i className="lg lg-comp" />, "Add a “Competitors” tab to the sheet."],
+    ["emp", "Employee homes", <i className="lg lg-emp" />, "Add an “Employees” tab to the sheet."],
+  ];
+  return (
+    <div className="f-sec">
+      <div className="f-lbl">Show on map</div>
+      <div className="maplayers">
+        {rows.map(([k, label, icon, hint]) => {
+          const n = counts[k] || 0;
+          return (
+            <label key={k} className={"ml-row" + (n ? "" : " off")} title={n ? "" : hint}>
+              <span className="ml-ic">{icon}</span>
+              <span className="ml-t">{label}<small>{n ? `${n} location${n > 1 ? "s" : ""}` : "No data yet"}</small></span>
+              <input type="checkbox" role="switch" className="switch" disabled={!n} checked={!!n && show[k]}
+                onChange={(e) => setShow((s) => ({ ...s, [k]: e.target.checked }))} />
+            </label>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
+
+function FiltersPanel({ all, amenCols, f, setF, onReset, shown, mapLayers }) {
   const set = (patch) => setF((p) => ({ ...p, ...patch }));
   const [showAllAmen, setShowAllAmen] = useState(false);
   const subs = useMemo(() => countBy(all, "submarket"), [all]);
@@ -1442,6 +1514,7 @@ function FiltersPanel({ all, amenCols, f, setF, onReset, shown }) {
       <div className="panel-h">{I.filter}<span className="panel-t">Filters</span>
         {nActive > 0 && <span className="tag gold" style={{ marginLeft: "auto" }}>{nActive} active</span>}</div>
       <div className="panel-b">
+        {mapLayers && <MapLayersSection {...mapLayers} />}
         <div className="f-sec">
           <div className="search">{I.search}<input placeholder="Search building, address, owner…" value={f.q} onChange={(e) => set({ q: e.target.value })} /></div>
         </div>
@@ -1552,8 +1625,8 @@ const TABLE_COLS = [
   { k: "leased", label: "% Leased", get: (b) => b.leased, fmt: (b) => fmtPct(b.leased), r: true },
   { k: "rent", label: "Direct rent", get: (b) => b.rent, fmt: (b) => fmtRent(b.rent), r: true },
   { k: "opex", label: "OPEX", get: (b) => b.opex, fmt: (b) => fmtRent(b.opex), r: true },
-  { k: "totalRent", label: "Total rent", get: (b) => b.totalRent, fmt: (b) => <b style={{ color: "var(--navy)" }}>{fmtRent(b.totalRent)}</b>, r: true },
-  { k: "contig", label: "9K+ contig.", get: (b) => (b.contig ? 1 : 0), fmt: (b) => (b.contig ? <span className="yes" title={b.contigText}>{/^(y|yes|true)$/i.test(b.contigText) ? "Yes" : b.contigText}</span> : <span className="no">—</span>) },
+  { k: "totalRent", label: "Total rent", get: (b) => b.totalRent, fmt: (b) => fmtRent(b.totalRent), r: true },
+  { k: "contig", label: "9K+ contig.", get: (b) => (b.contig ? 1 : 0), fmt: (b) => (b.contig ? <span title={b.contigText}>{/^(y|yes|true)$/i.test(b.contigText) ? "Yes" : b.contigText}</span> : "—") },
   { k: "amenityCount", label: "Amenities", get: (b) => b.amenityCount, r: true },
   { k: "owner", label: "Owner", get: (b) => b.owner },
 ];
@@ -1573,7 +1646,7 @@ function TableView({ list, labels, selectedIds, onToggle, onOpen, canAdd }) {
         <span style={{ marginLeft: "auto", fontSize: 12, color: "var(--ink4)" }}>Click a row for details · tick to compare</span></div>
       <div className="tbl-wrap">
         {list.length === 0 ? <div className="empty">No buildings match these filters.</div> : (
-          <table className="tbl">
+          <table className="tbl prop">
             <thead><tr>
               <th style={{ width: 30 }}></th>
               {TABLE_COLS.map((c) => <th key={c.k} className={c.r ? "r" : ""} onClick={() => click(c)}>{c.label}{sk === c.k && <span className="arr">{dir > 0 ? "▲" : "▼"}</span>}</th>)}
@@ -1587,7 +1660,7 @@ function TableView({ list, labels, selectedIds, onToggle, onOpen, canAdd }) {
                     {TABLE_COLS.map((c) => (
                       <td key={c.k} className={c.r ? "r" : ""}>
                         {c.k === "photo" ? (b.photo ? <img src={b.photo} alt="" loading="lazy" /> : null)
-                          : c.k === "name" ? <><div className="tname">{b.name}</div><div className="tsub">{b.address}</div></>
+                          : c.k === "name" ? <><div>{b.name}</div><div className="tsub">{b.address}</div></>
                           : c.fmt ? c.fmt(b) : (c.get(b, labels) ?? "—")}
                       </td>
                     ))}
@@ -1797,15 +1870,20 @@ function App() {
       </section>
 
       <main className={"body v-" + view}>
-        {view !== "drive" && <FiltersPanel all={all} amenCols={data.amenCols} f={f} setF={setF} onReset={() => setF(EMPTY_FILTERS)} shown={list.length} />}
+        {view !== "drive" && <FiltersPanel all={all} amenCols={data.amenCols} f={f} setF={setF} onReset={() => setF(EMPTY_FILTERS)} shown={list.length}
+          mapLayers={view === "map" ? { show, setShow, counts: { office: cm.offices.length, comp: layers.competitors.length, emp: layers.employees.length } } : null} />}
         {view === "map" && <>
           <ListPanel list={list} labels={labels} sort={sort} setSort={setSort} activeId={activeId} hoveredId={hoveredId}
-            selectedIds={selectedIds} onOpen={(id) => setActiveId(id === activeId ? null : id)} onHover={setHoveredId} onToggle={toggle} canAdd={canAdd} />
+            selectedIds={selectedIds} onOpen={(id) => setActiveId(id)} onHover={setHoveredId} onToggle={toggle} canAdd={canAdd} />
           <div className="map-wrap">
             <MapCanvas items={mapItems} state={mapState} stateKey={[activeId, hoveredId, selectedIds.join(",")].join("|")}
-              fitKey={list.map((b) => b.id).join("|")} fitTo={list}
+              fitKey={list.map((b) => b.id).join("|")} fitTo={list} focus={active ? { key: active.id, lat: active.lat, lng: active.lng } : null}
               onClick={(it) => it.kind === "bldg" && setActiveId(it.id)} onHover={(it) => setHoveredId(it && it.kind === "bldg" ? it.id : null)}>
-              <LayerToggles layers={{ ...layers, offices: cm.offices }} show={show} setShow={setShow} offices={cm.offices} />
+              {show.emp && layers.employees.length > 0 && cm.offices.length > 1 && (
+                <div className="map-key">
+                  {cm.offices.map((o) => <span key={o.key} style={{ display: "inline-flex", alignItems: "center", gap: 6 }}><i className="lg lg-emp" style={{ background: officeColor(cm.offices, o.key) }} />{o.name} staff</span>)}
+                </div>
+              )}
             </MapCanvas>
             {active && <div className="map-detail"><DetailCard b={active} selected={selectedIds.includes(active.id)} canAdd={canAdd}
               onToggleCompare={() => toggle(active.id)} onClose={() => setActiveId(null)} /></div>}
