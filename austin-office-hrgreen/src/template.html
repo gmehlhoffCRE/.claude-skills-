@@ -405,6 +405,71 @@
     .drive-side { min-height: 700px; }
   }
 
+
+  /* ---------- Property detail page ---------- */
+  .detail-more { padding: 12px 16px 0; border-top: 1px solid var(--line-soft); }
+  .detail-more .btn { width: 100%; justify-content: center; padding: 10px; }
+  .detail-more + .detail-actions { border-top: none; }
+  .dp-scroll { flex: 1; min-height: 0; overflow: auto; }
+  .dp { max-width: 1240px; margin: 0 auto; padding: 22px 32px 56px; }
+  .dp-nav { display: flex; align-items: center; justify-content: space-between; margin-bottom: 16px; }
+  .dp-back { font-size: 13px; text-decoration: none; }
+  .dp-step { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--ink3); }
+  .dp-step b { color: var(--ink); }
+  .dp-hero { display: grid; grid-template-columns: 1.25fr 1fr; gap: 36px; }
+  .dp-photo { position: relative; border-radius: 14px; overflow: hidden; min-height: 400px; background: var(--line-soft); }
+  .dp-photo img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+  .dp-rank { position: absolute; left: 16px; top: 16px; background: rgba(0,30,90,.88); color: #fff; font-size: 12px; font-weight: 700; padding: 7px 11px; border-radius: 7px; }
+  .dp-rank b { color: var(--gold); }
+  .dp-h1 { font-size: 38px; line-height: 1.08; margin: 4px 0 8px; color: var(--navy); letter-spacing: -.02em; text-wrap: balance; }
+  .dp-addr { font-size: 17px; color: var(--ink2); }
+  .dp-facts { margin-top: 10px; font-size: 13.5px; color: var(--ink3); white-space: pre-wrap; }
+  .dp-price { margin-top: 24px; padding: 20px 0; border-top: 1px solid var(--line); border-bottom: 1px solid var(--line); display: flex; align-items: baseline; gap: 12px; }
+  .dp-big { font-size: 44px; font-weight: 700; color: var(--navy); letter-spacing: -.02em; font-variant-numeric: tabular-nums; }
+  .dp-unit { font-size: 15px; color: var(--ink3); }
+  .dp-split { margin-left: auto; text-align: right; font-size: 13px; color: var(--ink3); line-height: 1.6; }
+  .dp-split b { color: var(--ink); }
+  .dp-kv { display: grid; grid-template-columns: repeat(3, 1fr); gap: 18px; margin-top: 20px; }
+  .dp-kv .l { font-size: 10.5px; font-weight: 700; letter-spacing: .8px; text-transform: uppercase; color: var(--ink4); }
+  .dp-kv .v { font-size: 20px; font-weight: 700; margin-top: 4px; font-variant-numeric: tabular-nums; }
+  .dp-kv .v small { font-size: 12px; color: var(--ink3); font-weight: 400; }
+  .dp-acts { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
+  .dp-acts .btn { padding: 10px 15px; font-size: 13px; text-decoration: none; }
+  .dp-grid, .dp-loc { display: grid; grid-template-columns: 1.25fr 1fr; gap: 24px; margin-top: 28px; }
+  .dp-card { background: #fff; border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; box-shadow: var(--shadow1); }
+  .dp-card h2 { font-size: 17px; margin: 0 0 4px; color: var(--navy); }
+  .dp-sub { font-size: 12.5px; color: var(--ink3); margin-bottom: 16px; }
+  .dp-empty { font-size: 13px; color: var(--ink3); padding: 8px 0; }
+  .dp-suite { display: flex; justify-content: space-between; gap: 16px; padding: 12px 0; border-top: 1px solid var(--line); font-size: 14px; }
+  .dp-suite:first-of-type { border-top: none; }
+  .dp-suite .n { color: var(--ink2); } .dp-suite .s { font-weight: 700; color: var(--navy); white-space: nowrap; font-variant-numeric: tabular-nums; }
+  .dp-cm { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; padding-bottom: 16px; border-bottom: 1px solid var(--line); }
+  .dp-cm b { display: block; font-size: 28px; color: var(--navy); font-variant-numeric: tabular-nums; }
+  .dp-cm b small { font-size: 13px; color: var(--ink3); }
+  .dp-cm b.bad { color: var(--bad); } .dp-cm b.good { color: var(--ok); }
+  .dp-cm span { font-size: 12px; color: var(--ink3); }
+  .dp-l { font-size: 10.5px; font-weight: 700; letter-spacing: .7px; text-transform: uppercase; color: var(--ink4); margin: 16px 0 8px; display: flex; align-items: center; }
+  .dp-orow { display: grid; grid-template-columns: 110px 1fr 76px; gap: 12px; align-items: center; font-size: 13px; padding: 4px 0; }
+  .dp-loc .dp-map { min-height: 360px; }
+  .dp-near { list-style: none; margin: 0; padding: 0; }
+  .dp-near li { display: grid; grid-template-columns: 14px 1fr auto; gap: 10px; align-items: center; padding: 10px 0; border-top: 1px solid var(--line); font-size: 13.5px; }
+  .dp-near li:first-child { border-top: none; }
+  .dp-near small { display: block; color: var(--ink4); font-size: 11.5px; }
+  .dp-near .d { color: var(--ink3); font-size: 12.5px; font-variant-numeric: tabular-nums; }
+  .dp-am { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px 18px; }
+  .dp-am div { display: flex; gap: 9px; align-items: center; font-size: 13.5px; padding: 7px 0; color: var(--ink2); }
+  .dp-am .yes, .dp-am .no { width: 14px; } .dp-am .off { color: var(--ink4); }
+  .dp-dl { display: grid; grid-template-columns: auto 1fr; gap: 10px 22px; margin: 0; font-size: 13.5px; }
+  .dp-dl dt { color: var(--ink3); } .dp-dl dd { margin: 0; font-weight: 600; }
+  .dp-foot { margin-top: 36px; font-size: 11.5px; color: var(--ink4); display: flex; justify-content: space-between; gap: 12px; }
+  @media (max-width: 900px) {
+    .dp { padding: 16px 16px 40px; }
+    .dp-hero, .dp-grid, .dp-loc { grid-template-columns: 1fr; }
+    .dp-photo { min-height: 240px; } .dp-h1 { font-size: 28px; } .dp-big { font-size: 34px; }
+    .dp-am { grid-template-columns: 1fr 1fr; } .dp-cm b { font-size: 22px; }
+    .dp-foot { flex-direction: column; }
+  }
+
   @media (max-width: 1100px) {
     .kpis { grid-template-columns: repeat(3, 1fr); }
     .body { grid-template-columns: 260px 1fr; }
@@ -1750,7 +1815,7 @@ const Photo = ({ b, className }) => b.photo
   ? <img className={className} src={b.photo} alt={b.name} loading="lazy" />
   : <div className={className + " ph"}>No photo</div>;
 
-function DetailCard({ b, selected, onToggleCompare, onClose, canAdd }) {
+function DetailCard({ b, selected, onToggleCompare, onClose, canAdd, onDetails }) {
   return (
     <div className="detail" onClick={(e) => e.stopPropagation()}>
       <div className="detail-photo">
@@ -1782,8 +1847,9 @@ function DetailCard({ b, selected, onToggleCompare, onClose, canAdd }) {
             <div className="amen-chips">{b.amenities.map((a) => <span key={a}>{a}</span>)}</div></div>
         )}
       </div>
+      {onDetails && <div className="detail-more"><button className="btn primary" onClick={onDetails}>View full details →</button></div>}
       <div className="detail-actions">
-        <button className={"btn " + (selected ? "gold" : "primary")} onClick={onToggleCompare} disabled={!selected && !canAdd}>
+        <button className={"btn " + (selected ? "gold" : "")} onClick={onToggleCompare} disabled={!selected && !canAdd}>
           {selected ? "✓ In compare" : canAdd ? "+ Add to compare" : `Compare full (${MAX_COMPARE})`}
         </button>
         <a className="btn" href={mapsLink(b)} target="_blank" rel="noopener">{I.pin} Google Maps</a>
@@ -2157,6 +2223,192 @@ function exportCSV(list, amenCols) {
   a.click();
 }
 
+// ===================== PROPERTY DETAIL PAGE =====================
+// "97,149 SF (Bldg contiguous); 32,383 SF (Floor contiguous)" -> [{ sf, label }]
+function parseSuites(text) {
+  return String(text || "").split(/;\s*/).map((part) => {
+    const t = part.trim(); if (!t) return null;
+    const m = t.match(/([\d,]+)\s*SF\s*(?:\((.*)\))?/i);
+    if (!m) return { sf: null, label: t };
+    const raw = (m[2] || "").trim();
+    const label = raw.replace(/^Bldg\b/i, "Building").replace(/^Ste\b\.?/i, "Suite").replace(/\bSte\b/g, "Suite") || "Available";
+    return { sf: +m[1].replace(/,/g, ""), label };
+  }).filter(Boolean);
+}
+
+function DetailPage({ b, all, list, cm, layers, amenCols, selected, canAdd, onToggleCompare, onBack, onNav }) {
+  const idx = list.findIndex((x) => x.id === b.id);
+  const prev = idx > 0 ? list[idx - 1] : null, next = idx >= 0 && idx < list.length - 1 ? list[idx + 1] : null;
+  const scroller = useRef(null);
+  useEffect(() => { if (scroller.current) scroller.current.scrollTop = 0; }, [b.id]);
+  useEffect(() => {
+    const k = (e) => {
+      if (e.target.closest && e.target.closest("input, select, textarea")) return;
+      if (e.key === "Escape") onBack();
+      else if (e.key === "ArrowLeft" && prev) onNav(prev.id);
+      else if (e.key === "ArrowRight" && next) onNav(next.id);
+    };
+    window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k);
+  }, [prev, next]);
+
+  const suites = parseSuites(b.contigText);
+  const largest = Math.max(0, ...suites.map((s) => s.sf || 0)) || null;
+
+  // Commute: this building vs today, and its rank among every mapped option.
+  const hasGeo = b.lat != null && b.lng != null;
+  const roster = cm.roster;
+  const s = hasGeo && roster.length ? commuteStats(roster, b, cm.minutes, cm.target, cm.homeOf) : null;
+  const today = roster.length ? todayStats(roster, cm.minutes, cm.target, cm.homeOf) : null;
+  const ranks = useMemo(() => {
+    if (!roster.length) return null;
+    const avgs = all.filter((x) => x.lat != null).map((x) => ({ id: x.id, a: roster.reduce((t, e) => t + cm.minutes(e, x), 0) / roster.length }));
+    avgs.sort((p, q) => p.a - q.a);
+    return { rank: avgs.findIndex((x) => x.id === b.id) + 1, of: avgs.length };
+  }, [all, roster, cm.minutes, b.id]);
+  const byOffice = cm.officeNames.map((o) => {
+    const r = roster.filter((e) => officeShort(e.office) === o);
+    if (!r.length || !hasGeo) return null;
+    const here = r.reduce((t, e) => t + cm.minutes(e, b), 0) / r.length;
+    const withHome = r.filter((e) => cm.homeOf(e));
+    const now = withHome.length ? withHome.reduce((t, e) => t + cm.minutes(e, cm.homeOf(e)), 0) / withHome.length : null;
+    return { o, n: r.length, here, now };
+  }).filter(Boolean);
+  const maxOff = Math.max(30, ...byOffice.map((x) => Math.max(x.here, x.now || 0)));
+  const google = cm.useGoogle && cm.coverage([b]) > 0.98;
+  const delta = s && today ? Math.round((s.avg - today.avg) * 10) / 10 : null;
+
+  // Nearby: closest competitors plus HR Green's current offices.
+  const near = hasGeo ? [
+    ...layers.competitors.map((c) => ({ ...c, kind: "comp", d: hav(b, c) })).sort((p, q) => p.d - q.d).slice(0, 4),
+    ...cm.offices.map((o) => ({ ...o, kind: "office", d: hav(b, o) })).sort((p, q) => p.d - q.d),
+  ] : [];
+  const mapItems = useMemo(() => [
+    ...competitorItems(layers.competitors), ...officeItems(cm.offices),
+    { key: b.id, id: b.id, kind: "bldg", lat: b.lat, lng: b.lng, cls: "pin-bldg act", html: STAR_SVG.replace(/14/g, "16"), tip: `<b>${esc(b.name)}</b><span>${esc(b.address)}</span>` },
+  ], [b.id, layers.competitors, cm.offices]);
+  const fitPts = hasGeo ? [b, ...near.filter((n) => n.kind === "comp").slice(0, 3)] : [];
+
+  return (
+    <div className="dp-scroll" ref={scroller}>
+      <div className="dp">
+        <div className="dp-nav">
+          <button className="link dp-back" onClick={onBack}>← All options</button>
+          {idx >= 0 && <div className="dp-step">
+            <button className="btn sm" disabled={!prev} onClick={() => prev && onNav(prev.id)} aria-label="Previous building">‹</button>
+            <span>Building <b>{idx + 1}</b> of {list.length}</span>
+            <button className="btn sm" disabled={!next} onClick={() => next && onNav(next.id)} aria-label="Next building">›</button>
+          </div>}
+        </div>
+
+        <section className="dp-hero">
+          <div className="dp-photo">
+            {b.photo ? <img src={b.photo} alt={b.name} /> : <div className="map-msg">No photo</div>}
+            {ranks && ranks.rank > 0 && <div className="dp-rank">Commute rank <b>#{ranks.rank}</b> of {ranks.of}</div>}
+          </div>
+          <div>
+            <h1 className="dp-h1">{b.name}</h1>
+            <div className="dp-addr">{[b.name === b.address ? b.unit : b.address, b.city + ", TX"].filter(Boolean).join(", ")}</div>
+            <div className="dp-facts">{[b.cls && "Class " + b.cls, b.submarket && b.submarket + " submarket", b.yearBuilt && "Built " + b.yearBuilt,
+              b.yearReno && "Renovated " + b.yearReno, b.stories && b.stories + " stories"].filter(Boolean).join("  ·  ")}</div>
+            <div className="dp-price">
+              <span className="dp-big">{fmtRent(b.totalRent)}</span><span className="dp-unit">/SF/yr total</span>
+              <div className="dp-split">Direct asking <b>{fmtRent(b.rent)}</b><br />OPEX <b>{fmtRent(b.opex)}</b></div>
+            </div>
+            <div className="dp-kv">
+              <div><div className="l">Largest available</div><div className="v">{largest ? <>{fmtInt(largest)} <small>SF</small></> : "—"}</div></div>
+              <div><div className="l">Building size</div><div className="v">{b.rba ? <>{fmtInt(b.rba)} <small>SF</small></> : "—"}</div></div>
+              <div><div className="l">Leased</div><div className="v">{fmtPct(b.leased)}</div></div>
+            </div>
+            <div className="dp-acts">
+              <button className={"btn " + (selected ? "primary" : "gold")} onClick={onToggleCompare} disabled={!selected && !canAdd}>
+                {selected ? "✓ In compare" : canAdd ? "+ Add to compare" : `Compare full (${MAX_COMPARE})`}</button>
+              <a className="btn" href={mapsLink(b)} target="_blank" rel="noopener">{I.pin} Open in Google Maps</a>
+            </div>
+          </div>
+        </section>
+
+        <section className="dp-grid">
+          <div className="dp-card">
+            <h2>Available space</h2><div className="dp-sub">Contiguous options of 9,000 SF or more</div>
+            {suites.length ? suites.map((x, i) => (
+              <div className="dp-suite" key={i}><div className="n">{x.label}</div><div className="s">{x.sf ? fmtInt(x.sf) + " SF" : ""}</div></div>
+            )) : <div className="dp-empty">No contiguous availability listed.</div>}
+          </div>
+          <div className="dp-card">
+            <h2>Commute for HR Green</h2>
+            <div className="dp-sub">{roster.length} employees · {google ? "Google drive times" : "estimated drive times"} · compared with each person's current office</div>
+            {s ? <>
+              <div className="dp-cm">
+                <div><b>{s.avg}<small> min</small></b><span>average drive in</span></div>
+                <div><b>{s.good}<small> of {s.n}</small></b><span>within {cm.target} minutes</span></div>
+                {delta != null && <div><b className={delta > 0 ? "bad" : delta < 0 ? "good" : ""}>{delta > 0 ? "+" : ""}{delta}<small> min</small></b><span>vs today's {today.avg} min</span></div>}
+              </div>
+              {byOffice.length > 0 && <>
+                <div className="dp-l">By office <span className="dl-key"><i className="k-new" />here <i className="k-today" />today</span></div>
+                {byOffice.map((x) => (
+                  <div className="dp-orow" key={x.o}>
+                    <span>{x.o}</span>
+                    <span className="dept-bars"><span className="k-new" style={{ width: (x.here / maxOff) * 100 + "%" }} />{x.now != null && <span className="k-today" style={{ width: (x.now / maxOff) * 100 + "%" }} />}</span>
+                    <span className="dept-v">{x.here.toFixed(1)}{x.now != null && <em> / {x.now.toFixed(1)}</em>}</span>
+                  </div>
+                ))}
+              </>}
+              {s.nBase > 0 && <>
+                <div className="dp-l">Compared with today</div>
+                {[["better", "Shorter by 5+ min"], ["same", "About the same"], ["worse", "Longer by 5+ min"]].map(([k, lbl]) => (
+                  <div className="h2h-row" key={k}><span className="h2h-lbl">{lbl}</span>
+                    <span className="h2h-track"><span className={"h2h-fill " + k} style={{ width: (s[k] / s.nBase) * 100 + "%" }} /></span><span className="h2h-n">{s[k]}</span></div>
+                ))}
+              </>}
+            </> : <div className="dp-empty">{hasGeo ? "Add an Employees tab to the sheet to see commute times." : "This building has no map location yet."}</div>}
+          </div>
+        </section>
+
+        {hasGeo && <section className="dp-loc">
+          <div className="map-wrap dp-map">
+            <MapCanvas items={mapItems} fitKey={b.id} fitTo={fitPts} onClick={() => {}} onHover={() => {}} />
+          </div>
+          <div className="dp-card">
+            <h2>Nearby</h2><div className="dp-sub">Straight-line distance from the building</div>
+            {near.length ? <ul className="dp-near">
+              {near.map((n, i) => (
+                <li key={i}><i className={n.kind === "comp" ? "lg lg-comp" : "lg lg-office"} />
+                  <span>{n.kind === "office" ? `HR Green · ${n.name}` : n.name}<small>{n.kind === "office" ? "Current office" : n.address}</small></span>
+                  <span className="d">{n.d < 10 ? n.d.toFixed(1) : Math.round(n.d)} mi</span></li>
+              ))}
+            </ul> : <div className="dp-empty">Add Competitors and Current Offices tabs to the sheet to see what's nearby.</div>}
+          </div>
+        </section>}
+
+        <section className="dp-grid">
+          <div className="dp-card">
+            <h2>Amenities</h2><div className="dp-sub">{b.amenities.length} of {amenCols.length} tracked amenities</div>
+            <div className="dp-am">
+              {amenCols.map((a) => b.amenities.includes(a)
+                ? <div key={a}><span className="yes">✓</span>{a}</div>
+                : <div key={a} className="off"><span className="no">—</span>{a}</div>)}
+            </div>
+          </div>
+          <div className="dp-card">
+            <h2>Building details</h2><div className="dp-sub">From CoStar</div>
+            <dl className="dp-dl">
+              <dt>Owner</dt><dd>{b.owner || "—"}</dd>
+              <dt>Class</dt><dd>{b.cls || "—"}</dd>
+              <dt>Submarket</dt><dd>{b.submarket || "—"}</dd>
+              <dt>Year built</dt><dd>{b.yearBuilt || "—"}</dd>
+              <dt>Renovated</dt><dd>{b.yearReno || "—"}</dd>
+              <dt>Stories</dt><dd>{b.stories ?? "—"}</dd>
+              <dt>Rentable area</dt><dd>{fmtSF(b.rba)}</dd>
+              <dt>City</dt><dd>{b.city}</dd>
+            </dl>
+          </div>
+        </section>
+        <div className="dp-foot"><span>Cresa · Prepared for HR Green · Confidential</span><span>Listing data: CoStar · Drive times: {google ? "Google" : "estimated"}</span></div>
+      </div>
+    </div>
+  );
+}
+
 // ===================== APP =====================
 function App() {
   const data = useListings();
@@ -2165,7 +2417,8 @@ function App() {
   const [f, setF] = useState(EMPTY_FILTERS);
   const [sort, setSort] = useState("total_asc");
   const [activeId, setActiveId] = useState(null);
-  const [modalId, setModalId] = useState(null);
+  const [detailId, setDetailId] = useState(null);
+  const go = (v) => { setView(v); setDetailId(null); };
   const [hoveredId, setHoveredId] = useState(null);
   const layers = data.layers || EMPTY_LAYERS;
   const cm = useCommute(layers);
@@ -2181,10 +2434,10 @@ function App() {
   const canAdd = selectedIds.length < MAX_COMPARE;
   const toggle = (id) => setSelectedIds((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < MAX_COMPARE ? [...s, id] : s));
   const active = activeId && list.find((b) => b.id === activeId);
-  const modal = modalId && all.find((b) => b.id === modalId);
+  const detail = detailId && all.find((b) => b.id === detailId);
 
   useEffect(() => { if (activeId && !list.some((b) => b.id === activeId)) setActiveId(null); }, [list]);
-  useEffect(() => { const k = (e) => { if (e.key === "Escape") { setModalId(null); setActiveId(null); } }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, []);
+  useEffect(() => { const k = (e) => { if (e.key === "Escape" && !document.querySelector(".dp")) setActiveId(null); }; window.addEventListener("keydown", k); return () => window.removeEventListener("keydown", k); }, []);
 
   // Map view: numbered buildings + optional competitor / employee / office layers.
   const mapItems = useMemo(() => {
@@ -2226,10 +2479,10 @@ function App() {
         <div className="hdr-spacer" />
         <span className={"status " + statusCls} title={statusTitle} onClick={data.reload} style={{ cursor: "pointer" }}><span className="dot" />{statusTxt}</span>
         <nav className="tabs">
-          <button className={"tab" + (view === "map" ? " on" : "")} onClick={() => setView("map")}>{I.map} Map</button>
-          <button className={"tab" + (view === "table" ? " on" : "")} onClick={() => setView("table")}>{I.table} Table</button>
-          <button className={"tab" + (view === "drive" ? " on" : "")} onClick={() => setView("drive")}>{I.car} Drive time</button>
-          <button className={"tab" + (view === "compare" ? " on" : "")} onClick={() => setView("compare")}>{I.compare} Compare
+          <button className={"tab" + (view === "map" ? " on" : "")} onClick={() => go("map")}>{I.map} Map</button>
+          <button className={"tab" + (view === "table" ? " on" : "")} onClick={() => go("table")}>{I.table} Table</button>
+          <button className={"tab" + (view === "drive" ? " on" : "")} onClick={() => go("drive")}>{I.car} Drive time</button>
+          <button className={"tab" + (view === "compare" ? " on" : "")} onClick={() => go("compare")}>{I.compare} Compare
             {selectedIds.length > 0 && <span className="badge">{selectedIds.length}</span>}</button>
         </nav>
         <button className="btn" onClick={() => exportCSV(list, data.amenCols)} disabled={!list.length}>{I.dl} CSV</button>
@@ -2242,6 +2495,9 @@ function App() {
           Couldn't load listings: {data.error}. <button className="btn sm" onClick={data.reload}>Retry</button></div>
       )}
 
+      {detail ? <DetailPage b={detail} all={all} list={list.some((x) => x.id === detail.id) ? list : all} cm={cm} layers={layers} amenCols={data.amenCols}
+        selected={selectedIds.includes(detail.id)} canAdd={canAdd} onToggleCompare={() => toggle(detail.id)}
+        onBack={() => setDetailId(null)} onNav={setDetailId} /> : <>
       <section className="kpis">
         <div className="kpi"><div className="kpi-l">Buildings</div><div className="kpi-v">{k.n}<small>/ {all.length}</small></div><div className="kpi-s">{activeFilterCount(f) ? "matching filters" : "all options"}</div></div>
         <div className="kpi"><div className="kpi-l">Avg total rent</div><div className="kpi-v">{fmtRent(k.total)}<small>/SF</small></div><div className="kpi-s">Direct {fmtRent(k.rent)} + OPEX</div></div>
@@ -2267,18 +2523,16 @@ function App() {
               )}
             </MapCanvas>
             {active && <div className="map-detail"><DetailCard b={active} selected={selectedIds.includes(active.id)} canAdd={canAdd}
-              onToggleCompare={() => toggle(active.id)} onClose={() => setActiveId(null)} /></div>}
+              onToggleCompare={() => toggle(active.id)} onClose={() => setActiveId(null)} onDetails={() => setDetailId(active.id)} /></div>}
           </div>
         </>}
-        {view === "table" && <TableView list={list} labels={labels} selectedIds={selectedIds} onToggle={toggle} onOpen={setModalId} canAdd={canAdd} />}
-        {view === "drive" && <DriveTimeView list={list} total={all.length} nFilters={activeFilterCount(f)} goTo={setView} layers={layers} cm={cm} selectedIds={selectedIds} onToggle={toggle} canAdd={canAdd} onOpenBuilding={setModalId} />}
+        {view === "table" && <TableView list={list} labels={labels} selectedIds={selectedIds} onToggle={toggle} onOpen={setDetailId} canAdd={canAdd} />}
+        {view === "drive" && <DriveTimeView list={list} total={all.length} nFilters={activeFilterCount(f)} goTo={setView} layers={layers} cm={cm} selectedIds={selectedIds} onToggle={toggle} canAdd={canAdd} onOpenBuilding={setDetailId} />}
         {view === "compare" && <CompareView all={all} selectedIds={selectedIds} amenCols={data.amenCols} goTo={setView} cm={cm}
           onRemove={(id) => setSelectedIds((s) => s.filter((x) => x !== id))} onClear={() => setSelectedIds([])} />}
       </main>
+      </>}
 
-      {modal && <div className="modal-bg" onClick={() => setModalId(null)}>
-        <DetailCard b={modal} selected={selectedIds.includes(modal.id)} canAdd={canAdd} onToggleCompare={() => toggle(modal.id)} onClose={() => setModalId(null)} />
-      </div>}
     </div>
   );
 }
