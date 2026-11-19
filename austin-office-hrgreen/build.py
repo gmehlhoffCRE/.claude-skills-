@@ -1,4 +1,4 @@
-"""Build the single-file page: inlines the Cresa logo, map style and the CoStar building photos."""
+"""Build the single-file page: inlines the Cresa logo, map style and the building photos."""
 import base64, json, pathlib
 D = pathlib.Path(__file__).parent
 photos = [{"a": p["address"], "n": p["name"],

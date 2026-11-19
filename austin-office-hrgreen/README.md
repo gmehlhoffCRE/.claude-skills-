@@ -27,7 +27,7 @@ The script publishes every 15 minutes and after edits. The page checks for updat
 
 | Tab | Columns the script reads | Notes |
 |---|---|---|
-| *first tab* | The CoStar listing export (Property Address, Property Name, … Plug & Play) | Any column to the right of **Match Note** is treated as an amenity (Yes / TRUE / 1 / x). |
+| *first tab* | The listing export (Property Address, Property Name, … Plug & Play) | Any column to the right of **Match Note** is treated as an amenity (Yes / TRUE / 1 / x). |
 | **Employees** | `Full Address` (or street / city / state / zip), `HOME DEPARTMENT`, `LOCATION` | Paste the HR roster as-is. Only ZIP, department, office and a location rounded to ~1 km are published — no names or street addresses. |
 | **Competitors** | A name column (`Name`, `Company` or `First Name`) and an address (street / city / state / zip) | Paste the competitor list as-is. |
 | **Current Offices** | `Name`, `Address`, `Code` | `Code` matches the start of the roster's `LOCATION` (e.g. `AN` ↔ `AN - Austin North`). |
@@ -41,4 +41,4 @@ The script adds **Latitude / Longitude** columns to the last three tabs and fill
 
 ## Rebuilding
 
-Edit `src/template.html`, then run `python3 build.py`. It inlines the Cresa logo, map style and the 87 building photos from `photos/` (taken from the CoStar PDFs, matched to rows by address + building name).
+Edit `src/template.html`, then run `python3 build.py`. It inlines the Cresa logo, map style and the 71 building photos from `photos/` (matched to rows by address + building name).

@@ -682,7 +682,7 @@ function toBuildings({ headers, rows }) {
   return { buildings: out, amenCols };
 }
 
-// ===================== PHOTOS (from the CoStar PDFs, matched on address + name) =====================
+// ===================== PHOTOS (matched to listings on address + name) =====================
 const PHOTOS = (() => { try { return JSON.parse(document.getElementById("photo-data").textContent); } catch (e) { return []; } })();
 const STOP = new Set(["of", "the", "at", "bldg", "building"]);
 const ABBR = { north: "n", south: "s", east: "e", west: "w", highway: "hwy", expressway: "expy", parkway: "pky", pkwy: "pky",
@@ -721,7 +721,7 @@ function attachPhotos(buildings) {
   buildings.forEach((b, i) => {
     const { best, sure } = res[i];
     b.photo = best ? best.src : null;
-    // CoStar's name often carries the building number the sheet leaves off ("Cielo Center" -> "Cielo Center II").
+    // The photo record's name often carries the building number the sheet leaves off ("Cielo Center" -> "Cielo Center II").
     if (best && best.n && sure) {
       const sheetName = b.name === b.address ? "" : b.name;
       const extra = sheetName && best.n.toLowerCase().startsWith(sheetName.toLowerCase()) ? best.n.slice(sheetName.length) : null;
@@ -2390,7 +2390,7 @@ function DetailPage({ b, all, list, cm, layers, amenCols, selected, canAdd, onTo
             </div>
           </div>
           <div className="dp-card">
-            <h2>Building details</h2><div className="dp-sub">From CoStar</div>
+            <h2>Building details</h2><div className="dp-sub">Property information</div>
             <dl className="dp-dl">
               <dt>Owner</dt><dd>{b.owner || "—"}</dd>
               <dt>Class</dt><dd>{b.cls || "—"}</dd>
@@ -2403,7 +2403,7 @@ function DetailPage({ b, all, list, cm, layers, amenCols, selected, canAdd, onTo
             </dl>
           </div>
         </section>
-        <div className="dp-foot"><span>Cresa · Prepared for HR Green · Confidential</span><span>Listing data: CoStar · Drive times: {google ? "Google" : "estimated"}</span></div>
+        <div className="dp-foot"><span>Cresa · Prepared for HR Green · Confidential</span><span>Drive times: {google ? "Google" : "estimated"}</span></div>
       </div>
     </div>
   );
