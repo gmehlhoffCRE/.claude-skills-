@@ -1240,7 +1240,16 @@ function nextWeekday(peak) {
   return d;
 }
 
-function readDriveCache() { try { return JSON.parse(localStorage.getItem(DRIVE_CACHE_KEY) || "{}"); } catch (e) { return {}; } }
+// Built-in scenario HR Green asked for: Monday, arrive by 8:00 AM, with predicted traffic. Opens by default
+// until an admin marks another scenario default.
+const DEFAULT_SCEN = { key: "arr-1-0800", day: 1, time: "08:00" };
+function readDriveCache() {
+  let c = {};
+  try { c = JSON.parse(localStorage.getItem(DRIVE_CACHE_KEY) || "{}"); } catch (e) {}
+  c.scen = { [DEFAULT_SCEN.key]: { day: DEFAULT_SCEN.day, time: DEFAULT_SCEN.time }, ...(c.scen || {}) };
+  if (!c.defaultScen) c.defaultScen = DEFAULT_SCEN.key;
+  return c;
+}
 function writeDriveCache(c) { try { localStorage.setItem(DRIVE_CACHE_KEY, JSON.stringify(c)); } catch (e) {} }
 
 // Fetch drive times from Google's Routes API (computeRouteMatrix) for every (employee point × place) pair not
@@ -1353,7 +1362,7 @@ function useCommute(layers) {
   const [office, setOffice] = useState("all");
   const [dept, setDept] = useState("all");
   const [cache, setCache] = useState(readDriveCache);
-  const [useGoogle, setUseGoogle] = useState(() => Object.keys(readDriveCache()).length > 0);
+  const [useGoogle, setUseGoogle] = useState(() => { const c = readDriveCache(); return Object.keys(c).some((k) => k !== "scen" && k !== "defaultScen"); });
   const [fetching, setFetching] = useState(null); // null | 0..1
   const [error, setError] = useState(null);
   const [notice, setNotice] = useState(null);
