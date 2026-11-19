@@ -2999,7 +2999,10 @@ function getHeadcountBand(att){
 }
 function getPeerSet(f){
   const band=getHeadcountBand(f.att);
-  return{firms:FIRMS.filter(x=>x.id!==f.id&&x.att!=null&&x.att>=band.min&&x.att<=band.max),label:band.label};
+  // Exclude the source sheet's totals row (no address AND no category, e.g. the
+  // 8,463-attorney "307" row) so it never pollutes peer medians/averages — keeps
+  // the dashboard and the PDF report consistent and correct.
+  return{firms:FIRMS.filter(x=>x.id!==f.id&&x.att!=null&&x.att>=band.min&&x.att<=band.max&&(x.addr||x.cat)),label:band.label};
 }
 
 function openDashboard(f){
@@ -3039,7 +3042,7 @@ function openDashboard(f){
         <div><div class="header-title">Houston Law Firm Database</div><div class="header-sub">Firm Profile</div></div>
       </div>
       <div style="flex:1"></div>
-      <button id="dashExportBtn" onclick="exportDashboardPDF()" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border:1px solid var(--navy);padding:0 14px;height:32px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;letter-spacing:-.1px;font-family:inherit;transition:background var(--transition);margin-right:8px" onmouseover="this.style.background='var(--navy-light)'" onmouseout="this.style.background='var(--navy)'">
+      <button id="dashExportBtn" onclick="exportFirmReportPDF()" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border:1px solid var(--navy);padding:0 14px;height:32px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;letter-spacing:-.1px;font-family:inherit;transition:background var(--transition);margin-right:8px" onmouseover="this.style.background='var(--navy-light)'" onmouseout="this.style.background='var(--navy)'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export PDF
       </button>
@@ -3957,391 +3960,688 @@ function loadImageAsDataUrl(imgEl){
 }
 
 /* =============================================================
-   FIRM PROFILE PDF EXPORT — port the live dashboard view
-   Clones the dashboard DOM as-is, drops the peer table + peer
-   locations map (navigation aids, not signal for a deliverable),
-   fixes two html2canvas quirks, and emits a PDF at custom page
-   dimensions matching the measured output exactly — no scaling,
-   no distortion. The PDF looks identical to the dashboard.
+   FIRM PROFILE REPORT — native 3-page US Letter PDF (jsPDF).
+   Replaces the old screenshot-style dashboard export. Ported
+   from firm_report.js per the port guide; numbers mirror the
+   dashboard's peer maths. See exportFirmReportPDF() (button
+   #dashExportBtn). Compare/model exports are untouched.
+   ============================================================= */
+/* =============================================================
+   FIRM PROFILE REPORT — 3-page US Letter PDF, drawn natively
+   Every element (text, tables, charts, map markers) is drawn with
+   jsPDF vector primitives in Helvetica (Arial-metric), so the file
+   opens in Acrobat / Illustrator with live, selectable, editable
+   text and crisp charts. Only the logo, building photo and (when
+   available) the static basemap are raster images.
 
-   Two quirks fixed:
-     1. Building photo. html2canvas 1.4.1 doesn't honor
-        object-fit:cover on <img> tags (the image stretches to
-        fill the box and gets squished). We swap the <img> for
-        a background-image on the same parent, which html2canvas
-        captures with the expected cover crop.
-     2. Chart canvas aspect. Re-rendering a Chart.js canvas with
-        buffer dimensions that differ from its CSS dimensions
-        causes independent-axis scaling — bubbles turn oval,
-        radar squashes. We measure each canvas's live display
-        size and create the replacement with a 2× buffer at the
-        same aspect, so CSS can only scale uniformly.
+     Page 1  Overview      identity, key figures, takeaways, premises
+     Page 2  Benchmarking  firm vs peer median + peer landscape
+     Page 3  Closest peers map + table of the 15 most similar firms
+
+   The 15 closest peers carry the same number (1–15) on the bubble
+   chart, the map and the table so the three read as one system.
    ============================================================= */
 
-// Scale every font size in a Chart.js options object by `factor`.
-// Chart.js scatters font.size all over the options tree (axes, legend,
-// tooltip, datalabels, radar point labels), so we visit each known
-// location. Where a size isn't explicitly set we fall back to the
-// Chart.js default, multiplied by the factor, so charts that relied
-// on defaults also scale up.
-function pdfBumpChartFonts(opts, factor){
-  factor = factor || 1.5;
-  // Chart.js defaults — used when a given option never set font.size.
-  const DEF_TICKS=12, DEF_LEGEND=12, DEF_TITLE=14, DEF_POINT_LBL=10, DEF_TOOLTIP=12;
-  const bump=(obj, def)=>{
-    if(!obj)return;
-    if(!obj.font)obj.font={};
-    obj.font.size=Math.round((obj.font.size||def)*factor);
+// Brand palette (mirrors the app's :root tokens). Navy carries the
+// data; gold is reserved for the subject firm; everything else is ink.
+const RPT={
+  navy:'#001E5A',gold:'#FFB600',
+  ink:'#0E1220',ink2:'#2B3350',ink3:'#5A6580',ink4:'#8A93A8',
+  line:'#E4E8F0',lineSoft:'#EEF1F6',tint:'#F4F7FC',peerFill:'#D6DCE7',
+  W:612,H:792,M:48,
+};
+RPT.CW=RPT.W-RPT.M*2; // content width (516pt)
+
+// ---------- Data ----------------------------------------------------------
+// Same peer-set, median, weighted-average, rank and lease maths the
+// dashboard uses, so the report's numbers match the screen exactly.
+function rptFirmData(f){
+  // The source sheet carries a totals row (no address, no category);
+  // keep it out of a client-facing peer set.
+  const peers=getPeerSet(f).firms.filter(p=>p.addr||p.cat);
+  const peerLabel=getPeerSet(f).label;
+  const vals=(arr,k)=>arr.map(a=>a[k]).filter(v=>v!=null);
+  const avg=(arr,k)=>{const v=vals(arr,k);return v.length?v.reduce((s,x)=>s+x,0)/v.length:null;};
+  const median=(arr,k)=>{const v=vals(arr,k).sort((a,b)=>a-b);if(!v.length)return null;const m=Math.floor(v.length/2);return v.length%2?v[m]:(v[m-1]+v[m])/2;};
+  const sum=(arr,k,need)=>arr.filter(p=>p[k]!=null&&(!need||p[need]!=null)).reduce((s,p)=>s+p[k],0);
+  const tSF=sum(peers,'rsf'),tAtt=sum(peers,'att'),tAGR=sum(peers,'agr');
+  const wRent=peers.filter(p=>p.rsf!=null&&p.grs!=null).reduce((s,p)=>s+p.rsf*p.grs,0);
+  const rentSF=sum(peers,'rsf','grs');
+  const peerMed={},peerAvg={
+    att:avg(peers,'att'),rsf:avg(peers,'rsf'),
+    sfa:tAtt>0?tSF/tAtt:null,grs:rentSF>0?wRent/rentSF:null,agra:tAtt>0?tAGR/tAtt:null};
+  ['att','rsf','sfa','grs','agra'].forEach(k=>peerMed[k]=median(peers,k));
+  const rankAmong=(k,lower)=>{
+    const all=[f,...peers].filter(x=>x[k]!=null);
+    all.sort((a,b)=>lower?a[k]-b[k]:b[k]-a[k]);
+    return{pos:all.findIndex(x=>x.id===f.id)+1,total:all.length};
   };
+  const metrics=[
+    {k:'att', l:'Attorneys',            fmt:v=>fmtComma(v),        lower:false},
+    {k:'rsf', l:'Total RSF',            fmt:v=>fmtComma(v),        lower:false},
+    {k:'sfa', l:'SF per attorney',      fmt:v=>fmtComma(v),        lower:true},
+    {k:'grs', l:'Market rent / SF',     fmt:v=>fmtMoney(v),        lower:true},
+    {k:'agra',l:'Market AGR / attorney',fmt:v=>fmtMoney0(v),       lower:true},
+  ].filter(m=>f[m.k]!=null).map(m=>{
+    const r=rankAmong(m.k,m.lower);
+    const pctile=r.total>1?Math.round((1-(r.pos-1)/(r.total-1))*100):50;
+    const med=peerMed[m.k];
+    const diff=(med!=null&&med!==0)?(f[m.k]-med)/med*100:null;
+    return{...m,val:f[m.k],med,avg:peerAvg[m.k],rank:r,pctile,diff};
+  });
 
-  if(!opts.plugins)opts.plugins={};
+  // Lease timing
+  const now=new Date(),nY=now.getFullYear(),nM=now.getMonth()+1;
+  let mi=null,le=null,remainMo=null,leasePct=null;
+  if(f.mi&&/^\d{4}-\d{2}$/.test(f.mi)){const[y,m]=f.mi.split('-');mi={y:+y,m:+m};}
+  if(f.le){
+    if(/^\d{4}-\d{2}$/.test(f.le)){const[y,m]=f.le.split('-');le={y:+y,m:+m};}
+    else if(/^\d{4}$/.test(f.le))le={y:+f.le,m:12};
+  }
+  if(le)remainMo=Math.max(0,(le.y-nY)*12+(le.m-nM));
+  if(mi&&le){
+    const tot=(le.y-mi.y)*12+(le.m-mi.m),el=(nY-mi.y)*12+(nM-mi.m);
+    leasePct=tot>0?Math.min(100,Math.max(0,el/tot*100)):null;
+  }
+  const remainStr=remainMo==null?null:remainMo===0?'Expired':(()=>{
+    const y=Math.floor(remainMo/12),m=remainMo%12;
+    const ys=y>0?y+' yr'+(y!==1?'s':''):'',ms=m>0?m+' mo'+(m!==1?'s':''):'';
+    return [ys,ms].filter(Boolean).join(' ')||'0 mos';
+  })();
 
-  // Legend labels + legend title
-  if(opts.plugins.legend){
-    if(!opts.plugins.legend.labels)opts.plugins.legend.labels={};
-    bump(opts.plugins.legend.labels, DEF_LEGEND);
-    if(opts.plugins.legend.title)bump(opts.plugins.legend.title, DEF_LEGEND);
-  }
-  // Chart title
-  if(opts.plugins.title)bump(opts.plugins.title, DEF_TITLE);
-  // Datalabels (chartjs-plugin-datalabels)
-  if(opts.plugins.datalabels)bump(opts.plugins.datalabels, DEF_LEGEND);
-  // Tooltip (title + body + footer)
-  if(opts.plugins.tooltip){
-    const tt=opts.plugins.tooltip;
-    if(!tt.titleFont)tt.titleFont={};
-    tt.titleFont.size=Math.round((tt.titleFont.size||DEF_TOOLTIP)*factor);
-    if(!tt.bodyFont)tt.bodyFont={};
-    tt.bodyFont.size=Math.round((tt.bodyFont.size||DEF_TOOLTIP)*factor);
-    if(!tt.footerFont)tt.footerFont={};
-    tt.footerFont.size=Math.round((tt.footerFont.size||DEF_TOOLTIP)*factor);
-  }
+  // 15 most similar firms by headcount (same selection as the dashboard)
+  const closest=peers.filter(p=>p.sfa!=null&&p.agra!=null&&p.rsf!=null)
+    .map(p=>({...p,attDiff:Math.abs((p.att||0)-(f.att||0))}))
+    .sort((a,b)=>a.attDiff-b.attDiff).slice(0,15)
+    .map((p,i)=>({...p,num:i+1}));
 
-  // Axes: x, y (cartesian) and r (radar). Each has ticks, title, and
-  // pointLabels (radar only).
-  if(opts.scales){
-    ['x','y','r'].forEach(axis=>{
-      const s=opts.scales[axis];
-      if(!s)return;
-      if(!s.ticks)s.ticks={};
-      bump(s.ticks, DEF_TICKS);
-      if(s.title)bump(s.title, DEF_TITLE);
-      if(s.pointLabels)bump(s.pointLabels, DEF_POINT_LBL);
-    });
-  }
+  return{f,peers,peerLabel,peerMed,peerAvg,metrics,mi,le,remainMo,remainStr,leasePct,closest};
 }
 
-// The donut center-text plugin (id='ct') draws its percentage label
-// with a hardcoded '700 16px Arial' font inside afterDraw — there's
-// no option-level setting to scale. Detect that plugin and swap it
-// for an equivalent that renders with the bumped font size.
-function pdfBumpPlugins(plugins, factor){
-  factor = factor || 1.5;
-  return plugins.map(p=>{
-    if(p&&p.id==='ct'&&typeof p.afterDraw==='function'){
-      const px=Math.round(16*factor);
-      return {
-        id:'ct',
-        afterDraw(c){
-          // The original plugin reads its value from a closure in
-          // openDashboard. We recover it from the chart's own data
-          // (datasets[0].data[0] is the "filled" percentage).
-          const {ctx:x, width:w, height:h}=c;
-          const val=c&&c.data&&c.data.datasets&&c.data.datasets[0]&&c.data.datasets[0].data?c.data.datasets[0].data[0]:'';
-          x.save();
-          x.font='700 '+px+'px Arial';
-          x.fillStyle='#001E5A';
-          x.textAlign='center';
-          x.textBaseline='middle';
-          x.fillText(val+'%', w/2, h/2);
-          x.restore();
-        }
-      };
+// Short, factual sentences built only from the firm's own numbers.
+function rptTakeaways(d){
+  const {f,peerMed,remainMo,remainStr}=d;
+  const out=[];
+  const cmp=(v,m,unit)=>{
+    const p=(v-m)/m*100;
+    if(Math.abs(p)<5)return'in line with the peer median of '+unit(m);
+    return Math.round(Math.abs(p))+'% '+(p>0?'above':'below')+' the peer median of '+unit(m);
+  };
+  if(f.sfa!=null&&peerMed.sfa)
+    out.push({lead:'Space per attorney',text:fmtComma(f.sfa)+' SF per attorney, '+cmp(f.sfa,peerMed.sfa,fmtComma)+'.'});
+  if(f.agra!=null&&peerMed.agra)
+    out.push({lead:'Occupancy cost',text:fmtMoney0(f.agra)+' market annual gross rent per attorney, '+cmp(f.agra,peerMed.agra,fmtMoney0)+'.'});
+  if(remainMo!=null)
+    out.push({lead:'Lease timing',text:remainMo===0
+      ?'The current term is shown as expired ('+fmtLE(f.le)+').'
+      :remainStr+' remaining; the current term expires '+fmtLE(f.le)+'.'});
+  if(f.grs!=null&&f.sr!=null){
+    const dlt=f.grs-f.sr,where=f.bn||f.addr||'the building';
+    out.push({lead:'Building rent',text:fmtMoney(f.grs)+'/SF market rent at '+where+', '+
+      (Math.abs(dlt)<0.5?'in line with':fmtMoney(Math.abs(dlt))+' '+(dlt>0?'above':'below'))+
+      ' the '+(f.sm||'submarket')+' average of '+fmtMoney(f.sr)+'/SF.'});
+  }
+  return out;
+}
+
+// ---------- Drawing primitives -------------------------------------------
+function rptKit(pdf){
+  const k={pdf};
+  k.font=(w,size,color)=>{pdf.setFont('helvetica',w);pdf.setFontSize(size);pdf.setTextColor(color||RPT.ink2);};
+  // Small uppercase label; letter-spaced, ink-3 for print contrast.
+  // jsPDF's own align ignores charSpace, so place spaced labels manually.
+  k.label=(s,x,y,opt)=>{
+    k.font('bold',6.5,RPT.ink3);s=String(s).toUpperCase();
+    const cs=0.55,w=pdf.getTextWidth(s)+cs*(s.length-1),a=(opt||{}).align;
+    const lx=a==='right'?x-w:a==='center'?x-w/2:x;
+    if((opt||{}).angle){pdf.text(s,x,y+w/2,{charSpace:cs,angle:opt.angle});return;}
+    pdf.text(s,lx,y,{charSpace:cs});
+  };
+  k.hr=(x1,y,x2,color,w)=>{pdf.setDrawColor(color||RPT.line);pdf.setLineWidth(w||0.6);pdf.line(x1,y,x2,y);};
+  k.text=(s,x,y,opt)=>pdf.text(String(s),x,y,opt||{});
+  k.width=s=>pdf.getTextWidth(String(s));
+  // Truncate a string to fit a width, with an ellipsis.
+  k.fit=(s,w)=>{s=String(s);if(k.width(s)<=w)return s;while(s.length>1&&k.width(s+'…')>w)s=s.slice(0,-1);return s.trimEnd()+'…';};
+  k.alpha=a=>pdf.setGState(new pdf.GState({opacity:a}));
+  k.marker=(x,y,r,num,subject)=>{
+    // Subject: navy disc with a gold ring. Peers: numbered navy discs.
+    if(subject){
+      pdf.setFillColor(RPT.navy);pdf.setDrawColor(RPT.gold);pdf.setLineWidth(2);
+      pdf.circle(x,y,r,'FD');
+    }else{
+      pdf.setFillColor(RPT.navy);pdf.setDrawColor('#FFFFFF');pdf.setLineWidth(0.8);
+      pdf.circle(x,y,r,'FD');
+      k.font('bold',r>5.5?6.5:6,'#FFFFFF');
+      pdf.text(String(num),x,y+0.2,{align:'center',baseline:'middle'});
     }
-    return p;
+  };
+  return k;
+}
+
+function rptHeader(k,logo,title,dateStr){
+  const {pdf}=k,M=RPT.M;
+  const lh=30,lw=lh*556/189;
+  pdf.addImage(logo,'PNG',M,30,lw,lh,'cresaLogo','FAST');
+  k.font('bold',9,RPT.navy);k.text(title,RPT.W-M,42,{align:'right'});
+  k.font('normal',8,RPT.ink3);k.text(dateStr,RPT.W-M,54,{align:'right'});
+  k.hr(M,72,RPT.W-M);
+}
+
+function rptFooter(k,page,total){
+  const {pdf}=k,M=RPT.M,y=RPT.H-30;
+  k.hr(M,y-12,RPT.W-M);
+  k.label('Cresa Houston  |  Confidential',M,y);
+  k.label('Houston Law Firm Database',RPT.W/2,y,{align:'center'});
+  k.label('Page '+page+' of '+total,RPT.W-M,y,{align:'right'});
+}
+
+function rptSectionTitle(k,title,sub,y){
+  k.font('bold',14,RPT.navy);k.text(k.fit(title,RPT.CW),RPT.M,y);
+  if(!sub)return y+18;
+  k.font('normal',8.5,RPT.ink3);
+  const lines=k.pdf.splitTextToSize(sub,RPT.CW).slice(0,2);
+  lines.forEach((ln,i)=>k.text(ln,RPT.M,y+14+i*11));
+  return y+28+(lines.length-1)*11;
+}
+
+// Wrap a paragraph that starts with a bold lead phrase.
+function rptLeadPara(k,lead,body,x,y,w,size,lh){
+  const {pdf}=k;
+  k.font('bold',size,RPT.navy);
+  const leadTxt=lead+'.  ';
+  const lw=k.width(leadTxt);
+  k.font('normal',size,RPT.ink2);
+  // First line shares space with the lead; remaining lines use full width.
+  const words=body.split(' ');let first='';
+  while(words.length&&k.width((first?first+' ':'')+words[0])<=w-lw){first+=(first?' ':'')+words.shift();}
+  const rest=words.length?pdf.splitTextToSize(words.join(' '),w):[];
+  k.font('bold',size,RPT.navy);k.text(leadTxt,x,y);
+  k.font('normal',size,RPT.ink2);k.text(first,x+lw,y);
+  rest.forEach((ln,i)=>k.text(ln,x,y+lh*(i+1)));
+  return y+lh*(rest.length+1);
+}
+
+// ---------- Page 1: Overview ---------------------------------------------
+function rptPageOverview(k,d,photo){
+  const {pdf}=k,{f}=d,M=RPT.M,CW=RPT.CW;
+  let y=112;
+
+  // Identity
+  k.font('bold',26,RPT.navy);
+  const nameLines=pdf.splitTextToSize(f.n,CW);
+  nameLines.slice(0,2).forEach((ln,i)=>k.text(ln,M,y+i*28));
+  y+=(Math.min(nameLines.length,2)-1)*28+22;
+
+  let x=M;
+  if(f.rank){
+    k.font('bold',7,RPT.navy);
+    const chip='AM LAW #'+f.rank,cw=k.width(chip)+chip.length*0.5+14;
+    pdf.setFillColor(RPT.gold);pdf.roundedRect(x,y-9,cw,14,7,7,'F');
+    k.text(chip,x+7,y,{charSpace:0.5});
+    x+=cw+14;
+  }
+  [['Attorneys',f.att!=null?fmtComma(f.att):'—'],['Headquarters',f.hq||'—'],
+   ['Offices',f.ofc!=null?f.ofc:'—'],['Peer type',f.cat||'—']].forEach(([l,v])=>{
+    k.font('normal',8.5,RPT.ink3);k.text(l,x,y);x+=k.width(l)+4;
+    k.font('bold',8.5,RPT.ink);k.text(String(v),x,y);x+=k.width(String(v))+16;
+  });
+  y+=26;
+
+  // Key figures — a ruled strip, each figure set against the peer median
+  k.hr(M,y,M+CW,RPT.navy,1);
+  const figs=[
+    ['Total RSF',f.rsf,fmtComma,d.peerMed.rsf],
+    ['SF per attorney',f.sfa,fmtComma,d.peerMed.sfa],
+    ['Market annual gross rent',f.agr,fmtMoneyC,null],
+    ['Market AGR per attorney',f.agra,fmtMoney0,d.peerMed.agra],
+  ];
+  const fw=CW/4;
+  figs.forEach(([l,v,fm,med],i)=>{
+    const fx=M+i*fw+(i?12:0);
+    if(i){pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M+i*fw,y+10,M+i*fw,y+58);}
+    k.label(l,fx,y+18);
+    k.font('bold',20,RPT.navy);k.text(v!=null?fm(v):'—',fx,y+42);
+    k.font('normal',7.5,RPT.ink3);
+    k.text(med!=null?'Peer median '+fm(med):(i===2&&f.grs!=null?fmtMoney(f.grs)+'/SF × RSF':''),fx,y+55);
+  });
+  y+=68;
+  k.hr(M,y,M+CW);
+  y+=34;
+
+  // Takeaways + building photo
+  const takes=rptTakeaways(d);
+  const photoW=photo?196:0,gap=photo?24:0,tw=CW-photoW-gap;
+  k.font('bold',11,RPT.navy);k.text('Key takeaways',M,y);
+  let ty=y+20;
+  takes.forEach((t,i)=>{
+    ty=rptLeadPara(k,t.lead,t.text,M,ty,tw,9.5,13.5);
+    if(i<takes.length-1){ty+=4;k.hr(M,ty,M+tw,RPT.lineSoft);ty+=14;}
+  });
+  if(!takes.length){k.font('normal',9.5,RPT.ink3);k.text('Not enough data on file to summarize.',M,ty);ty+=14;}
+  let py=y-10;
+  if(photo){
+    const ph=150;
+    pdf.addImage(photo,'JPEG',M+CW-photoW,py,photoW,ph,'bldgPhoto','MEDIUM');
+    k.font('normal',7.5,RPT.ink3);
+    k.text(k.fit((f.bn?f.bn+' · ':'')+(f.addr||''),photoW),M+CW-photoW,py+ph+11);
+    py+=ph+11;
+  }
+  y=Math.max(ty,py)+30;
+
+  // Premises: location on the left, lease on the right
+  k.font('bold',11,RPT.navy);k.text('Premises',M,y);
+  y+=10;k.hr(M,y,M+CW);y+=18;
+  const colW=(CW-32)/2,rx=M+colW+32;
+
+  // Left: definition list
+  const rows=[
+    ['Address',(f.addr||'—')+', Houston, TX'],
+    ['Submarket',f.sm||'—'],
+    ['Building',f.bn||'—'],
+    ['Class',f.bc||'—'],
+    ['Year built',f.yb||'—'],
+    ['Floors',f.fl||'—'],
+    ['Landlord',f.ll||'—'],
+    ['Landlord rep',f.lr||'—'],
+  ].filter(([l,v])=>l==='Address'||(v&&v!=='—'));
+  let ly=y;
+  rows.forEach(([l,v])=>{
+    k.font('normal',8.5,RPT.ink3);k.text(l,M,ly);
+    k.font('bold',8.5,RPT.ink);
+    const lines=pdf.splitTextToSize(String(v),colW-78).slice(0,2);
+    lines.forEach((ln,i)=>k.text(ln,M+78,ly+i*11));
+    ly+=11*lines.length+6;
+  });
+
+  // Right: lease, rent, building health
+  let ry=y;
+  k.label('Remaining term',rx,ry);
+  k.label('Lease type',rx+colW,ry,{align:'right'});
+  k.font('bold',20,RPT.navy);k.text(d.remainStr||'—',rx,ry+22);
+  k.font('bold',11,RPT.navy);k.text(f.lt||'—',rx+colW,ry+22,{align:'right'});
+  ry+=36;
+  if(d.leasePct!=null){
+    // Lease timeline: move-in to expiration with a "today" tick
+    const bw=colW,bx=rx,by=ry+6,pct=d.leasePct/100;
+    pdf.setFillColor(RPT.line);pdf.roundedRect(bx,by,bw,5,2.5,2.5,'F');
+    if(pct>0){pdf.setFillColor(RPT.navy);pdf.roundedRect(bx,by,Math.max(5,bw*pct),5,2.5,2.5,'F');}
+    const tx=bx+bw*pct;
+    pdf.setFillColor(RPT.gold);pdf.rect(tx-1,by-4,2,13,'F');
+    k.font('bold',6.5,RPT.navy);
+    k.text('TODAY',Math.min(Math.max(tx,bx+12),bx+bw-12),by-7,{align:'center',charSpace:0.4});
+    k.font('normal',7.5,RPT.ink3);
+    k.text('Move-in '+fmtLE(f.mi),bx,by+17);
+    k.text('Expires '+fmtLE(f.le),bx+bw,by+17,{align:'right'});
+    ry+=36;
+  }else if(f.le){
+    k.font('normal',8,RPT.ink3);k.text('Expires '+fmtLE(f.le),rx,ry+4);ry+=16;
+  }
+  ry+=8;k.hr(rx,ry,rx+colW,RPT.lineSoft);ry+=16;
+
+  // Building rent vs submarket average
+  k.label('Building market rent',rx,ry);
+  k.label('Class',rx+colW,ry,{align:'right'});
+  k.font('bold',14,RPT.navy);k.text(f.grs!=null?fmtMoney(f.grs)+'/SF':'—',rx,ry+18);
+  k.font('bold',14,RPT.navy);k.text(f.bc||'—',rx+colW,ry+18,{align:'right'});
+  k.font('normal',7.5,RPT.ink3);
+  if(f.grs!=null&&f.sr!=null){
+    const dl=f.grs-f.sr;
+    k.text((Math.abs(dl)<0.005?'Equal to':fmtMoney(Math.abs(dl))+(dl>0?' above':' below'))+' the '+(f.sm||'submarket')+' average of '+fmtMoney(f.sr)+'/SF',rx,ry+30);
+  }else if(f.sr!=null){k.text('Submarket average '+fmtMoney(f.sr)+'/SF',rx,ry+30);}
+  ry+=40;k.hr(rx,ry,rx+colW,RPT.lineSoft);ry+=16;
+
+  // Building health: two 5-step scales in navy
+  [['Ownership health',f.oh],['Amenity index',f.ai]].forEach(([l,v])=>{
+    k.label(l,rx,ry);
+    k.font('bold',8.5,RPT.navy);k.text(v!=null?v+' / 5':'—',rx+colW,ry,{align:'right'});
+    const sw=(colW-8)/5;
+    for(let i=0;i<5;i++){
+      pdf.setFillColor(v!=null&&i<v?RPT.navy:RPT.line);
+      pdf.roundedRect(rx+i*(sw+2),ry+5,sw,4,1.5,1.5,'F');
+    }
+    ry+=24;
   });
 }
 
-async function exportDashboardPDF(){
-  const btn=document.getElementById('dashExportBtn');
-  if(!btn)return;
+// ---------- Page 2: Benchmarking -----------------------------------------
+function rptPageBenchmark(k,d){
+  const {pdf}=k,{f,metrics,peerLabel,peers}=d,M=RPT.M,CW=RPT.CW;
+  let y=rptSectionTitle(k,'How '+f.n+' compares',
+    'Peer set: '+peerLabel+' ('+peers.length+' firms, subject excluded). Rank is among the peer set plus the subject firm.',112);
+  y+=14;
 
-  const firmIdPre=window._dashboardFirmId;
-  const firmPre=firmIdPre!=null?FIRMS[firmIdPre]:null;
-  if(!firmPre){alert('No firm loaded for export.');return;}
-  const defaultTitle=firmPre.n+' — Firm Profile';
-  const userTitle=window.prompt('Report title',defaultTitle);
-  if(userTitle===null)return;
-  const reportTitle=(userTitle||'').trim()||defaultTitle;
-
-  const origText=btn.innerHTML;
-  btn.innerHTML='Generating...';btn.disabled=true;
-
-  let wrapper=null;
-  try{
-    const {jsPDF}=window.jspdf;
-    const firm=firmPre;
-    const logoSrc=PDF_LOGO_SRC;
-    const dateStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-
-    const dashboardEl=document.getElementById('dashboard');
-    const contentEl=dashboardEl.querySelector('div[style*="display:flex"][style*="flex:1"][style*="overflow:hidden"]');
-    if(!contentEl){alert('Dashboard content not found.');btn.innerHTML=origText;btn.disabled=false;return;}
-
-    // --- Clone the dashboard content ---
-    const clone=contentEl.cloneNode(true);
-
-    // Bake <img> sources to data URLs so html2canvas can read pixels
-    // without cross-origin trouble.
-    await Promise.all([...clone.querySelectorAll('img')].map(img=>loadImageAsDataUrl(img)));
-
-    // Drop the peer-table + peer-map row (navigation aids the user
-    // specifically asked to omit from exports).
-    const peerTableEl=clone.querySelector('#dashPeerTable');
-    const peerMapEl=clone.querySelector('#dashPeerMap');
-    [peerTableEl,peerMapEl].forEach(el=>{
-      if(!el)return;
-      const row=el.closest('[style*="grid-template-columns"]');
-      if(row&&row.parentElement)row.remove();
-    });
-
-    // --- Fix building-photo object-fit bug ---
-    // The sidebar photo is an <img> inside a 320px-tall div using
-    // object-fit:cover. html2canvas 1.4.1 ignores object-fit and
-    // stretches the full image to the box (the squished skyline in
-    // previous exports). Convert to background-image on the parent,
-    // which html2canvas renders correctly with cover cropping.
-    const photoImg=clone.querySelector('[style*="width:520px"] img');
-    if(photoImg){
-      const src=photoImg.getAttribute('src');
-      if(src){
-        const p=photoImg.parentElement;
-        p.innerHTML='';
-        p.style.backgroundImage=`url("${src}")`;
-        p.style.backgroundSize='cover';
-        p.style.backgroundPosition='center';
-        p.style.backgroundRepeat='no-repeat';
-        p.style.display='block';        // was flex for <img> centering
+  // Benchmark table with an integrated "vs median" bar column
+  const cols=[
+    {t:'Metric',      x:M,       w:112,a:'left'},
+    {t:'Firm',        x:M+112,   w:58, a:'right'},
+    {t:'Peer median', x:M+170,   w:70, a:'right'},
+    {t:'Peer average',x:M+240,   w:72, a:'right'},
+    {t:'vs median',   x:M+324,   w:116,a:'center'},
+    {t:'Rank',        x:M+440,   w:38, a:'right'},
+    {t:'Pctile',      x:M+478,   w:38, a:'right'},
+  ];
+  const ax=c=>c.a==='right'?c.x+c.w:c.a==='center'?c.x+c.w/2:c.x;
+  cols.forEach(c=>k.label(c.t,ax(c),y,{align:c.a}));
+  y+=8;k.hr(M,y,M+CW,RPT.navy,1);
+  const rh=30;
+  const bc=cols[4],mid=bc.x+bc.w/2,half=bc.w/2-4,cap=100;
+  metrics.forEach((m,i)=>{
+    const cy=y+rh/2+3;
+    k.font('normal',9,RPT.ink);k.text(m.l,cols[0].x,cy);
+    k.font('bold',9,RPT.navy);k.text(m.fmt(m.val),ax(cols[1]),cy,{align:'right'});
+    k.font('normal',9,RPT.ink2);
+    k.text(m.med!=null?m.fmt(m.med):'—',ax(cols[2]),cy,{align:'right'});
+    k.text(m.avg!=null?m.fmt(m.avg):'—',ax(cols[3]),cy,{align:'right'});
+    // Diverging bar, centred on the median. Clamped at ±100%.
+    pdf.setDrawColor(RPT.ink4);pdf.setLineWidth(0.6);pdf.line(mid,y+6,mid,y+rh-6);
+    if(m.diff!=null){
+      const p=Math.max(-cap,Math.min(cap,m.diff)),bw=Math.abs(p)/cap*half;
+      pdf.setFillColor(RPT.navy);
+      pdf.rect(p>=0?mid:mid-bw,cy-6,Math.max(bw,0.8),7,'F');
+      k.font('bold',7,RPT.navy);
+      const lbl=(m.diff>0?'+':'')+Math.round(m.diff)+'%';
+      const tw=k.width(lbl);
+      // Keep the label just outside the bar; if a long (near-clamped) bar would
+      // push it into the Rank column, set it inside the bar end instead — white,
+      // matching the marker numerals — so it never overlaps the next column.
+      const outFits=p>=0?(mid+bw+3+tw<=bc.x+bc.w-2):(mid-bw-3-tw>=bc.x+2);
+      if(outFits){
+        k.text(lbl,p>=0?mid+bw+3:mid-bw-3,cy-0.5,{align:p>=0?'left':'right'});
+      }else{
+        k.font('bold',7,'#FFFFFF');
+        k.text(lbl,p>=0?mid+bw-3:mid-bw+3,cy-0.5,{align:p>=0?'right':'left'});
       }
     }
+    k.font('normal',9,RPT.ink2);k.text(m.rank.pos+' / '+m.rank.total,ax(cols[5]),cy,{align:'right'});
+    k.font('bold',9,RPT.navy);k.text(ordSuffix(m.pctile),ax(cols[6]),cy,{align:'right'});
+    y+=rh;
+    k.hr(M,y,M+CW,i===metrics.length-1?RPT.line:RPT.lineSoft);
+  });
+  y+=13;
+  k.font('normal',7,RPT.ink3);
+  pdf.text(pdf.splitTextToSize('Rank 1 = most attorneys or largest RSF; for space and cost metrics, rank 1 = lowest. Percentile follows the same direction. '+
+    'Peer average for SF per attorney, rent and AGR per attorney is weighted by firm size. Bars show the firm’s difference from the peer median, capped at ±100%.',CW),M,y);
+  y+=36;
 
-    // Strip scroll constraints so the whole layout flows vertically.
-    // Preserve the `display:flex` on the container so main + sidebar
-    // keep their side-by-side layout.
-    clone.style.cssText='display:flex;width:100%;overflow:visible';
-    clone.querySelectorAll('[style*="overflow-y:auto"],[style*="overflow:auto"]').forEach(el=>{
-      el.style.overflow='visible';
-      if(el.style.height==='100%'||el.style.height==='')el.style.height='auto';
-    });
+  // Peer landscape bubble chart
+  k.font('bold',11,RPT.navy);k.text('Peer landscape',M,y);
+  k.font('normal',8.5,RPT.ink3);
+  const npc=(d.closest||[]).length;
+  k.text('SF per attorney vs market AGR per attorney for the '+(npc===1?'closest peer':npc+' closest peers')+' by headcount. Bubble area = total RSF. Numbers match page 3.',M,y+13);
+  y+=26;
+  rptBubbleChart(k,d,M,y,CW,RPT.H-60-y);
+}
 
-    // --- Build the full print wrapper: header + clone + footer ---
-    wrapper=document.createElement('div');
-    // Fixed 1800px design width — main pane ends up ~1280px wide,
-    // which matches a typical desktop dashboard view. Height auto.
-    wrapper.style.cssText='position:fixed;top:-30000px;left:0;width:1800px;background:#fff;font-family:Arial,Helvetica,sans-serif;color:#0E1220;z-index:-1';
-    document.body.appendChild(wrapper);
+function rptNiceTicks(min,max,count){
+  const span=max-min||1,step0=span/count,mag=Math.pow(10,Math.floor(Math.log10(step0)));
+  const step=[1,2,2.5,5,10].map(s=>s*mag).find(s=>s>=step0)||10*mag;
+  const lo=Math.floor(min/step)*step,hi=Math.ceil(max/step)*step,t=[];
+  for(let v=lo;v<=hi+step/2;v+=step)t.push(v);
+  return{lo,hi,ticks:t};
+}
 
-    const header=document.createElement('div');
-    header.style.cssText='display:flex;align-items:center;justify-content:space-between;padding:24px 36px;border-bottom:1px solid #E4E8F0;background:#fff';
-    header.innerHTML=`
-      <div style="display:flex;align-items:center;gap:24px">
-        <img src="${logoSrc}" alt="Cresa Law Firm Practice Group" style="height:56px;width:auto">
-        <div style="height:48px;width:1px;background:#E4E8F0"></div>
-        <div style="font-size:26px;font-weight:700;color:#001E5A;line-height:1.15;letter-spacing:-.3px">${esc(reportTitle)}</div>
-      </div>
-      <div style="display:inline-flex;align-items:center;gap:6px;padding:8px 14px;border:1px solid #E4E8F0;border-radius:6px;background:#fff;font-size:12px;font-weight:600;color:#001E5A;letter-spacing:.5px">
-        <span style="width:8px;height:8px;border-radius:4px;background:#1B8F6A;display:inline-block"></span>
-        ${dateStr.toUpperCase()}
-      </div>`;
-    wrapper.appendChild(header);
+function rptBubbleChart(k,d,x,y,w,h){
+  const {pdf}=k,{f,closest,peerMed}=d;
+  const pts=[...closest];
+  if(!pts.length||f.sfa==null||f.agra==null){
+    k.font('normal',9,RPT.ink3);k.text('Not enough peer data to plot.',x,y+20);return;
+  }
+  const all=[...pts,f];
+  const pl=x+48,pr=x+w-8,pt=y+10,pb=y+h-30;
+  const xs=all.map(p=>p.sfa),ys=all.map(p=>p.agra);
+  const padX=(Math.max(...xs)-Math.min(...xs))*0.08||100,padY=(Math.max(...ys)-Math.min(...ys))*0.1||1000;
+  const X=rptNiceTicks(Math.max(0,Math.min(...xs)-padX),Math.max(...xs)+padX,6);
+  const Y=rptNiceTicks(Math.max(0,Math.min(...ys)-padY),Math.max(...ys)+padY,5);
+  const sx=v=>pl+(v-X.lo)/(X.hi-X.lo)*(pr-pl);
+  const sy=v=>pb-(v-Y.lo)/(Y.hi-Y.lo)*(pb-pt);
+  const maxRsf=Math.max(...all.map(p=>p.rsf||0),1);
+  const rad=v=>Math.max(4,Math.sqrt((v||0)/maxRsf)*20);
 
-    wrapper.appendChild(clone);
+  // Grid + axes
+  k.font('normal',7,RPT.ink3);
+  Y.ticks.forEach(v=>{const yy=sy(v);k.hr(pl,yy,pr,RPT.lineSoft,0.5);k.text(fmtMoneyC(v),pl-6,yy+2.5,{align:'right'});});
+  X.ticks.forEach(v=>{const xx=sx(v);pdf.setDrawColor(RPT.lineSoft);pdf.setLineWidth(0.5);pdf.line(xx,pt,xx,pb);k.text(fmtComma(v),xx,pb+11,{align:'center'});});
+  k.hr(pl,pb,pr,RPT.ink4,0.6);
+  k.label('SF per attorney',(pl+pr)/2,pb+24,{align:'center'});
+  k.label('Market AGR per attorney',x+6,(pt+pb)/2,{angle:90});
 
-    const footer=document.createElement('div');
-    footer.style.cssText='padding:12px 36px;border-top:1px solid #E4E8F0;display:flex;justify-content:space-between;font-size:10px;color:#8A93A8;text-transform:uppercase;letter-spacing:1px;font-weight:600;background:#fff';
-    footer.innerHTML='<span>Cresa Houston | Confidential</span><span>Generated from Houston Law Firm Database</span>';
-    wrapper.appendChild(footer);
+  // Peer medians as dashed reference lines
+  pdf.setLineDashPattern([3,2.5],0);pdf.setDrawColor(RPT.ink4);pdf.setLineWidth(0.6);
+  if(peerMed.sfa!=null&&peerMed.sfa>=X.lo&&peerMed.sfa<=X.hi)pdf.line(sx(peerMed.sfa),pt,sx(peerMed.sfa),pb);
+  if(peerMed.agra!=null&&peerMed.agra>=Y.lo&&peerMed.agra<=Y.hi)pdf.line(pl,sy(peerMed.agra),pr,sy(peerMed.agra));
+  pdf.setLineDashPattern([],0);
+  k.font('normal',6.5,RPT.ink3);
+  if(peerMed.sfa!=null)k.text('Peer median',sx(peerMed.sfa)+3,pt+7);
 
-    // Force a layout pass so every canvas gets its CSS size assigned
-    // before we measure and re-render.
-    void wrapper.offsetHeight;
+  // Peers: translucent area discs, largest first, with numbered labels
+  [...pts].sort((a,b)=>(b.rsf||0)-(a.rsf||0)).forEach(p=>{
+    const cx=sx(p.sfa),cy=sy(p.agra),r=rad(p.rsf);
+    k.alpha(0.55);pdf.setFillColor(RPT.peerFill);pdf.circle(cx,cy,r,'F');k.alpha(1);
+    pdf.setDrawColor(RPT.ink4);pdf.setLineWidth(0.5);pdf.circle(cx,cy,r,'S');
+  });
+  pts.forEach(p=>{
+    const cx=sx(p.sfa),cy=sy(p.agra);
+    k.font('bold',6.5,RPT.ink2);k.text(String(p.num),cx,cy+0.3,{align:'center',baseline:'middle'});
+  });
 
-    // --- Re-render each Chart.js canvas at 2× buffer, matching aspect ---
-    // Walk the cloned canvases in document order; pair each with its
-    // live counterpart (same index) to get the source Chart config.
-    const origCanvases=contentEl.querySelectorAll('canvas');
-    const cloneCanvases=clone.querySelectorAll('canvas');
-    const bubbleCharts=[];
+  // Subject firm on top, labelled
+  const fx=sx(f.sfa),fy=sy(f.agra),fr=rad(f.rsf);
+  k.alpha(0.9);pdf.setFillColor(RPT.navy);pdf.circle(fx,fy,fr,'F');k.alpha(1);
+  pdf.setDrawColor(RPT.gold);pdf.setLineWidth(2);pdf.circle(fx,fy,fr,'S');
+  k.font('bold',8,RPT.navy);
+  const nm=k.fit(f.n,140),right=fx+fr+6+k.width(nm)<pr;
+  k.text(nm,right?fx+fr+6:fx-fr-6,fy-fr*0.4,{align:right?'left':'right'});
+  k.font('normal',7,RPT.ink3);
+  k.text(fmtComma(f.sfa)+' SF  ·  '+fmtMoney0(f.agra),right?fx+fr+6:fx-fr-6,fy-fr*0.4+10,{align:right?'left':'right'});
+}
 
-    cloneCanvases.forEach((cc,i)=>{
-      try{
-        const oc=origCanvases[i];
-        if(!oc)return;
-        const sourceChart=Chart.getChart(oc);
-        if(!sourceChart){cc.remove();return;}
+// ---------- Page 3: Closest peers ----------------------------------------
+async function rptPagePeers(k,d){
+  const {pdf}=k,{f,closest}=d,M=RPT.M,CW=RPT.CW;
+  let y=rptSectionTitle(k,'Closest peers',
+    'The '+(closest.length===1?'one firm':closest.length+' firms')+' in the '+d.peerLabel+' peer set nearest to '+f.n+' in attorney headcount.',112);
+  y+=6;
+  const mh=226;
+  await rptMap(k,d,M,y,CW,mh);
+  y+=mh+26;
 
-        // Use the cloned canvas's own offsetWidth/offsetHeight —
-        // these reflect the live dashboard's chart display size after
-        // the layout pass above.
-        let w=cc.offsetWidth;
-        let h=cc.offsetHeight;
-        if(!w||!h){
-          // Fallback: parent container or the live canvas's dims.
-          w=cc.parentElement.offsetWidth||oc.offsetWidth||oc.width||400;
-          h=cc.parentElement.offsetHeight||oc.offsetHeight||oc.height||300;
-        }
+  // Table: subject firm first (gold marker), then peers 1–15
+  const cols=[
+    {t:'#',            x:M,     w:18, a:'center'},
+    {t:'Firm',         x:M+26,  w:168,a:'left'},
+    {t:'Submarket',    x:M+200, w:92, a:'left'},
+    {t:'Attys',        x:M+292, w:38, a:'right'},
+    {t:'RSF',          x:M+330, w:50, a:'right'},
+    {t:'SF / Atty',    x:M+380, w:44, a:'right'},
+    {t:'Rent / SF',    x:M+424, w:42, a:'right'},
+    {t:'AGR / Atty',   x:M+466, w:50, a:'right'},
+  ];
+  const ax=c=>c.a==='right'?c.x+c.w:c.a==='center'?c.x+c.w/2:c.x;
+  cols.forEach(c=>k.label(c.t,ax(c),y,{align:c.a}));
+  y+=7;k.hr(M,y,M+CW,RPT.navy,1);
+  const rh=17.5;
+  const row=(p,subject)=>{
+    const cy=y+rh/2+3;
+    if(subject){pdf.setFillColor(RPT.tint);pdf.rect(M,y+0.5,CW,rh-1,'F');}
+    k.marker(ax(cols[0]),cy-2.8,subject?4.2:5.6,p.num,subject);
+    const w=subject?'bold':'normal';
+    k.font(subject?'bold':'normal',8.5,subject?RPT.navy:RPT.ink);
+    k.text(k.fit(p.n,cols[1].w),cols[1].x,cy);
+    k.font('normal',8.5,RPT.ink2);k.text(k.fit(p.sm||'—',cols[2].w-6),cols[2].x,cy);
+    k.font(w,8.5,subject?RPT.navy:RPT.ink2);
+    k.text(p.att!=null?fmtComma(p.att):'—',ax(cols[3]),cy,{align:'right'});
+    k.text(p.rsf!=null?fmtComma(p.rsf):'—',ax(cols[4]),cy,{align:'right'});
+    k.text(p.sfa!=null?fmtComma(p.sfa):'—',ax(cols[5]),cy,{align:'right'});
+    k.text(p.grs!=null?fmtMoney(p.grs):'—',ax(cols[6]),cy,{align:'right'});
+    k.text(p.agra!=null?fmtMoney0(p.agra):'—',ax(cols[7]),cy,{align:'right'});
+    y+=rh;k.hr(M,y,M+CW,RPT.lineSoft,0.5);
+  };
+  row(f,true);
+  closest.forEach(p=>row(p,false));
+  y+=13;
+  k.font('normal',7,RPT.ink3);
+  pdf.text(pdf.splitTextToSize('Rent / SF is the building market rent. AGR (market annual gross rent) = market rent / SF × RSF. Source: Cresa Houston Law Firm Database.',CW),M,y);
+}
 
-        // Fresh canvas: 2× buffer for crispness, CSS size locked to
-        // the measured aspect so CSS can only scale uniformly.
-        const fresh=document.createElement('canvas');
-        fresh.width=Math.round(w*2);
-        fresh.height=Math.round(h*2);
-        fresh.style.cssText=`width:${w}px;height:${h}px;display:block`;
-        // Preserve donut centering from the live view
-        if(sourceChart.config.type==='doughnut'||sourceChart.config.type==='pie'){
-          fresh.style.margin='0 auto';
-        }
-        cc.parentElement.replaceChild(fresh,cc);
+// --- Map: static basemap when reachable, otherwise a vector locator ------
+const RPT_MAPS_KEY=GMAPS_KEY; // reuse the live-map key (§4.5)
+function rptMerc(lat,lng,z){
+  const s=256*Math.pow(2,z),sin=Math.sin(lat*Math.PI/180);
+  return{x:(lng+180)/360*s,y:(0.5-Math.log((1+sin)/(1-sin))/(4*Math.PI))*s};
+}
+function rptLoadImage(url,ms){
+  return new Promise(res=>{
+    const img=new Image();img.crossOrigin='anonymous';let done=false;
+    const t=setTimeout(()=>{if(!done){done=true;res(null);}},ms||6000);
+    img.onload=()=>{if(done)return;done=true;clearTimeout(t);
+      try{const c=document.createElement('canvas');c.width=img.naturalWidth;c.height=img.naturalHeight;
+        c.getContext('2d').drawImage(img,0,0);res(c.toDataURL('image/png'));}catch(e){res(null);} };
+    img.onerror=()=>{if(done)return;done=true;clearTimeout(t);res(null);};
+    img.src=url;
+  });
+}
+// Approximate freeway loops for the vector fallback (lat, lng).
+const RPT_LOOP_610=[[29.806,-95.452],[29.784,-95.456],[29.752,-95.456],[29.727,-95.452],[29.703,-95.443],[29.686,-95.428],[29.680,-95.405],[29.682,-95.375],[29.689,-95.340],[29.697,-95.306],[29.712,-95.279],[29.735,-95.269],[29.760,-95.269],[29.780,-95.273],[29.800,-95.290],[29.808,-95.320],[29.809,-95.360],[29.808,-95.400],[29.807,-95.430],[29.806,-95.452]];
+const RPT_BW8=[[29.945,-95.540],[29.900,-95.562],[29.840,-95.563],[29.780,-95.560],[29.720,-95.556],[29.665,-95.540],[29.625,-95.500],[29.600,-95.440],[29.598,-95.370],[29.600,-95.290],[29.625,-95.220],[29.680,-95.175],[29.760,-95.165],[29.840,-95.170],[29.910,-95.210],[29.945,-95.290],[29.950,-95.380],[29.950,-95.460],[29.945,-95.540]];
 
-        // Clone config (JSON roundtrip; callbacks will be lost).
-        const cfg=sourceChart.config;
-        const clonedData=JSON.parse(JSON.stringify(cfg.data));
-        const clonedOpts=JSON.parse(JSON.stringify(cfg.options));
-        clonedOpts.maintainAspectRatio=false;
-        clonedOpts.responsive=false;
-        clonedOpts.animation=false;
+async function rptMap(k,d,x,y,w,h){
+  const {pdf}=k,{f,closest}=d;
+  const pts=closest.filter(p=>p.lat&&p.lng);
+  const all=[...pts];if(f.lat&&f.lng)all.push(f);
+  pdf.setFillColor(RPT.tint);pdf.rect(x,y,w,h,'F');
+  if(!all.length){k.font('normal',9,RPT.ink3);k.text('No locations on file.',x+w/2,y+h/2,{align:'center'});return;}
 
-        // Radar's external tooltip renders a floating DOM overlay
-        // bound to live elements — disable it so it doesn't error.
-        if(clonedOpts.plugins&&clonedOpts.plugins.tooltip){
-          delete clonedOpts.plugins.tooltip.external;
-        }
+  // Fit a zoom level so every point sits inside the box with margin.
+  const pad=26;let z=15;
+  const lats=all.map(p=>p.lat),lngs=all.map(p=>p.lng);
+  const cLat=(Math.min(...lats)+Math.max(...lats))/2,cLng=(Math.min(...lngs)+Math.max(...lngs))/2;
+  const pxW=640,pxH=Math.round(640*h/w); // static-map pixel canvas
+  for(;z>8;z--){
+    const a=rptMerc(Math.max(...lats),Math.min(...lngs),z),b=rptMerc(Math.min(...lats),Math.max(...lngs),z);
+    if(b.x-a.x<=pxW-pad*2*(pxW/w)&&b.y-a.y<=pxH-pad*2*(pxH/h))break;
+  }
+  z=Math.min(z,14);
+  const c=rptMerc(cLat,cLng,z);
+  const proj=(lat,lng)=>{const p=rptMerc(lat,lng,z);return{x:x+((p.x-c.x)+pxW/2)*(w/pxW),y:y+((p.y-c.y)+pxH/2)*(h/pxH)};};
 
-        // Bubble chart: subject firm highlight + rebuilt tooltip
-        // callbacks (JSON roundtrip drops the live ones).
-        if(cfg.type==='bubble'&&clonedData.datasets&&clonedData.datasets.length>0){
-          const subj=clonedData.datasets[0];
-          subj.borderColor='#FFB600';
-          subj.borderWidth=4;
-          subj.backgroundColor='rgba(0,30,90,0.85)';
-          subj.order=-1;
-          if(Array.isArray(subj.data)){
-            subj.data=subj.data.map(pt=>({...pt,r:(pt.r||8)*1.3}));
-          }
-          if(!clonedOpts.plugins)clonedOpts.plugins={};
-          clonedOpts.plugins.tooltip={
-            enabled:true,mode:'nearest',intersect:false,
-            backgroundColor:'#001E5A',titleColor:'#FFFFFF',bodyColor:'#FFFFFF',
-            titleFont:{size:13,weight:'700',family:'Arial,Helvetica,sans-serif'},
-            bodyFont:{size:12,weight:'500',family:'Arial,Helvetica,sans-serif'},
-            padding:{top:10,right:14,bottom:10,left:14},
-            cornerRadius:6,displayColors:false,
-            callbacks:{
-              title:ctx=>ctx[0].dataset.label||'',
-              label:ctx=>{
-                const d=ctx.raw;const rsf=ctx.dataset._firmRsf;
-                return [
-                  'SF/Atty: '+Math.round(d.x).toLocaleString(),
-                  'MKT AGR/Atty: $'+Math.round(d.y).toLocaleString(),
-                  'RSF: '+Math.round(rsf||0).toLocaleString(),
-                ];
-              }
-            }
-          };
-          // The live legend uses a generateLabels function that JSON
-          // can't serialize; strip the filter so the default labels
-          // (subject + peer series names) show through.
-          if(clonedOpts.plugins.legend&&clonedOpts.plugins.legend.labels){
-            delete clonedOpts.plugins.legend.labels.filter;
-          }
-        }
+  const style=['feature:all|saturation:-100|lightness:30','feature:poi|visibility:off','feature:transit|visibility:off',
+    'feature:road|element:labels.icon|visibility:off','feature:administrative|element:labels|visibility:off']
+    .map(s=>'&style='+encodeURIComponent(s)).join('');
+  const url='https://maps.googleapis.com/maps/api/staticmap?center='+cLat+','+cLng+'&zoom='+z+
+    '&size='+pxW+'x'+pxH+'&scale=2&format=png&key='+RPT_MAPS_KEY+style;
+  const base=(typeof DEV_MODE!=='undefined'&&DEV_MODE)?null:await rptLoadImage(url,6000);
 
-        const plugins=(cfg.plugins||[]).slice();
-        // Scale all text on the chart by 50% for better print
-        // legibility. This runs last so any hand-built config
-        // (e.g., the bubble tooltip with explicit sizes) also
-        // gets bumped consistently.
-        pdfBumpChartFonts(clonedOpts, 1.5);
-        const scaledPlugins=pdfBumpPlugins(plugins, 1.5);
-        const newChart=new Chart(fresh,{
-          type:cfg.type,
-          data:clonedData,
-          options:clonedOpts,
-          plugins:scaledPlugins,
-        });
-        if(cfg.type==='bubble')bubbleCharts.push(newChart);
-      }catch(e){console.log('Chart re-render error:',e);}
-    });
+  pdf.saveGraphicsState();
+  pdf.rect(x,y,w,h,null);pdf.clip();pdf.discardPath();
+  if(base){
+    pdf.addImage(base,'PNG',x,y,w,h,'peerMap','MEDIUM');
+  }else{
+    // Vector locator: freeway loops + downtown, drawn to the same projection
+    const poly=(pts,col,lw)=>{
+      pdf.setDrawColor(col);pdf.setLineWidth(lw);
+      for(let i=1;i<pts.length;i++){const a=proj(...pts[i-1]),b=proj(...pts[i]);pdf.line(a.x,a.y,b.x,b.y);}
+    };
+    poly(RPT_BW8,'#D3D9E4',2.2);
+    poly(RPT_LOOP_610,'#D3D9E4',2.2);
+    const lab=(t,lat,lng)=>{const p=proj(lat,lng);if(p.x>x+10&&p.x<x+w-30&&p.y>y+10&&p.y<y+h-6){k.font('bold',6.5,RPT.ink4);k.text(t,p.x,p.y,{charSpace:0.5});}};
+    lab('I-610',29.812,-95.335);lab('BELTWAY 8',29.954,-95.43);
+  }
+  pdf.restoreGraphicsState();
 
-    // Activate the subject-firm tooltip on bubble charts so the
-    // readout (SF/Atty, MKT AGR/Atty, RSF) appears in the PDF.
-    await new Promise(r=>setTimeout(r,250));
-    bubbleCharts.forEach(bc=>{
-      try{
-        const meta=bc.getDatasetMeta(0);
-        if(meta&&meta.data&&meta.data.length){
-          bc.setActiveElements([{datasetIndex:0,index:0}]);
-          bc.tooltip.setActiveElements(
-            [{datasetIndex:0,index:0}],
-            {x:meta.data[0].x,y:meta.data[0].y}
-          );
-          bc.update('none');
-        }
-      }catch(e){console.log('tooltip activate error:',e);}
-    });
-    await new Promise(r=>setTimeout(r,150));
-
-    // --- Measure, capture, emit PDF sized to the content ---
-    void wrapper.offsetHeight;
-    // If the inner layout overflows the design width (e.g. a wide table
-    // or the right sidebar), widen the wrapper to its full content width
-    // so the header/footer span everything and html2canvas captures the
-    // whole thing — this is what was clipping the right side before.
-    if(wrapper.scrollWidth>wrapper.offsetWidth){
-      wrapper.style.width=wrapper.scrollWidth+'px';
-      void wrapper.offsetHeight;
+  // Markers: firms in the same tower or block would stack, so nudge
+  // overlapping markers apart and tie each back to its true spot with
+  // a short leader. Subject is pinned and drawn last.
+  const R=6.2,gapR=R*2+1.5;
+  const nodes=pts.map(p=>{const q=proj(p.lat,p.lng);return{p,ox:q.x,oy:q.y,x:q.x,y:q.y,fixed:false};});
+  if(f.lat&&f.lng){const q=proj(f.lat,f.lng);nodes.push({p:f,ox:q.x,oy:q.y,x:q.x,y:q.y,fixed:true,subject:true});}
+  for(let it=0;it<240;it++){
+    let moved=false;
+    for(let i=0;i<nodes.length;i++)for(let j=i+1;j<nodes.length;j++){
+      const a=nodes[i],b=nodes[j];let dx=b.x-a.x,dy=b.y-a.y,dd=Math.hypot(dx,dy);
+      if(dd>=gapR)continue;
+      if(dd<0.01){const ang=(i*2.4+j*1.3);dx=Math.cos(ang);dy=Math.sin(ang);dd=1;}
+      const push=(gapR-dd)/2+0.1,ux=dx/dd,uy=dy/dd;
+      if(a.fixed){b.x+=ux*push*2;b.y+=uy*push*2;}
+      else if(b.fixed){a.x-=ux*push*2;a.y-=uy*push*2;}
+      else{a.x-=ux*push;a.y-=uy*push;b.x+=ux*push;b.y+=uy*push;}
+      moved=true;
     }
-    const wW=wrapper.offsetWidth;
-    const wH=wrapper.offsetHeight;
+    nodes.forEach(n=>{n.x=Math.min(Math.max(n.x,x+R+2),x+w-R-2);n.y=Math.min(Math.max(n.y,y+R+2),y+h-R-28);});
+    if(!moved)break;
+  }
+  nodes.forEach(n=>{
+    if(Math.hypot(n.x-n.ox,n.y-n.oy)<2)return;
+    pdf.setDrawColor(RPT.ink3);pdf.setLineWidth(0.5);pdf.line(n.ox,n.oy,n.x,n.y);
+    pdf.setFillColor(RPT.ink3);pdf.circle(n.ox,n.oy,1.1,'F');
+  });
+  nodes.filter(n=>!n.subject).forEach(n=>k.marker(n.x,n.y,R,n.p.num,false));
+  nodes.filter(n=>n.subject).forEach(n=>k.marker(n.x,n.y,6,null,true));
 
-    const canvas=await html2canvas(wrapper,{
-      scale:2,useCORS:true,backgroundColor:'#ffffff',logging:false,
-      width:wW,height:wH,windowWidth:wW,windowHeight:wH,
-    });
+  pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.rect(x,y,w,h,'S');
+  // Legend
+  k.font('normal',7,RPT.ink2);
+  const nm=k.fit(f.n,150),lw=10+k.width(nm)+16+10+k.width('Peer, numbered as in the table')+10;
+  const lx=x+12,ly=y+h-12;
+  pdf.setFillColor('#FFFFFF');k.alpha(0.92);pdf.rect(x+4,y+h-24,lw,18,'F');k.alpha(1);
+  k.marker(lx,ly-2.5,4.2,null,true);
+  k.font('normal',7,RPT.ink2);k.text(nm,lx+8,ly);
+  const px=lx+8+k.width(nm)+16;
+  pdf.setFillColor(RPT.navy);pdf.circle(px,ly-2.5,4.2,'F');
+  k.font('normal',7,RPT.ink2);k.text('Peer, numbered as in the table',px+8,ly);
+  if(!base){k.font('normal',6.5,RPT.ink3);k.text('Approximate freeway outlines',x+w-8,y+h-8,{align:'right'});}
+}
 
-    // Page is sized to fit the content exactly (px → mm at 96 DPI), so
-    // the whole profile lands on one custom-size sheet with no clipping
-    // and no wasted margin.
-    const PX_TO_MM=25.4/96;
-    const pdfWmm=wW*PX_TO_MM;
-    const pdfHmm=wH*PX_TO_MM;
+// --- Building photo, cover-cropped to the slot aspect --------------------
+async function rptLoadPhoto(src,aspect){
+  if(!src)return null;
+  const tmp=document.createElement('img');tmp.setAttribute('src',src);
+  const holder=document.createElement('div');holder.appendChild(tmp);
+  await loadImageAsDataUrl(tmp);
+  const data=tmp.getAttribute('src');
+  if(!data||!data.startsWith('data:'))return null;
+  return new Promise(res=>{
+    const im=new Image();
+    im.onload=()=>{
+      const W=1200,H=Math.round(W/aspect),c=document.createElement('canvas');c.width=W;c.height=H;
+      const s=Math.max(W/im.width,H/im.height),dw=im.width*s,dh=im.height*s;
+      c.getContext('2d').drawImage(im,(W-dw)/2,(H-dh)/2,dw,dh);
+      res(c.toDataURL('image/jpeg',0.88));
+    };
+    im.onerror=()=>res(null);im.src=data;
+  });
+}
 
-    const pdf=new jsPDF({
-      orientation:pdfWmm>=pdfHmm?'landscape':'portrait',
-      unit:'mm',
-      format:[pdfWmm,pdfHmm],
-      compress:true,
-    });
-    pdf.addImage(canvas.toDataURL('image/jpeg',0.92),'JPEG',0,0,pdfWmm,pdfHmm);
+async function exportFirmReportPDF(){
+  const btn=document.getElementById('dashExportBtn');
+  const firm=window._dashboardFirmId!=null?FIRMS[window._dashboardFirmId]:null;
+  if(!firm){alert('No firm loaded for export.');return;}
+  const userTitle=window.prompt('Report title','Firm Profile');
+  if(userTitle===null)return;
+  const title=(userTitle||'').trim()||'Firm Profile';
+  const orig=btn?btn.innerHTML:'';
+  if(btn){btn.innerHTML='Generating...';btn.disabled=true;}
+  try{
+    const {jsPDF}=window.jspdf;
+    const pdf=new jsPDF({unit:'pt',format:'letter',orientation:'portrait',compress:true});
+    pdf.setProperties({title:firm.n+' — '+title,subject:'Firm profile',author:'Cresa Houston',creator:'Houston Law Firm Database'});
+    const k=rptKit(pdf);
+    const d=rptFirmData(firm);
+    const dateStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
+    const photo=await rptLoadPhoto(firm.img,196/150);
 
-    const safeName=firm.n.replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'');
-    pdf.save('Cresa_Firm_Profile_'+safeName+'.pdf');
+    rptHeader(k,PDF_LOGO_SRC,title,dateStr);rptPageOverview(k,d,photo);
+    pdf.addPage();rptHeader(k,PDF_LOGO_SRC,title,dateStr);rptPageBenchmark(k,d);
+    pdf.addPage();rptHeader(k,PDF_LOGO_SRC,title,dateStr);await rptPagePeers(k,d);
+    const n=pdf.getNumberOfPages();
+    for(let i=1;i<=n;i++){pdf.setPage(i);rptFooter(k,i,n);}
 
-    // Cleanup
-    wrapper.querySelectorAll('canvas').forEach(c=>{const ch=Chart.getChart(c);if(ch)ch.destroy();});
-    document.body.removeChild(wrapper);
-    wrapper=null;
+    const safe=firm.n.replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'');
+    pdf.save('Cresa_Firm_Profile_'+safe+'.pdf');
   }catch(e){
-    console.error('Dashboard PDF export error:',e);
-    if(wrapper){
-      try{
-        wrapper.querySelectorAll('canvas').forEach(c=>{const ch=Chart.getChart(c);if(ch)ch.destroy();});
-        if(wrapper.parentElement)wrapper.parentElement.removeChild(wrapper);
-      }catch(_){}
-    }
+    console.error('Firm report export error:',e);
     alert('Error generating PDF. Please try again.');
   }
-  btn.innerHTML=origText;btn.disabled=false;
+  if(btn){btn.innerHTML=orig;btn.disabled=false;}
 }
 
 function updateModelOutputs(){
