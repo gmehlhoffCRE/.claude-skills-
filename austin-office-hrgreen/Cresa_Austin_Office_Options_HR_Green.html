@@ -340,6 +340,8 @@
   .db-group select { border: 1px solid var(--line); border-radius: 7px; padding: 6px 8px; font-size: 12.5px; color: var(--ink); background: #fff; max-width: 210px; }
   .db-n { font-size: 12px; color: var(--ink3); font-variant-numeric: tabular-nums; }
   .db-src { margin-left: auto; display: flex; align-items: center; gap: 8px; }
+  .scen-new { display: inline-flex; align-items: center; gap: 6px; padding: 3px 6px; background: var(--blue-softer); border: 1px solid var(--line); border-radius: 8px; }
+  .scen-new input[type=time] { border: 1px solid var(--line); border-radius: 6px; padding: 5px 6px; font: 12.5px Arial; }
   .db-ok { flex-basis: 100%; font-size: 12px; color: var(--ok); background: #E6F5EF; border-radius: 6px; padding: 7px 10px; }
   .db-err { flex-basis: 100%; font-size: 12px; color: var(--bad); background: #FBE9E9; border-radius: 6px; padding: 7px 10px; }
   .seg { display: inline-flex; background: var(--blue-softer); border: 1px solid var(--line); border-radius: 8px; padding: 2px; }
@@ -1187,6 +1189,36 @@ function LayerToggles({ layers, show, setShow, offices = [] }) {
 const PEAKS = { am: "typical drive" };
 const PEAK_HINT = { am: "Home → office, Google's standard drive time (no live traffic)" };
 const SPEED = { am: 24, pm: 21, off: 34 };
+// Scenarios: "am" = Google's standard drive time (no traffic). Others = "arrive by <day> <time>" with traffic.
+const DAYS = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+const fmtClock = (hhmm) => { const [h, m] = hhmm.split(":").map(Number); return `${((h + 11) % 12) + 1}:${String(m).padStart(2, "0")} ${h < 12 ? "AM" : "PM"}`; };
+const scenLabel = (cache, key) => {
+  const sc = key !== "am" && cache.scen && cache.scen[key];
+  return sc ? `${DAYS[sc.day]} · arrive by ${fmtClock(sc.time)}` : "Standard (no traffic)";
+};
+const scenHint = (cache, key) => {
+  const sc = key !== "am" && cache.scen && cache.scen[key];
+  return sc ? `Home → office, timed to arrive by ${fmtClock(sc.time)} on a ${DAYS[sc.day]}, with Google's predicted traffic` : "Home → office, Google's standard drive time (no live traffic)";
+};
+// Minutes east of UTC for a timezone at a given instant.
+function tzOffsetMin(d, tz) {
+  const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, hourCycle: "h23", year: "numeric", month: "2-digit", day: "2-digit",
+    hour: "2-digit", minute: "2-digit", second: "2-digit" }).formatToParts(d).map((x) => [x.type, x.value]));
+  return (Date.UTC(+p.year, +p.month - 1, +p.day, +p.hour, +p.minute, +p.second) - d.getTime()) / 60000;
+}
+// Next <day> at <hh:mm> Austin time (at least tomorrow), as a Date.
+function nextAustin(day, hhmm) {
+  const [H, M] = hhmm.split(":").map(Number), tz = "America/Chicago";
+  for (let add = 1; add <= 8; add++) {
+    const t = new Date(Date.now() + add * 86400000);
+    const p = Object.fromEntries(new Intl.DateTimeFormat("en-US", { timeZone: tz, year: "numeric", month: "2-digit", day: "2-digit", weekday: "short" })
+      .formatToParts(t).map((x) => [x.type, x.value]));
+    if (["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].indexOf(p.weekday) !== day) continue;
+    const guess = Date.UTC(+p.year, +p.month - 1, +p.day, H, M);
+    return new Date(guess - tzOffsetMin(new Date(guess), tz) * 60000);
+  }
+  return null;
+}
 const TARGETS = [20, 30, 45];
 const DRIVE_CACHE_KEY = LOCAL_CACHE_KEY + ":drive";
 
@@ -1196,7 +1228,7 @@ function hav(a, b) {
   const h = Math.sin(dLat / 2) ** 2 + Math.cos(a.lat * d) * Math.cos(b.lat * d) * Math.sin(dLng / 2) ** 2;
   return 2 * R * Math.asin(Math.min(1, Math.sqrt(h)));
 }
-const estMinutes = (e, p, peak) => { const mi = hav(e, p); return Math.max(5, Math.round(mi / SPEED[peak] * 60 + 4 + Math.min(mi, 4))); };
+const estMinutes = (e, p, peak) => { const mi = hav(e, p); return Math.max(5, Math.round(mi / (SPEED[peak] || SPEED.am) * 60 + 4 + Math.min(mi, 4))); };
 const ptKey = (p) => p.lat.toFixed(4) + "," + p.lng.toFixed(4);
 const officeShort = (s) => String(s || "").replace(/^[A-Z0-9]{1,4}\s*-\s*/, "").trim();
 
@@ -1228,14 +1260,24 @@ async function fetchGoogleTimes(emps, places, peak, cache, onProgress) {
     if (hs.some((h) => ds.some((d) => bucket[ptKey(h) + ">" + ptKey(d)] == null))) todo.push([hs, ds]);
   }
   const wp = (p) => ({ waypoint: { location: { latLng: { latitude: p.lat, longitude: p.lng } } } });
+  const sc = peak !== "am" && cache.scen && cache.scen[peak];
+  const arrival = sc ? nextAustin(sc.day, sc.time) : null;
+  // Driving can't be asked for an arrival time, so each batch leaves at (arrival − its median estimated drive).
+  const departFor = (hs, ds) => {
+    const est = []; hs.forEach((h) => ds.forEach((d) => est.push(estMinutes(h, d, "am"))));
+    est.sort((a, b) => a - b);
+    const mins = Math.ceil(est[Math.floor(est.length / 2)] / 5) * 5;
+    return new Date(arrival.getTime() - mins * 60000).toISOString();
+  };
   let done = 0, last = 0, lastSize = 0;
   const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
   for (const [hs, ds] of todo) {
     const wait = last + (lastSize / PER_MIN) * 60000 - Date.now(); // time "owed" for the previous batch
     if (last && wait > 0) await sleep(wait);
     last = Date.now(); lastSize = hs.length * ds.length;
-    const body = JSON.stringify({ origins: hs.map(wp), destinations: ds.map(wp), travelMode: "DRIVE",
-      routingPreference: "TRAFFIC_UNAWARE" });
+    const body = JSON.stringify(sc
+      ? { origins: hs.map(wp), destinations: ds.map(wp), travelMode: "DRIVE", routingPreference: "TRAFFIC_AWARE", departureTime: departFor(hs, ds) }
+      : { origins: hs.map(wp), destinations: ds.map(wp), travelMode: "DRIVE", routingPreference: "TRAFFIC_UNAWARE" });
     let rows, tries = 0;
     for (;;) {
       let res, text;
@@ -1393,7 +1435,18 @@ function useCommute(layers) {
     return n;
   };
 
-  return { peak, setPeak, target, setTarget, office, setOffice, dept, setDept, officeNames, depts, roster, offices, homeOf,
+  const scenarios = ["am", ...Object.keys(cache.scen || {})];
+  const addScenario = (day, time) => {
+    const key = `arr-${day}-${time.replace(":", "")}`;
+    setCache((c) => { const m = { ...c, scen: { ...(c.scen || {}), [key]: { day, time } } }; writeDriveCache(m); return m; });
+    setPeak(key);
+  };
+  const removeScenario = (key) => {
+    setCache((c) => { const m = { ...c, scen: { ...(c.scen || {}) } }; delete m.scen[key]; delete m[key]; writeDriveCache(m); return m; });
+    setPeak("am");
+  };
+  return { scenarios, addScenario, removeScenario, label: scenLabel(cache, peak), hint: scenHint(cache, peak), traffic: peak !== "am",
+    peak, setPeak, target, setTarget, office, setOffice, dept, setDept, officeNames, depts, roster, offices, homeOf,
     minutes, useGoogle, setUseGoogle, fetching, fetchNote, error, notice, isAdmin, fetchGoogle, coverage, lookupsNeeded, hasData: layers.employees.length > 0 };
 }
 
@@ -1477,7 +1530,7 @@ function barChartPng(rows, title) {
   return { url: c.toDataURL("image/png"), w: W / 2, h: H / 2 };
 }
 
-async function exportCommuteReport({ roster, places, minutes, homeOf, google, officeNames }) {
+async function exportCommuteReport({ roster, places, minutes, homeOf, google, scenario, officeNames }) {
   const ExcelJS = await loadExcelJS();
   const wb = new ExcelJS.Workbook();
   wb.creator = "Cresa"; wb.created = new Date();
@@ -1508,7 +1561,7 @@ async function exportCommuteReport({ roster, places, minutes, homeOf, google, of
   });
   const ranked = B.slice().sort((a, b) => a.avg - b.avg || b.shorter - a.shorter);
   const top5 = ranked.slice(0, 5);
-  const source = google ? "Google drive time" : "Estimated drive time";
+  const source = (google ? "Google drive time" : "Estimated drive time") + (google && scenario ? ` (${scenario}, with traffic)` : "");
   const target = 20;
 
   // ---- shared sheet chrome: logo, gold rule, navy title band ----
@@ -1674,6 +1727,8 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
   const [hoverId, setHoverId] = useState(null);
   const [showComp, setShowComp] = useState(true);
   const [exporting, setExporting] = useState(false);
+  const [newScen, setNewScen] = useState(null);
+  const scenLabelOf = (k) => (k === cm.peak ? cm.label : (() => { const m = /^arr-(\d)-(\d\d)(\d\d)$/.exec(k); return m ? `${DAYS[+m[1]]} · arrive by ${fmtClock(m[2] + ":" + m[3])}` : k; })());
   const { roster, target, minutes, homeOf } = cm;
 
   const mapped = useMemo(() => list.filter((b) => b.lat != null && b.lng != null), [list]);
@@ -1745,6 +1800,22 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
   return (
     <div className="drive">
       <div className="panel drive-bar">
+        {(cm.isAdmin || cm.scenarios.length > 1) && <div className="db-group"><span className="db-l">Drive time</span>
+          <select value={cm.peak} onChange={(e) => cm.setPeak(e.target.value)} title={cm.hint}>
+            {cm.scenarios.map((k) => <option key={k} value={k}>{k === "am" ? "Standard (no traffic)" : cm.scenarios && scenLabelOf(k)}</option>)}
+          </select>
+          {cm.isAdmin && !newScen && <button className="btn sm" onClick={() => setNewScen({ day: 2, time: "09:00" })}>+ Arrival time</button>}
+          {cm.isAdmin && cm.peak !== "am" && !newScen && <button className="link" onClick={() => { if (confirm("Remove this scenario and its saved drive times?")) cm.removeScenario(cm.peak); }}>Remove</button>}
+          {newScen && <span className="scen-new">
+            <select value={newScen.day} onChange={(e) => setNewScen({ ...newScen, day: +e.target.value })}>
+              {[1, 2, 3, 4, 5].map((d) => <option key={d} value={d}>{DAYS[d]}</option>)}
+            </select>
+            <span className="db-n">arrive by</span>
+            <input type="time" step="900" value={newScen.time} onChange={(e) => setNewScen({ ...newScen, time: e.target.value || "09:00" })} />
+            <button className="btn sm primary" onClick={() => { cm.addScenario(newScen.day, newScen.time); setNewScen(null); }}>Add</button>
+            <button className="link" onClick={() => setNewScen(null)}>Cancel</button>
+          </span>}
+        </div>}
         <div className="db-group"><span className="db-l">Target</span>
           <Seg value={target} onChange={cm.setTarget} options={TARGETS.map((t) => [t, t + " min"])} /></div>
         <div className="db-group"><span className="db-l">Who</span>
@@ -1767,21 +1838,24 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
           <button className="btn sm" disabled={exporting} title="Commute analysis workbook: overview, building ranking and employee-by-building matrix"
             onClick={async () => {
               setExporting(true);
-              try { await exportCommuteReport({ roster, places: mapped, minutes, homeOf, google: cm.useGoogle && cover > 0.98, officeNames: cm.officeNames }); }
+              try { await exportCommuteReport({ roster, places: mapped, minutes, homeOf, google: cm.useGoogle && cover > 0.98, scenario: cm.peak !== "am" ? cm.label : null, officeNames: cm.officeNames }); }
               catch (e) { alert(e.message || "Export failed"); }
               setExporting(false);
             }}>{I.dl} {exporting ? "Building report…" : "Excel report"}</button>
           {cm.fetching != null ? (
             <span className="src-chip live"><span className="spin" />{cm.fetchNote || `Getting Google times… ${Math.round(cm.fetching * 100)}%`}</span>
           ) : cm.useGoogle && cover > 0.98 ? (
-            <><span className="src-chip live" title={PEAK_HINT[cm.peak]}>Google drive times</span>
+            <><span className="src-chip live" title={cm.hint}>Google drive times{cm.traffic ? " · with traffic" : ""}</span>
               {cm.isAdmin && <button className="btn sm" onClick={() => cm.setUseGoogle(false)}>Use estimates</button>}</>
           ) : (
             <><span className="src-chip est" title="Straight-line distance at typical Austin speeds for the time of day">
                 {cm.useGoogle && cover > 0 ? "Partly estimated" : "Estimated"}</span>
               {cm.isAdmin && <button className="btn sm primary" onClick={() => {
                 if (!need) { cm.setUseGoogle(true); return; }
-                if (confirm(`Look up ${need.toLocaleString()} drive times from Google?\n\nGoogle's first 10,000 each month are free (Route Matrix Essentials); beyond that it's billed to the Maps key. Results are saved for everyone who opens this page, so it only needs doing once. Buildings or employees added later cost only their new pairs.`)) cm.fetchGoogle(mapped);
+                const msg = cm.traffic
+                  ? `Look up ${need.toLocaleString()} drive times from Google for ${cm.label}?\n\nThis uses Google's traffic tier (Route Matrix Pro): the first 5,000 each month are free, then about $10 per 1,000 — at most about $${Math.ceil(need * 0.01)} for this run if the free allowance is used up. Results are saved for everyone.`
+                  : `Look up ${need.toLocaleString()} drive times from Google?\n\nGoogle's first 10,000 each month are free (Route Matrix Essentials); beyond that it's about $5 per 1,000. Results are saved for everyone who opens this page, so it only needs doing once. Buildings or employees added later cost only their new pairs.`;
+                if (confirm(msg)) cm.fetchGoogle(mapped);
               }}>{need ? `Get Google drive times (${need.toLocaleString()})` : "Use Google drive times"}</button>}</>
           )}
         </div>
@@ -1838,7 +1912,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
         </div>
         <div className="dt-legend">
           <span><i className="d-good" />≤ {target} min</span><span><i className="d-mid" />{target + 1}–{target + 15}</span><span><i className="d-far" />{target + 15}+ min</span>
-          <span className="dt-note">{cm.useGoogle && cover > 0.98 ? PEAK_HINT[cm.peak] : "Estimated from distance at typical Austin speeds"}</span>
+          <span className="dt-note">{cm.useGoogle && cover > 0.98 ? cm.hint : cm.traffic ? `${cm.label} — not fetched yet; showing estimates` : "Estimated from distance at typical Austin speeds"}</span>
         </div>
       </div>
 
@@ -2265,7 +2339,7 @@ function CompareView({ all, selectedIds, onRemove, onClear, amenCols, goTo, cm }
       return [label, (b) => (st[b.id] ? fmt(fn(st[b.id])) : "—"), null, null, (b) => bv != null && st[b.id] && fn(st[b.id]) === bv];
     };
     ROWS.push(
-      [`Drive time${cm.useGoogle ? " · Google" : " (est.)"}`, null],
+      [`Drive time${cm.useGoogle ? " · Google" : " (est.)"}${cm.peak !== "am" ? " · " + cm.label : ""}`, null],
       row("Average drive", (s) => s.avg, (v) => v + " min", true),
       row(`Within ${cm.target} min`, (s) => s.within, (v) => v + "%", false),
       row("Team hrs / week", (s) => s.hrsWk, (v) => v.toLocaleString(), true),
