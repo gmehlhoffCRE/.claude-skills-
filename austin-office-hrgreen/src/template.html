@@ -470,6 +470,28 @@
     .dp-foot { flex-direction: column; }
   }
 
+
+  /* ---------- Shortlist ---------- */
+  .star-btn { display: inline-flex; align-items: center; justify-content: center; gap: 6px; background: none; border: none; padding: 3px; cursor: pointer;
+    color: #B3BCCD; border-radius: 6px; line-height: 0; font-family: inherit; }
+  .star-btn:hover { color: #C99000; background: var(--gold-soft); }
+  .star-btn.on { color: #E0A100; }
+  .star-btn.lbl { line-height: 1; padding: 8px 12px; color: var(--ink2); background: #fff; border: 1px solid var(--line); border-radius: 7px; font-size: 12.5px; font-weight: 600; }
+  .star-btn.lbl svg { color: #B3BCCD; } .star-btn.lbl.on { background: var(--gold-soft); border-color: #F1D27A; color: #7A4F00; } .star-btn.lbl.on svg { color: #E0A100; }
+  .card-star { position: absolute; right: 7px; top: 32px; }
+  .tbl td.c-star { padding: 4px 2px; text-align: center; }
+  .detail-actions .icon-only { flex: 0 0 auto; padding: 8px 11px; }
+  .sl-switch { display: flex; align-items: center; gap: 10px; }
+  .sl-row { flex: 1; display: flex; align-items: center; gap: 10px; cursor: pointer; }
+  .sl-row.off { cursor: default; } .sl-row.off .sl-t, .sl-row.off .sl-ic { opacity: .55; }
+  .sl-ic { color: #E0A100; flex: none; }
+  .sl-t { flex: 1; font-size: 13px; font-weight: 600; color: var(--ink2); line-height: 1.25; }
+  .sl-t small { display: block; font-size: 11px; font-weight: 400; color: var(--ink4); }
+  .sl-t .n { color: var(--ink4); font-weight: 400; }
+  .sl-clear { flex: none; }
+  .pin-bldg.short .pin-face { box-shadow: 0 0 0 3px #FFB600, 0 1px 3px rgba(0,30,90,.35); }
+  .pin-bldg.short.act .pin-face { box-shadow: 0 0 0 4px rgba(255,182,0,.28), 0 2px 8px rgba(0,30,90,.35); }
+
   @media (max-width: 1100px) {
     .kpis { grid-template-columns: repeat(3, 1fr); }
     .body { grid-template-columns: 260px 1fr; }
@@ -829,9 +851,9 @@ const mapsLink = (b) => "https://www.google.com/maps/search/?api=1&query=" + enc
 
 // ===================== FILTERS =====================
 const EMPTY_FILTERS = { q: "", submarkets: [], classes: [], cities: [], totalMin: "", totalMax: "", rentMin: "", rentMax: "",
-  rbaMin: "", rbaMax: "", leasedMin: "", leasedMax: "", storiesMin: "", since: "", amenities: [] };
+  rbaMin: "", rbaMax: "", leasedMin: "", leasedMax: "", storiesMin: "", since: "", amenities: [], shortOnly: false };
 
-function applyFilters(list, f) {
+function applyFilters(list, f, shortIds = []) {
   const q = f.q.trim().toLowerCase();
   const inRange = (v, lo, hi) => {
     const a = num(lo), b = num(hi);
@@ -840,6 +862,7 @@ function applyFilters(list, f) {
     return (a == null || v >= a) && (b == null || v <= b);
   };
   return list.filter((b) => {
+    if (f.shortOnly && !shortIds.includes(b.id)) return false;
     if (q && ![b.name, b.address, b.owner, b.submarket, b.city].some((s) => s.toLowerCase().includes(q))) return false;
     if (f.submarkets.length && !f.submarkets.includes(b.submarket)) return false;
     if (f.classes.length && !f.classes.includes(b.cls)) return false;
@@ -867,6 +890,37 @@ const SORTS = {
   name:       { label: "Name A → Z", fn: (a, b) => a.name.localeCompare(b.name) },
 };
 function nz(v, dir) { return v == null ? dir * 1e12 : v; }
+
+// ===================== SHORTLIST =====================
+// A viewer's shortlist (saved in this browser). Separate from Compare, which is capped at 6.
+const ShortCtx = React.createContext({ ids: [], toggle: () => {}, only: false, setOnly: () => {}, clear: () => {} });
+const STAR_PATH = "M12 2.8l2.7 5.6 6.1.8-4.5 4.2 1.1 6.1L12 16.6l-5.4 2.9 1.1-6.1L3.2 9.2l6.1-.8z";
+function StarBtn({ id, label = false, className = "" }) {
+  const sl = React.useContext(ShortCtx);
+  const on = sl.ids.includes(id);
+  return (
+    <button type="button" className={"star-btn" + (on ? " on" : "") + (label ? " lbl" : "") + (className ? " " + className : "")}
+      aria-pressed={on} title={on ? "Remove from shortlist" : "Add to shortlist"}
+      onClick={(e) => { e.stopPropagation(); sl.toggle(id); }}>
+      <svg viewBox="0 0 24 24" width={label ? 15 : 17} height={label ? 15 : 17}><path d={STAR_PATH} fill={on ? "currentColor" : "none"} stroke="currentColor" strokeWidth="1.8" strokeLinejoin="round" /></svg>
+      {label && <span>{on ? "Shortlisted" : "Shortlist"}</span>}
+    </button>
+  );
+}
+function ShortlistSwitch({ compact = false }) {
+  const sl = React.useContext(ShortCtx);
+  const n = sl.ids.length;
+  return (
+    <div className={"sl-switch" + (compact ? " compact" : "")}>
+      <label className={"sl-row" + (n ? "" : " off")} title={n ? "" : "Star buildings to build a shortlist"}>
+        <svg viewBox="0 0 24 24" width="15" height="15" className="sl-ic"><path d={STAR_PATH} fill="currentColor" /></svg>
+        <span className="sl-t">Shortlist only{!compact && <small>{n ? `${n} building${n > 1 ? "s" : ""} starred` : "Star buildings to build one"}</small>}{compact && <span className="n"> {n}</span>}</span>
+        <input type="checkbox" role="switch" className="switch" disabled={!n} checked={!!n && sl.only} onChange={(e) => sl.setOnly(e.target.checked)} />
+      </label>
+      {n > 0 && <button type="button" className="btn sm sl-clear" onClick={() => sl.clear()} title="Unstar every building">Clear</button>}
+    </div>
+  );
+}
 
 // ===================== ICONS =====================
 const Icon = ({ d, size = 15 }) => (
@@ -1582,6 +1636,7 @@ async function exportCommuteReport({ roster, places, minutes, homeOf, google, of
 }
 
 function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, onToggle, canAdd, onOpenBuilding }) {
+  const shortIds = React.useContext(ShortCtx).ids;
   const [sk, setSk] = useState("rank"), [dir, setDir] = useState(1);
   const [selId, setSelId] = useState(null);
   const [hoverId, setHoverId] = useState(null);
@@ -1620,7 +1675,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
     return out;
   }, [rows, roster, target, showComp, layers.competitors, cm.offices, rank]);
 
-  const stateKey = [focusId, sel && sel.b.id, selectedIds.join(","), cm.peak, cm.useGoogle, target, items.length].join("|");
+  const stateKey = [focusId, sel && sel.b.id, selectedIds.join(","), shortIds.join(","), cm.peak, cm.useGoogle, target, items.length].join("|");
   const pinState = (el, it) => {
     if (it.kind === "emp") {
       const m = focus ? minutes(it.emp, focus.b) : null;
@@ -1630,6 +1685,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
       return;
     }
     if (it.kind !== "bldg") return;
+    el.classList.toggle("short", shortIds.includes(it.id));
     el.classList.toggle("act", sel && it.id === sel.b.id);
     el.classList.toggle("hov", it.id === hoverId);
     el.classList.toggle("sel", selectedIds.includes(it.id));
@@ -1670,6 +1726,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
           </select>
           <span className="db-n">{roster.length} people</span>
         </div>
+        <div className="db-group"><ShortlistSwitch compact /></div>
         <div className="db-group">
           <span className="db-n">{list.length === total ? `All ${total} buildings` : `${list.length} of ${total} buildings`}
             {nFilters > 0 && <> · <button className="link" onClick={() => goTo("map")}>{nFilters} filter{nFilters > 1 ? "s" : ""} on</button></>}</span>
@@ -1711,7 +1768,8 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
               <th onClick={() => by("within")}>Within {target} min{arr("within")}</th>
               <th className="r" onClick={() => by("hrs")} title="Total team drive time per week (round trip, 5 days)">Team hrs/wk{arr("hrs")}</th>
               <th className="r" onClick={() => by("delta")} title="Change in team hours per week vs each person's current office">vs today{arr("delta")}</th>
-              <th style={{ width: 30 }}></th>
+              <th style={{ width: 30 }} title="Shortlist"></th>
+              <th style={{ width: 30 }} title="Compare"></th>
             </tr></thead>
             <tbody>
               {today && (
@@ -1722,7 +1780,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
                   <td className="r">{today.med} min</td>
                   <td><div className="within"><DistBar s={today} target={target} /><span>{today.within}%</span></div></td>
                   <td className="r">{today.hrsWk.toLocaleString()}</td>
-                  <td className="r">—</td><td></td>
+                  <td className="r">—</td><td></td><td></td>
                 </tr>
               )}
               {sorted.map((r) => {
@@ -1737,6 +1795,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
                     <td><div className="within"><DistBar s={r.s} target={target} /><span>{r.s.within}%</span></div></td>
                     <td className="r">{r.s.hrsWk.toLocaleString()}</td>
                     <td className={"r delta " + (r.s.deltaHrs == null ? "" : r.s.deltaHrs < 0 ? "good" : r.s.deltaHrs > 0 ? "bad" : "")}>{fmtDeltaHrs(r.s.deltaHrs)}</td>
+                    <td className="c-star" onClick={(e) => e.stopPropagation()}><StarBtn id={r.b.id} /></td>
                     <td onClick={(e) => e.stopPropagation()}><input type="checkbox" title="Add to compare" checked={inCmp} disabled={!inCmp && !canAdd} onChange={() => onToggle(r.b.id)} /></td>
                   </tr>
                 );
@@ -1852,7 +1911,8 @@ function DetailCard({ b, selected, onToggleCompare, onClose, canAdd, onDetails }
         <button className={"btn " + (selected ? "gold" : "")} onClick={onToggleCompare} disabled={!selected && !canAdd}>
           {selected ? "✓ In compare" : canAdd ? "+ Add to compare" : `Compare full (${MAX_COMPARE})`}
         </button>
-        <a className="btn" href={mapsLink(b)} target="_blank" rel="noopener">{I.pin} Google Maps</a>
+        <StarBtn id={b.id} label />
+        <a className="btn icon-only" href={mapsLink(b)} target="_blank" rel="noopener" title="Open in Google Maps">{I.pin}</a>
       </div>
     </div>
   );
@@ -1968,6 +2028,7 @@ function FiltersPanel({ all, amenCols, f, setF, onReset, shown, mapLayers }) {
       <div className="panel-h">{I.filter}<span className="panel-t">Filters</span>
         {nActive > 0 && <span className="tag gold" style={{ marginLeft: "auto" }}>{nActive} active</span>}</div>
       <div className="panel-b">
+        <div className="f-sec"><ShortlistSwitch /></div>
         <div className="f-sec">
           <div className="search">{I.search}<input placeholder="Search building, address, owner…" value={f.q} onChange={(e) => set({ q: e.target.value })} /></div>
         </div>
@@ -2055,6 +2116,7 @@ function ListPanel({ list, labels, sort, setSort, activeId, hoveredId, selectedI
               <label className="cmp-box" onClick={(e) => e.stopPropagation()} title="Add to compare">
                 <input type="checkbox" checked={sel} disabled={!sel && !canAdd} onChange={() => onToggle(b.id)} />
               </label>
+              <StarBtn id={b.id} className="card-star" />
             </div>
           );
         })}
@@ -2100,7 +2162,8 @@ function TableView({ list, labels, selectedIds, onToggle, onOpen, canAdd }) {
         {list.length === 0 ? <div className="empty">No buildings match these filters.</div> : (
           <table className="tbl prop">
             <thead><tr>
-              <th style={{ width: 30 }}></th>
+              <th style={{ width: 30 }} title="Compare"></th>
+              <th style={{ width: 30 }} title="Shortlist"></th>
               {TABLE_COLS.map((c) => <th key={c.k} className={c.r ? "r" : ""} onClick={() => click(c)}>{c.label}{sk === c.k && <span className="arr">{dir > 0 ? "▲" : "▼"}</span>}</th>)}
             </tr></thead>
             <tbody>
@@ -2108,7 +2171,8 @@ function TableView({ list, labels, selectedIds, onToggle, onOpen, canAdd }) {
                 const sel = selectedIds.includes(b.id);
                 return (
                   <tr key={b.id} className={sel ? "sel" : ""} onClick={() => onOpen(b.id)}>
-                    <td onClick={(e) => e.stopPropagation()}><input type="checkbox" checked={sel} disabled={!sel && !canAdd} onChange={() => onToggle(b.id)} /></td>
+                    <td onClick={(e) => e.stopPropagation()}><input type="checkbox" title="Add to compare" checked={sel} disabled={!sel && !canAdd} onChange={() => onToggle(b.id)} /></td>
+                    <td className="c-star" onClick={(e) => e.stopPropagation()}><StarBtn id={b.id} /></td>
                     {TABLE_COLS.map((c) => (
                       <td key={c.k} className={(c.r ? "r " : "") + "c-" + c.k}>
                         {c.k === "photo" ? (b.photo ? <img src={b.photo} alt="" loading="lazy" /> : null)
@@ -2322,6 +2386,7 @@ function DetailPage({ b, all, list, cm, layers, amenCols, selected, canAdd, onTo
             <div className="dp-acts">
               <button className={"btn " + (selected ? "primary" : "gold")} onClick={onToggleCompare} disabled={!selected && !canAdd}>
                 {selected ? "✓ In compare" : canAdd ? "+ Add to compare" : `Compare full (${MAX_COMPARE})`}</button>
+              <StarBtn id={b.id} label />
               <a className="btn" href={mapsLink(b)} target="_blank" rel="noopener">{I.pin} Open in Google Maps</a>
             </div>
           </div>
@@ -2429,7 +2494,17 @@ function App() {
   // Drop compare picks that no longer exist after a sheet update.
   useEffect(() => { if (all.length) setSelectedIds((s) => s.filter((id) => all.some((b) => b.id === id))); }, [all]);
 
-  const list = useMemo(() => applyFilters(all, f).sort(SORTS[sort].fn), [all, f, sort]);
+  const [shortIds, setShortIds] = useState(() => { try { return JSON.parse(localStorage.getItem(LOCAL_CACHE_KEY + ":shortlist") || "[]"); } catch (e) { return []; } });
+  useEffect(() => { try { localStorage.setItem(LOCAL_CACHE_KEY + ":shortlist", JSON.stringify(shortIds)); } catch (e) {} }, [shortIds]);
+  useEffect(() => { if (all.length) setShortIds((s) => s.filter((id) => all.some((b) => b.id === id))); }, [all]);
+  useEffect(() => { if (!shortIds.length && f.shortOnly) setF((p) => ({ ...p, shortOnly: false })); }, [shortIds.length]);
+  const shortCtx = useMemo(() => ({
+    ids: shortIds, only: f.shortOnly,
+    toggle: (id) => setShortIds((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id])),
+    setOnly: (v) => setF((p) => ({ ...p, shortOnly: v })),
+    clear: () => { setShortIds([]); setF((p) => ({ ...p, shortOnly: false })); },
+  }), [shortIds, f.shortOnly]);
+  const list = useMemo(() => applyFilters(all, f, shortIds).sort(SORTS[sort].fn), [all, f, sort, shortIds]);
   const labels = useMemo(() => { const m = {}; list.forEach((b, i) => (m[b.id] = i + 1)); return m; }, [list]);
   const canAdd = selectedIds.length < MAX_COMPARE;
   const toggle = (id) => setSelectedIds((s) => (s.includes(id) ? s.filter((x) => x !== id) : s.length < MAX_COMPARE ? [...s, id] : s));
@@ -2453,6 +2528,7 @@ function App() {
   }, [list, labels, show, layers, cm.offices, cm.homeOf]);
   const mapState = (el, it) => {
     if (it.kind !== "bldg") return;
+    el.classList.toggle("short", shortIds.includes(it.id));
     el.classList.toggle("act", it.id === activeId);
     el.classList.toggle("hov", it.id === hoveredId);
     el.classList.toggle("sel", selectedIds.includes(it.id));
@@ -2471,6 +2547,7 @@ function App() {
   const statusTitle = data.error ? data.error : data.updatedAt ? "Sheet last changed " + new Date(data.updatedAt).toLocaleString() : "";
 
   return (
+    <ShortCtx.Provider value={shortCtx}>
     <div className="app">
       <header className="hdr">
         <img className="hdr-logo" src={LOGO} alt="Cresa" />
@@ -2512,7 +2589,7 @@ function App() {
           <ListPanel list={list} labels={labels} sort={sort} setSort={setSort} activeId={activeId} hoveredId={hoveredId}
             selectedIds={selectedIds} onOpen={(id) => setActiveId(id)} onHover={setHoveredId} onToggle={toggle} canAdd={canAdd} />
           <div className="map-wrap">
-            <MapCanvas items={mapItems} state={mapState} stateKey={[activeId, hoveredId, selectedIds.join(",")].join("|")}
+            <MapCanvas items={mapItems} state={mapState} stateKey={[activeId, hoveredId, selectedIds.join(","), shortIds.join(",")].join("|")}
               fitKey={list.map((b) => b.id).join("|")} fitTo={list} focus={active ? { key: active.id, lat: active.lat, lng: active.lng } : null}
               onClick={(it) => it.kind === "bldg" && setActiveId(it.id)} onHover={(it) => setHoveredId(it && it.kind === "bldg" ? it.id : null)}>
               <MapLayerBar show={show} setShow={setShow} counts={{ office: cm.offices.length, comp: layers.competitors.length, emp: layers.employees.length }} />
@@ -2534,6 +2611,7 @@ function App() {
       </>}
 
     </div>
+    </ShortCtx.Provider>
   );
 }
 
