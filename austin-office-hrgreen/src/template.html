@@ -1270,19 +1270,250 @@ function DistBar({ s, target }) {
 const bandOf = (m, t) => (m <= t ? "good" : m <= t + 15 ? "mid" : "far");
 const fmtDeltaHrs = (h) => (h == null ? "—" : h === 0 ? "±0" : (h < 0 ? "−" : "+") + Math.abs(h).toLocaleString());
 
-function exportDriveMatrix(roster, places, minutes, homeOf, useGoogle) {
-  const escC = (v) => { const t = v == null ? "" : String(v); return /[",\n]/.test(t) ? '"' + t.replace(/"/g, '""') + '"' : t; };
-  const head = ["Employee", "Office", "Department", "Home ZIP", "Today (own office)", ...places.map((p) => p.name)];
-  const lines = roster.map((e, i) => {
-    const h = homeOf(e);
-    return [i + 1, officeShort(e.office), e.dept, e.zip, h ? minutes(e, h) : "", ...places.map((p) => minutes(e, p))].map(escC).join(",");
+// ===================== EXCEL COMMUTE REPORT =====================
+// Three tabs, styled like the HR Green commute analysis: Analysis Overview, Building Ranking, Commute Matrix.
+// Every summary cell is a live Excel formula over the matrix (with its value cached so it shows instantly).
+const XL = {
+  navy: "FF001E5A", blue: "FF0056DA", gold: "FFFFB600", zebra: "FFF2F4F8", white: "FFFFFFFF", ink: "FF000000",
+  grey: "FF5A6580", line: "FFD9DEE8", green: "FFE8F3E8", amber: "FFFFF4D9", red: "FFF4B9B2",
+};
+const colL = (n) => { let s = ""; while (n > 0) { const m = (n - 1) % 26; s = String.fromCharCode(65 + m) + s; n = Math.floor((n - 1) / 26); } return s; };
+const xlFont = (o = {}) => ({ name: "Arial", size: 10, color: { argb: XL.ink }, ...o, ...(o.color ? { color: { argb: o.color } } : {}) });
+const xlFill = (argb) => ({ type: "pattern", pattern: "solid", fgColor: { argb } });
+const xlBorder = { top: { style: "thin", color: { argb: XL.line } }, bottom: { style: "thin", color: { argb: XL.line } },
+  left: { style: "thin", color: { argb: XL.line } }, right: { style: "thin", color: { argb: XL.line } } };
+const mean = (a) => { const v = a.filter((x) => x != null); return v.length ? v.reduce((s, x) => s + x, 0) / v.length : null; };
+const med = (a) => { const v = a.filter((x) => x != null).sort((x, y) => x - y); if (!v.length) return null; const m = Math.floor(v.length / 2); return v.length % 2 ? v[m] : (v[m - 1] + v[m]) / 2; };
+const r1 = (x) => (x == null ? null : Math.round(x * 10) / 10);
+
+function loadExcelJS() {
+  if (window.ExcelJS) return Promise.resolve(window.ExcelJS);
+  const urls = ["https://cdn.jsdelivr.net/npm/exceljs@4.4.0/dist/exceljs.min.js", "https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.4.0/exceljs.min.js"];
+  return urls.reduce((p, u) => p.catch(() => new Promise((res, rej) => {
+    const s = document.createElement("script"); s.src = u; s.onload = () => (window.ExcelJS ? res(window.ExcelJS) : rej()); s.onerror = rej; document.head.appendChild(s);
+  })), Promise.reject()).catch(() => { throw new Error("Couldn't load the Excel library. Check your connection and try again."); });
+}
+
+async function logoPng() {
+  const img = new Image(); img.src = LOGO;
+  await img.decode();
+  const c = document.createElement("canvas"); c.width = 472; c.height = 84;
+  c.getContext("2d").drawImage(img, 0, 0, 472, 84);
+  return c.toDataURL("image/png");
+}
+
+function barChartPng(rows, title) {
+  const W = 1800, rowH = 64, top = 120, H = top + rows.length * rowH + 50, labelW = 760;
+  const c = document.createElement("canvas"); c.width = W; c.height = H;
+  const g = c.getContext("2d");
+  g.fillStyle = "#fff"; g.fillRect(0, 0, W, H);
+  g.fillStyle = "#001E5A"; g.font = "bold 40px Arial"; g.textAlign = "center"; g.fillText(title, W / 2, 64);
+  const lo = Math.min(...rows.map((r) => r.v)), hi = Math.max(...rows.map((r) => r.v));
+  const base = Math.max(0, Math.floor(lo - Math.max(2, (hi - lo) * 1.5))); // start near the data so differences are visible
+  const span = Math.max(1, hi - base), maxW = W - labelW - 160;
+  rows.forEach((r, i) => {
+    const y = top + i * rowH;
+    g.fillStyle = "#2B3350"; g.font = "26px Arial"; g.textAlign = "right"; g.textBaseline = "middle";
+    let lab = r.label; while (g.measureText(lab).width > labelW - 30 && lab.length > 8) lab = lab.slice(0, -2);
+    if (lab !== r.label) lab = lab.trimEnd() + "…";
+    g.fillText(lab, labelW - 20, y + rowH / 2);
+    const w = Math.max(4, ((r.v - base) / span) * maxW);
+    g.fillStyle = r.best ? "#FFB600" : "#001E5A"; g.fillRect(labelW, y + 14, w, rowH - 28);
+    g.fillStyle = "#0E1220"; g.font = "bold 26px Arial"; g.textAlign = "left"; g.fillText(r.v.toFixed(1), labelW + w + 12, y + rowH / 2);
   });
-  const note = useGoogle ? "Minutes, home to office, Google standard drive time (no live traffic)" : "Minutes, estimated from distance";
-  const csv = [escC(note), head.map(escC).join(","), ...lines].join("\n");
+  g.strokeStyle = "#C9D2E3"; g.lineWidth = 2; g.beginPath(); g.moveTo(labelW, top - 6); g.lineTo(labelW, top + rows.length * rowH + 6); g.stroke();
+  g.fillStyle = "#8A93A8"; g.font = "22px Arial"; g.textAlign = "left"; g.fillText(`Axis starts at ${base} min`, labelW, H - 18);
+  return { url: c.toDataURL("image/png"), w: W / 2, h: H / 2 };
+}
+
+async function exportCommuteReport({ roster, places, minutes, homeOf, google, officeNames }) {
+  const ExcelJS = await loadExcelJS();
+  const wb = new ExcelJS.Workbook();
+  wb.creator = "Cresa"; wb.created = new Date();
+  const logoId = wb.addImage({ base64: await logoPng(), extension: "png" });
+
+  // ---- data ----
+  const emps = roster.slice().sort((a, b) => officeShort(a.office).localeCompare(officeShort(b.office)) || (a.dept || "").localeCompare(b.dept || ""));
+  const N = emps.length, M = places.length;
+  const today = emps.map((e) => { const h = homeOf(e); return h ? minutes(e, h) : null; });
+  const grid = places.map((p) => emps.map((e) => minutes(e, p)));
+  const offices = officeNames.filter((o) => emps.some((e) => officeShort(e.office) === o));
+  const nameOf = (b) => b.unit || b.name;
+  const labelOf = (b) => (nameOf(b) === b.address ? b.address : `${nameOf(b)} — ${b.address}`);
+  const R0 = 8, R1 = R0 + N - 1;                       // matrix data rows
+  const MCOL = (i) => colL(6 + i);                      // building i → matrix column (F = first building)
+  const rng = (i) => `'Commute Matrix'!${MCOL(i)}${R0}:${MCOL(i)}${R1}`;
+  const TODAY = `'Commute Matrix'!$E$${R0}:$E$${R1}`, OFF = `'Commute Matrix'!$B$${R0}:$B$${R1}`;
+  const stat = (arr) => {
+    const byOff = {}; offices.forEach((o) => { byOff[o] = mean(emps.map((e, k) => (officeShort(e.office) === o ? arr[k] : null))); });
+    return { avg: mean(arr), med: med(arr), min: Math.min(...arr.filter((x) => x != null)), max: Math.max(...arr.filter((x) => x != null)), byOff };
+  };
+  const todayS = stat(today);
+  const B = places.map((p, i) => {
+    const s = stat(grid[i]);
+    const shorter = grid[i].filter((m, k) => today[k] != null && m < today[k]).length;
+    const longer = grid[i].filter((m, k) => today[k] != null && m > today[k]).length;
+    return { p, i, ...s, shorter, longer, delta: s.avg - todayS.avg };
+  });
+  const ranked = B.slice().sort((a, b) => a.avg - b.avg || b.shorter - a.shorter);
+  const top5 = ranked.slice(0, 5);
+  const source = google ? "Google drive time" : "Estimated drive time";
+  const target = 20;
+
+  // ---- shared sheet chrome: logo, gold rule, navy title band ----
+  const chrome = (ws, lastCol, title, sub) => {
+    ws.properties.defaultRowHeight = 16;
+    ws.pageSetup = { fitToPage: true, fitToWidth: 1, fitToHeight: 0, paperSize: 1, orientation: lastCol.length > 1 ? "landscape" : "portrait",
+      horizontalCentered: true, margins: { left: 0.4, right: 0.4, top: 0.5, bottom: 0.5, header: 0.2, footer: 0.2 } };
+    ws.getRow(1).height = 54; ws.addImage(logoId, { tl: { col: 0.15, row: 0.15 }, ext: { width: 236, height: 42 } });
+    ws.mergeCells(`A2:${lastCol}2`); ws.getRow(2).height = 5; ws.getCell("A2").fill = xlFill(XL.gold);
+    ws.mergeCells(`A3:${lastCol}3`); ws.mergeCells(`A4:${lastCol}4`);
+    Object.assign(ws.getCell("A3"), { value: title, font: xlFont({ size: 16, bold: true, color: XL.white }), fill: xlFill(XL.navy), alignment: { vertical: "middle", indent: 1 } });
+    Object.assign(ws.getCell("A4"), { value: sub, font: xlFont({ size: 9, italic: true, color: XL.white }), fill: xlFill(XL.navy), alignment: { vertical: "middle", indent: 1 } });
+    ws.getRow(3).height = 30; ws.getRow(4).height = 20;
+  };
+  const head = (cell, text, fill = XL.navy, size = 9) => Object.assign(cell, { value: text, font: xlFont({ size, bold: true, color: XL.white }), fill: xlFill(fill),
+    alignment: { horizontal: "center", vertical: "middle", wrapText: true }, border: xlBorder });
+  const put = (cell, value, o = {}) => Object.assign(cell, { value, font: xlFont({ size: o.size || 10, bold: !!o.bold }), fill: xlFill(o.fill || XL.white),
+    alignment: { horizontal: o.h || "center", vertical: "middle", wrapText: !!o.wrap }, border: xlBorder, ...(o.fmt ? { numFmt: o.fmt } : {}) });
+
+  // ================= Analysis Overview =================
+  const ov = wb.addWorksheet("Analysis Overview", { views: [{ showGridLines: false }], properties: { tabColor: { argb: XL.navy } } });
+  [30, 15, 17, 17, 17, 17, 17].forEach((w, i) => (ov.getColumn(i + 1).width = w));
+  chrome(ov, "G", "HR Green Austin Office Commute Analysis",
+    `Drive-time impact of consolidating ${N} employees into one Austin office  |  vs. today's ${offices.length === 1 ? "office" : offices.length + "-office"} baseline  |  ${source}`);
+  let r = 7;
+  const section = (text) => { ov.mergeCells(`A${r}:G${r}`); Object.assign(ov.getCell(`A${r}`), { value: text, font: xlFont({ size: 11, bold: true, color: XL.white }), fill: xlFill(XL.navy), alignment: { vertical: "middle", indent: 1 } }); ov.getRow(r).height = 20; r++; };
+  const colHeads = () => {
+    head(ov.getCell(`A${r}`), "Metric", XL.blue); ov.getCell(`A${r}`).alignment = { horizontal: "left", vertical: "middle", indent: 1 };
+    head(ov.getCell(`B${r}`), "Today\n(own office)", XL.blue);
+    top5.forEach((t, j) => head(ov.getCell(`${colL(3 + j)}${r}`), `${nameOf(t.p)}\n${nameOf(t.p) === t.p.address ? "" : t.p.address}`.trim(), XL.blue));
+    ov.getRow(r).height = 40; r++;
+  };
+  const metricRow = (label, todayF, todayV, f, v, fmt, zebra) => {
+    put(ov.getCell(`A${r}`), label, { h: "left", fill: zebra ? XL.zebra : XL.white });
+    put(ov.getCell(`B${r}`), todayF ? { formula: todayF, result: todayV } : "—", { fmt, fill: zebra ? XL.zebra : XL.white });
+    top5.forEach((t, j) => put(ov.getCell(`${colL(3 + j)}${r}`), { formula: f(t), result: v(t) }, { fmt, fill: zebra ? XL.zebra : XL.white }));
+    r++;
+  };
+  section("A  ·  BASELINE & TOP-5 SHORTLIST");
+  colHeads();
+  let z = false;
+  metricRow("Average Commute (All)", `AVERAGE(${TODAY})`, r1(todayS.avg), (t) => `AVERAGE(${rng(t.i)})`, (t) => r1(t.avg), "0.0", z = !z);
+  offices.forEach((o) => metricRow(`Average (${o})`, `AVERAGEIF(${OFF},"${o}",${TODAY})`, r1(todayS.byOff[o]),
+    (t) => `AVERAGEIF(${OFF},"${o}",${rng(t.i)})`, (t) => r1(t.byOff[o]), "0.0", z = !z));
+  metricRow("Median Commute", `MEDIAN(${TODAY})`, todayS.med, (t) => `MEDIAN(${rng(t.i)})`, (t) => t.med, "0.0", z = !z);
+  metricRow("Max Commute", `MAX(${TODAY})`, todayS.max, (t) => `MAX(${rng(t.i)})`, (t) => t.max, "0", z = !z);
+  metricRow(`Employees ≤${target} min`, `COUNTIF(${TODAY},"<=${target}")`, today.filter((m) => m != null && m <= target).length,
+    (t) => `COUNTIF(${rng(t.i)},"<=${target}")`, (t) => grid[t.i].filter((m) => m <= target).length, "0", z = !z);
+  r++;
+  section("B  ·  IMPACT vs. TODAY (consolidation)");
+  colHeads(); z = false;
+  metricRow("Δ Avg Commute (min)", null, null, (t) => `AVERAGE(${rng(t.i)})-AVERAGE(${TODAY})`, (t) => r1(t.delta), "+0.0;-0.0;0.0", z = !z);
+  metricRow("% Change vs Today", null, null, (t) => `(AVERAGE(${rng(t.i)})-AVERAGE(${TODAY}))/AVERAGE(${TODAY})`, (t) => t.delta / todayS.avg, "+0.0%;-0.0%;0.0%", z = !z);
+  metricRow("Employees w/ Shorter Commute", null, null, (t) => `SUMPRODUCT(--(${rng(t.i)}<${TODAY}))`, (t) => t.shorter, "0", z = !z);
+  metricRow("Employees w/ Longer Commute", null, null, (t) => `SUMPRODUCT(--(${rng(t.i)}>${TODAY})*(${TODAY}<>""))`, (t) => t.longer, "0", z = !z);
+  r++;
+
+  // Key takeaways, written from the numbers.
+  section("C  ·  KEY TAKEAWAYS");
+  const best = ranked[0], beat = B.filter((b) => b.delta < 0).length;
+  const mostShorter = B.slice().sort((a, b) => b.shorter - a.shorter || a.avg - b.avg)[0];
+  const offPart = offices.length > 1 ? ` (${offices.map((o) => `${r1(todayS.byOff[o])} min for the ${emps.filter((e) => officeShort(e.office) === o).length} ${o} staff`).join(", ")})` : "";
+  const d = r1(best.delta);
+  const lean = offices.length > 1 ? offices.slice().sort((a, b) => best.byOff[a] - best.byOff[b])[0] : null;
+  const spread = top5.length > 1 ? r1(top5[top5.length - 1].avg - top5[0].avg) : 0;
+  const bullets = [
+    `Today's ${offices.length > 1 ? "split-office" : "office"} setup averages ${r1(todayS.avg)} min per employee${offPart}.`,
+    `Best single location: ${labelOf(best.p)} averages ${r1(best.avg)} min — ${Math.abs(d) <= 0.3 ? "effectively matching" : d < 0 ? `${Math.abs(d)} min less than` : `${d} min more than`} today's commute (${d > 0 ? "+" : ""}${d} min).`,
+    beat === 0 ? `None of the ${M} candidate buildings beats today's baseline. That's expected: today each employee drives to their own office, so any single site adds time for some.`
+      : `${beat} of ${M} candidate buildings beat${beat === 1 ? "s" : ""} today's baseline${beat <= 3 ? ` — today each employee drives to their own office, so most single sites add a little for some` : ""}.`,
+    mostShorter.p.id !== best.p.id
+      ? `Lowest average isn't the whole story: ${nameOf(best.p)}${lean ? ` favors ${lean} commuters` : " has the lowest average"}, while ${labelOf(mostShorter.p)} shortens the commute for the most employees (${mostShorter.shorter} of ${N}).`
+      : `${nameOf(best.p)} also shortens the commute for the most employees (${best.shorter} of ${N}).`,
+    spread <= 1.5
+      ? `The top of the shortlist is tightly clustered — the top ${top5.length} buildings sit within about ${spread} min of each other — so commute is a near-tie across them and rent, space and amenities can drive the decision.`
+      : `The top ${top5.length} buildings span ${spread} min, so commute is a real differentiator within the shortlist.`,
+    `Full detail: the Building Ranking tab ranks all ${M} candidates${offices.length > 1 ? ` with ${offices.join(" / ")} splits` : ""}; the Commute Matrix tab holds every employee-by-building drive time.`,
+  ];
+  bullets.forEach((t) => {
+    ov.mergeCells(`A${r}:G${r}`);
+    Object.assign(ov.getCell(`A${r}`), { value: "▸  " + t, font: xlFont({ size: 10 }), alignment: { wrapText: true, vertical: "top", indent: 1 } });
+    ov.getRow(r).height = 15 * Math.ceil((t.length + 4) / 115) + 8; r++;
+  });
+  r++;
+  section(`D  ·  TOP ${Math.min(12, M)} CANDIDATES BY AVERAGE COMMUTE (min)`);
+  const chart = barChartPng(ranked.slice(0, 12).map((b, k) => ({ label: labelOf(b.p), v: r1(b.avg), best: k === 0 })), "Average Employee Commute by Location (min)");
+  ov.addImage(wb.addImage({ base64: chart.url, extension: "png" }), { tl: { col: 0, row: r }, ext: { width: chart.w, height: chart.h } });
+
+  // ================= Building Ranking =================
+  const rk = wb.addWorksheet("Building Ranking", { views: [{ state: "frozen", xSplit: 3, ySplit: 8, showGridLines: false }], properties: { tabColor: { argb: XL.gold } } });
+  const offCols = offices.map((o) => ({ h: `Avg\n${o.replace(/^Austin\s+/i, "Austin ").replace(/North$/i, "N").replace(/South$/i, "S")}`, o }));
+  const bands = [["≤10\nmin", "<=10"], ["11–20\nmin", ">10", "<=20"], ["21–30\nmin", ">20", "<=30"], ["31–40\nmin", ">30", "<=40"], ["41–50\nmin", ">40", "<=50"], ["50+\nmin", ">50"]];
+  const heads = ["Rank", "Candidate Building", "Address", "Avg\n(All)", ...offCols.map((c) => c.h), "Min", "Max", ...bands.map((b) => b[0]), "# Shorter\nvs Today", "Δ vs\nToday"];
+  const RL = colL(heads.length);
+  [5, 26, 24, 9, ...offCols.map(() => 10), 6.5, 6.5, ...bands.map(() => 7.5), 10.5, 9.5].forEach((w, i) => (rk.getColumn(i + 1).width = w));
+  chrome(rk, RL, "HR Green — Candidate Building Ranking",
+    `All ${M} Austin candidate buildings ranked by average commute, with address and employee commute-band breakdown  |  Baseline (today): ${r1(todayS.avg)} min  |  ${source}`);
+  heads.forEach((h, i) => head(rk.getCell(7, i + 1), h)); rk.getRow(7).height = 34;
+  const bandF = (R, b) => (b.length === 2 ? `COUNTIF(${R},"${b[1]}")` : `COUNTIFS(${R},"${b[1]}",${R},"${b[2]}")`);
+  const bandV = (arr, b) => arr.filter((m) => m != null && (b.length === 2 ? (b[1] === "<=10" ? m <= 10 : m > 50) : m > +b[1].slice(1) && m <= +b[2].slice(2))).length;
+  const rankRow = (row, rank, name, addr, R, arr, s, isToday, fill, tb) => {
+    const o = { fill, bold: isToday };
+    put(rk.getCell(row, 1), rank, { ...o }); put(rk.getCell(row, 2), name, { ...o, h: "left", wrap: true }); put(rk.getCell(row, 3), addr, { ...o, h: "left", wrap: true });
+    rk.getCell(row, 3).font = xlFont({ size: 9, italic: isToday, bold: isToday });
+    let c = 4;
+    put(rk.getCell(row, c++), { formula: `AVERAGE(${R})`, result: r1(s.avg) }, { ...o, fmt: "0.0" });
+    offCols.forEach((oc) => put(rk.getCell(row, c++), { formula: `AVERAGEIF(${OFF},"${oc.o}",${R})`, result: r1(s.byOff[oc.o]) }, { ...o, fmt: "0.0" }));
+    put(rk.getCell(row, c++), { formula: `MIN(${R})`, result: s.min }, { ...o, fmt: "0" });
+    put(rk.getCell(row, c++), { formula: `MAX(${R})`, result: s.max }, { ...o, fmt: "0" });
+    bands.forEach((b) => put(rk.getCell(row, c++), { formula: bandF(R, b), result: bandV(arr, b) }, { ...o, fmt: "0" }));
+    put(rk.getCell(row, c++), isToday ? "—" : { formula: `SUMPRODUCT(--(${R}<${TODAY}))`, result: tb.shorter }, { ...o, fmt: "0" });
+    put(rk.getCell(row, c++), isToday ? "—" : { formula: `AVERAGE(${R})-AVERAGE(${TODAY})`, result: r1(tb.delta) }, { ...o, fmt: "+0.0;-0.0;0.0" });
+  };
+  rankRow(8, "—", "TODAY — own office (baseline)", offices.length > 1 ? `${offices.length} Austin offices` : "current office", TODAY, today, todayS, true, XL.gold);
+  ranked.forEach((t, k) => { rankRow(9 + k, k + 1, nameOf(t.p), t.p.address, rng(t.i), grid[t.i], t, false, k % 2 ? XL.zebra : XL.white, t); rk.getRow(9 + k).height = 22; });
+  const lastR = 8 + M;
+  rk.addConditionalFormatting({ ref: `D9:D${lastR}`, rules: [{ type: "colorScale", priority: 1,
+    cfvo: [{ type: "min" }, { type: "percentile", value: 50 }, { type: "max" }], color: [{ argb: XL.green }, { argb: XL.amber }, { argb: XL.red }] }] });
+  const c10 = colL(4 + offCols.length + 3);
+  rk.addConditionalFormatting({ ref: `${c10}9:${c10}${lastR}`, rules: [{ type: "colorScale", priority: 2,
+    cfvo: [{ type: "num", value: 0 }, { type: "max" }], color: [{ argb: XL.white }, { argb: XL.gold }] }] });
+
+  // ================= Commute Matrix =================
+  const mx = wb.addWorksheet("Commute Matrix", { views: [{ state: "frozen", xSplit: 5, ySplit: 7, showGridLines: false }], properties: { tabColor: { argb: XL.blue } } });
+  const ML = colL(5 + M);
+  [12, 13, 30, 10, 11].forEach((w, i) => (mx.getColumn(i + 1).width = w));
+  for (let i = 0; i < M; i++) mx.getColumn(6 + i).width = 5.2;
+  chrome(mx, ML, "Employee Commute Matrix — Austin Candidate Buildings",
+    `${source} (minutes) for ${N} employees across ${M} candidate buildings  |  Confidential`);
+  ["Employee ID", "Office", "Department", "Home ZIP", "Today (min)"].forEach((h, i) => head(mx.getCell(7, i + 1), h, XL.navy, 10));
+  places.forEach((p, i) => { head(mx.getCell(7, 6 + i), labelOf(p), XL.navy, 8); mx.getCell(7, 6 + i).alignment = { textRotation: 90, horizontal: "center", vertical: "bottom", wrapText: true }; });
+  mx.getRow(7).height = 215;
+  emps.forEach((e, k) => {
+    const row = R0 + k, fill = k % 2 ? XL.zebra : XL.white;
+    put(mx.getCell(row, 1), `HRG-${String(k + 1).padStart(3, "0")}`, { fill, bold: true, size: 9 });
+    put(mx.getCell(row, 2), officeShort(e.office) || "—", { fill, size: 9, h: "left" });
+    put(mx.getCell(row, 3), e.dept || "—", { fill, size: 9, h: "left" });
+    put(mx.getCell(row, 4), e.zip || "", { fill, size: 9 });
+    put(mx.getCell(row, 5), today[k] == null ? null : today[k], { fill, size: 9, fmt: "0" });
+    places.forEach((p, i) => put(mx.getCell(row, 6 + i), grid[i][k], { fill, size: 9, fmt: "0" }));
+  });
+  const avgRow = R1 + 1;
+  mx.mergeCells(`A${avgRow}:D${avgRow}`);
+  put(mx.getCell(avgRow, 1), "AVERAGE (min)", { bold: true, fill: XL.gold, h: "left" });
+  for (let c = 5; c <= 5 + M; c++) {
+    const L = colL(c), arr = c === 5 ? today : grid[c - 6];
+    put(mx.getCell(avgRow, c), { formula: `AVERAGE(${L}${R0}:${L}${R1})`, result: r1(mean(arr)) }, { bold: true, fill: XL.gold, size: 9, fmt: "0.0" });
+  }
+  mx.addConditionalFormatting({ ref: `F${R0}:${ML}${R1}`, rules: [{ type: "colorScale", priority: 1,
+    cfvo: [{ type: "num", value: 0 }, { type: "num", value: 25 }, { type: "num", value: 50 }], color: [{ argb: XL.green }, { argb: XL.amber }, { argb: XL.red }] }] });
+
+  const buf = await wb.xlsx.writeBuffer();
   const a = document.createElement("a");
-  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
-  a.download = "HR_Green_Austin_Drive_Times.csv";
-  a.click();
+  a.href = URL.createObjectURL(new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" }));
+  a.download = "HR_Green_Austin_Commute_Analysis.xlsx";
+  document.body.appendChild(a); a.click(); a.remove();
 }
 
 function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, onToggle, canAdd, onOpenBuilding }) {
@@ -1290,6 +1521,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
   const [selId, setSelId] = useState(null);
   const [hoverId, setHoverId] = useState(null);
   const [showComp, setShowComp] = useState(true);
+  const [exporting, setExporting] = useState(false);
   const { roster, target, minutes, homeOf } = cm;
 
   const mapped = useMemo(() => list.filter((b) => b.lat != null && b.lng != null), [list]);
@@ -1378,7 +1610,13 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
             {nFilters > 0 && <> · <button className="link" onClick={() => goTo("map")}>{nFilters} filter{nFilters > 1 ? "s" : ""} on</button></>}</span>
         </div>
         <div className="db-src">
-          <button className="btn sm" onClick={() => exportDriveMatrix(roster, mapped, minutes, homeOf, cm.useGoogle && cover > 0.98)} title="Every employee's drive time to every building shown">{I.dl} Drive-time table</button>
+          <button className="btn sm" disabled={exporting} title="Commute analysis workbook: overview, building ranking and employee-by-building matrix"
+            onClick={async () => {
+              setExporting(true);
+              try { await exportCommuteReport({ roster, places: mapped, minutes, homeOf, google: cm.useGoogle && cover > 0.98, officeNames: cm.officeNames }); }
+              catch (e) { alert(e.message || "Export failed"); }
+              setExporting(false);
+            }}>{I.dl} {exporting ? "Building report…" : "Excel report"}</button>
           {cm.fetching != null ? (
             <span className="src-chip live"><span className="spin" />{cm.fetchNote || `Getting Google times… ${Math.round(cm.fetching * 100)}%`}</span>
           ) : cm.useGoogle && cover > 0.98 ? (
@@ -1428,7 +1666,7 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
                   <tr key={r.b.id} className={(isSel ? "act" : "") + (inCmp ? " sel" : "")} onClick={() => setSelId(r.b.id)}
                     onMouseEnter={() => setHoverId(r.b.id)} onMouseLeave={() => setHoverId(null)}>
                     <td className="r"><span className={"num sm" + (rank[r.b.id] === 1 ? " best" : "")}>{rank[r.b.id]}</span></td>
-                    <td><div className="tname">{r.b.name}</div><div className="tsub">{r.b.submarket || r.b.address}</div></td>
+                    <td><div className="tname">{r.b.name}</div><div className="tsub">{subLine(r.b) || r.b.address}</div></td>
                     <td className="r"><b>{r.s.avg}</b> min</td>
                     <td className="r">{r.s.med} min</td>
                     <td><div className="within"><DistBar s={r.s} target={target} /><span>{r.s.within}%</span></div></td>
