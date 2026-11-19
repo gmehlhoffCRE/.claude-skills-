@@ -1315,7 +1315,8 @@ function todayStats(roster, minutes, target, home) {
 
 // App-level commute state, shared by the Drive Time and Compare tabs.
 function useCommute(layers) {
-  const [peak, setPeak] = useState("am");
+  // Default scenario: whichever the admin last ran (or marked default), shared with everyone.
+  const [peak, setPeak] = useState(() => { const c = readDriveCache(); return (c.defaultScen && (c.defaultScen === "am" || (c.scen && c.scen[c.defaultScen]))) ? c.defaultScen : "am"; });
   const [target, setTarget] = useState(30);
   const [office, setOffice] = useState("all");
   const [dept, setDept] = useState("all");
@@ -1339,10 +1340,14 @@ function useCommute(layers) {
         const shared = JSON.parse(raw);
         setCache((c) => {
           const m = { ...c };
-          Object.keys(shared).forEach((k) => { if (k !== "updatedAt") m[k] = { ...(shared[k] || {}), ...(c[k] || {}) }; });
+          Object.keys(shared).forEach((k) => {
+            if (k === "updatedAt") return;
+            m[k] = shared[k] && typeof shared[k] === "object" ? { ...shared[k], ...(c[k] && typeof c[k] === "object" ? c[k] : {}) } : shared[k];
+          });
           writeDriveCache(m);
           return m;
         });
+        if (shared.defaultScen && (shared.defaultScen === "am" || (shared.scen && shared.scen[shared.defaultScen]))) setPeak(shared.defaultScen);
         setUseGoogle(true);
       } catch (e) { /* none shared yet, or no access: estimates still work */ }
     })();
@@ -1374,18 +1379,31 @@ function useCommute(layers) {
       await fetchGoogleTimes(layers.employees, [...places, ...offices], peak, c, (f, note) => { setFetching(f); setFetchNote(note); setCache({ ...c }); });
       setUseGoogle(true);
     } catch (err) { setError(err.message); if (Object.keys(c[peak] || {}).length) setUseGoogle(true); }
-    setCache({ ...c });
+    if (Object.keys(c[peak] || {}).length) c.defaultScen = peak; // the latest run opens by default for everyone
+    setCache({ ...c }); writeDriveCache(c);
     setFetching(null); setFetchNote(null);
     // Share with every viewer so nobody else has to pay for the same lookups.
+    if (await shareCache(c)) setNotice(`Saved for everyone — "${scenLabel(c, peak)}" now opens by default.`);
+  };
+  const shareCache = async (c) => {
+    if (window.__AUS_TEST_PAYLOAD) return true;
     try {
       const token = await waitForIdToken();
       const url = `${FIREBASE_DB_URL}/datasets/${encodeURIComponent(FIREBASE_DATASET)}/drivetimes.json?auth=${encodeURIComponent(token)}`;
       const res = await fetch(url, { method: "PUT", body: JSON.stringify(JSON.stringify({ ...c, updatedAt: Date.now() })) });
       if (!res.ok) throw new Error("HTTP " + res.status);
-      setNotice("Saved for everyone — other viewers now see these Google drive times.");
+      return true;
     } catch (e) {
-      setError("Google times are saved in this browser only: Firebase didn't accept the shared copy (" + e.message + "). A database rule allowing your login to write datasets/" + FIREBASE_DATASET + "/drivetimes fixes this.");
+      setError("Saved in this browser only: Firebase didn't accept the shared copy (" + e.message + "). A database rule allowing your login to write datasets/" + FIREBASE_DATASET + "/drivetimes fixes this.");
+      return false;
     }
+  };
+  const makeDefault = async () => {
+    if (!isAdmin) return;
+    setError(null); setNotice(null);
+    const c = { ...cache, defaultScen: peak };
+    setCache(c); writeDriveCache(c);
+    if (await shareCache(c)) setNotice(`"${scenLabel(c, peak)}" now opens by default for everyone.`);
   };
   const coverage = (places) => {
     if (!useGoogle || !layers.employees.length) return 0;
@@ -1410,10 +1428,11 @@ function useCommute(layers) {
     setPeak(key);
   };
   const removeScenario = (key) => {
-    setCache((c) => { const m = { ...c, scen: { ...(c.scen || {}) } }; delete m.scen[key]; delete m[key]; writeDriveCache(m); return m; });
+    setCache((c) => { const m = { ...c, scen: { ...(c.scen || {}) } }; delete m.scen[key]; delete m[key]; if (m.defaultScen === key) m.defaultScen = "am"; writeDriveCache(m); return m; });
     setPeak("am");
   };
-  return { scenarios, addScenario, removeScenario, label: scenLabel(cache, peak), hint: scenHint(cache, peak), traffic: peak !== "am",
+  const isDefault = (cache.defaultScen || "am") === peak;
+  return { scenarios, addScenario, removeScenario, makeDefault, isDefault, defaultKey: cache.defaultScen || "am", label: scenLabel(cache, peak), hint: scenHint(cache, peak), traffic: peak !== "am",
     peak, setPeak, target, setTarget, office, setOffice, dept, setDept, officeNames, depts, roster, offices, homeOf,
     minutes, useGoogle, setUseGoogle, fetching, fetchNote, error, notice, isAdmin, fetchGoogle, coverage, lookupsNeeded, hasData: layers.employees.length > 0 };
 }
@@ -1770,8 +1789,9 @@ function DriveTimeView({ list, total, nFilters, goTo, layers, cm, selectedIds, o
       <div className="panel drive-bar">
         {(cm.isAdmin || cm.scenarios.length > 1) && <div className="db-group"><span className="db-l">Drive time</span>
           <select value={cm.peak} onChange={(e) => cm.setPeak(e.target.value)} title={cm.hint}>
-            {cm.scenarios.map((k) => <option key={k} value={k}>{k === "am" ? "Standard (no traffic)" : cm.scenarios && scenLabelOf(k)}</option>)}
+            {cm.scenarios.map((k) => <option key={k} value={k}>{(k === "am" ? "Standard (no traffic)" : scenLabelOf(k)) + (k === (cm.defaultKey || "am") ? " — default" : "")}</option>)}
           </select>
+          {cm.isAdmin && !cm.isDefault && !newScen && <button className="link" onClick={cm.makeDefault}>Make default</button>}
           {cm.isAdmin && !newScen && <button className="btn sm" onClick={() => setNewScen({ day: 2, time: "09:00" })}>+ Arrival time</button>}
           {cm.isAdmin && cm.peak !== "am" && !newScen && <button className="link" onClick={() => { if (confirm("Remove this scenario and its saved drive times?")) cm.removeScenario(cm.peak); }}>Remove</button>}
           {newScen && <span className="scen-new">
