@@ -127,7 +127,6 @@ body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink
 /* When a selection is active, the first card (the "Selected Firms" card)
    gets the gold accent bar + navy outline to signal active scope. */
 .stats-bar.has-selection .stat-card:first-child{border-color:var(--navy);box-shadow:0 0 0 3px rgba(0,30,90,0.08)}
-.stats-bar.has-selection .stat-card:first-child::before{content:"";position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--gold)}
 
 /* ====================== VIEW TOGGLE (Cresa TabBtn pattern, inside header) ====================== */
 .view-toggle{display:inline-flex;gap:6px;background:transparent}
@@ -356,7 +355,6 @@ body{font-family:Arial,Helvetica,sans-serif;background:var(--bg);color:var(--ink
 @keyframes pxSlideInRight{from{opacity:0;transform:translateX(22px)}to{opacity:1;transform:translateX(0)}}
 @keyframes pxShimmer{0%{background-position:-450px 0}100%{background-position:450px 0}}
 @keyframes pxPing{0%{transform:scale(1);opacity:.55}70%,100%{transform:scale(2.6);opacity:0}}
-@keyframes pxBarSlide{0%{transform:translateX(-100%)}100%{transform:translateX(100%)}}
 
 /* ---- Global interaction polish ---- */
 a,button,.pill,.view-btn,.map-type-btn,.comp-card,.stat-card,.cresa-t-head,.cards-sort,.sm-btn,.clear-btn,.select-all-btn{
@@ -429,9 +427,8 @@ button:active,.pill:active,.view-btn:active:not(.disabled){transform:translateY(
 .skel-stat{flex:1;height:64px}
 .skel-card{height:100px;margin-bottom:8px;border-radius:var(--radius-lg)}
 
-/* ---- Indeterminate progress bar for the top loader ---- */
-#dataLoader{overflow:hidden}
-#dataLoader::before{content:"";position:absolute;left:0;bottom:0;height:2px;width:40%;background:var(--gold);animation:pxBarSlide 1.1s var(--ease-out) infinite}
+/* ---- Top loader: a quiet solid syncing bar (gold hairline underline) ---- */
+#dataLoader{overflow:hidden;border-bottom:2px solid var(--gold)}
 
 /* ---- Empty states ---- */
 .empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:48px 24px;color:var(--ink-3);animation:pxFadeUp .34s var(--ease-out)}
@@ -552,6 +549,114 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
 .smk-bar{display:flex;height:9px;border-radius:5px;overflow:hidden;background:var(--line-soft)}
 .smk-bar span{display:block;height:100%}
 
+/* =============================================================
+   REFINED INSTITUTIONAL — impeccable design pass
+   Elevates craft without touching the Cresa identity (navy/gold,
+   Arial): layered depth, hairline structure, themed browser
+   surfaces, a segmented nav, a unified instrument strip, and
+   typographic discipline. Light, dense, precise — built to hold
+   up under AM100 scrutiny.
+   ============================================================= */
+:root{
+  --hairline:rgba(0,30,90,.07);
+  --hairline-2:rgba(0,30,90,.12);
+  /* Darken the faintest ink one step to clear WCAG AA on white (was #8A93A8,
+     3.1:1). Labels and meta stay legible without losing the quiet tier. */
+  --ink-4:#6C7489;
+  /* Crisper, more layered depth: a tight contact shadow + a soft lift */
+  --shadow-1:0 1px 1px rgba(10,28,68,.04),0 1px 2px rgba(10,28,68,.05);
+  --shadow-2:0 1px 2px rgba(10,28,68,.05),0 10px 22px -8px rgba(10,28,68,.16);
+  --shadow-3:0 2px 8px rgba(10,28,68,.10),0 32px 64px -18px rgba(10,28,68,.32);
+  --shadow-md:var(--shadow-2);
+  --shadow-xl:var(--shadow-3);
+  /* Fluid display sizes so the readout scales across monitor widths */
+  --fs-stat:clamp(20px,0.62vw + 15px,27px);
+  --fs-viewtitle:clamp(14px,0.3vw + 12px,16px);
+}
+html{text-rendering:optimizeLegibility;-moz-osx-font-smoothing:grayscale}
+
+/* ---- Browser surfaces: themed from the palette, never defaults ---- */
+::selection{background:var(--gold-soft);color:var(--navy)}
+::-moz-selection{background:var(--gold-soft);color:var(--navy)}
+input,textarea,select{caret-color:var(--navy)}
+*{scrollbar-width:thin;scrollbar-color:rgba(0,30,90,.26) transparent}
+::-webkit-scrollbar{width:10px;height:10px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:rgba(0,30,90,.20);border-radius:8px;border:3px solid transparent;background-clip:padding-box}
+::-webkit-scrollbar-thumb:hover{background:rgba(0,30,90,.38);background-clip:padding-box}
+:focus-visible{outline:2px solid var(--navy);outline-offset:2px;border-radius:5px}
+
+/* ---- Hairline structure where a 1px line defines a surface ---- */
+.filter-rail,.cards-panel,.main-pane,.chart-card,.compare-card,.dash-stat,.dash-fields{border-color:var(--hairline)}
+
+/* ---- Header: quieter, crisper chrome ---- */
+.header{box-shadow:none;border-bottom:1px solid var(--hairline);gap:16px}
+.header-title{letter-spacing:-.2px;white-space:nowrap}
+.header-sub{color:var(--ink-3);letter-spacing:1.4px;white-space:nowrap}
+.header-divider{background:var(--hairline-2);height:24px}
+.live-chip{height:auto;padding:8px 12px;border-color:var(--hairline-2);border-radius:7px;font-size:11px;letter-spacing:.5px;box-shadow:var(--shadow-1);line-height:1}
+.live-chip .live-dot{box-shadow:0 0 0 3px rgba(27,143,106,.14)}
+.live-chip.fallback .live-dot{box-shadow:0 0 0 3px rgba(181,71,8,.16)}
+
+/* ---- Segmented nav (one control, not seven loose buttons) ---- */
+.view-toggle{gap:2px;background:var(--bg);border:1px solid var(--hairline-2);border-radius:9px;padding:4px}
+.view-btn{height:30px;padding:0 11px;border-radius:6px;background:transparent;border:1px solid transparent;color:var(--ink-3);box-shadow:none}
+.view-btn:hover:not(.active):not(.disabled){background:var(--white);color:var(--navy);border-color:transparent;box-shadow:var(--shadow-1);transform:none}
+.view-btn.active{background:var(--navy);color:#fff;border-color:var(--navy);box-shadow:0 1px 2px rgba(0,30,90,.35),inset 0 1px 0 rgba(255,255,255,.08)}
+.view-btn.active:hover{background:var(--navy-light);border-color:var(--navy-light)}
+.view-btn.disabled:hover{background:transparent}
+.icon-btn{height:30px;border-color:var(--hairline-2)}
+#exportPdfBtn{height:30px}
+
+/* ---- Stats: one instrument strip, hairline-divided cells ---- */
+.stats-bar{background:var(--white);border:1px solid var(--hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);margin:14px 22px 0;padding:0;overflow:hidden}
+.stat-card{flex:1;border:0;border-left:1px solid var(--line-soft);border-radius:0;box-shadow:none;background:transparent;padding:13px 18px}
+.stat-card:first-child{border-left:0}
+.stat-card:hover{transform:none;box-shadow:none;background:var(--blue-softer)}
+.stat-card::after{display:none}
+.stat-val{font-size:var(--fs-stat);letter-spacing:-.5px;font-variant-numeric:tabular-nums}
+.stat-label{font-size:9.5px;letter-spacing:.9px;color:var(--ink-3)}
+.stats-bar.has-selection{border-color:var(--hairline-2)}
+.stats-bar.has-selection .stat-card:first-child{box-shadow:none;border-color:transparent;background:var(--blue-softer)}
+
+/* ---- Cards: unified radius / hairline / lift ---- */
+.comp-card,.compare-card,.chart-card,.dash-stat,.tl-sum{border-radius:var(--radius-lg);box-shadow:var(--shadow-1)}
+.comp-card:hover{box-shadow:var(--shadow-2)}
+
+/* ---- Typographic discipline ---- */
+.card-name,.detail-name,.tl-firm,.cresa-t-cell.primary,.smk-name{letter-spacing:-.15px}
+.card-stat-val,.cresa-t-cell.mono,.dash-stat-val,.tl-meta,.smk-c.num,.cresa-cluster-firm-meta,.cresa-cluster-firm-rent{font-variant-numeric:tabular-nums}
+.pill-label,.cards-count,.chart-title,.dash-stat-label,.dash-field-label,.detail-field-label,.card-stat-label,.tl-sum-label,.cresa-t-head,.smk-h,.filter-title{font-weight:700}
+.view-title,.tl-title,.header-title{font-size:var(--fs-viewtitle)}
+
+/* ---- Timeline summary: category bar on top (not a fat left rail) ---- */
+.tl-sum{padding:11px 15px}
+.tl-sum-bar{left:0;top:0;right:0;bottom:auto;width:auto;height:3px;background:var(--c)}
+.tl-rank{color:var(--ink-4)}   /* gold stays reserved for selection, not every rank */
+
+/* ---- Table: premium header weight + calmer rows ---- */
+.cresa-t-head{letter-spacing:.7px;font-size:9.5px}
+.cresa-t-row.striped{background:#FAFBFD}
+
+/* ---- Search + inputs: branded focus ---- */
+.search-input:focus,.login-field input:focus{border-color:var(--navy);box-shadow:0 0 0 3px rgba(0,30,90,.08)}
+
+/* ---- Pills: refined ---- */
+.pill{border-color:var(--hairline-2)}
+
+/* ---- Toast: glassy, premium ---- */
+.app-toast{background:rgba(5,22,60,.96);backdrop-filter:saturate(1.3) blur(6px);box-shadow:var(--shadow-3);letter-spacing:.1px}
+
+/* ---- Legibility + slop fixes (from the mechanical pass) ---- */
+.map-type-btn{font-size:11px}                 /* lift map controls to the 11px floor */
+.stat-label{font-size:10.5px}                 /* readout labels a touch larger */
+/* Selection scope is signalled by the first cell's tint + its "Selected Firms"
+   label, not an accent stripe (no side-tab tell). */
+.stats-bar.has-selection .stat-card:first-child{background:var(--blue-softer)}
+.stats-bar.has-selection .stat-card:first-child .stat-val{color:var(--navy)}
+
+
+
 /* ---- Respect users who prefer reduced motion ---- */
 @media (prefers-reduced-motion: reduce){
   *,*::before,*::after{animation-duration:.001ms!important;animation-iteration-count:1!important;transition-duration:.001ms!important;scroll-behavior:auto!important}
@@ -564,15 +669,18 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
    ============================================================ */
 @media (max-width:1180px){
   .cards-panel{width:340px;min-width:340px}
-  .stat-val{font-size:19px}
 }
 @media (max-width:1024px){
   .header{gap:12px;padding:0 14px}
+  .header-sub{display:none}      /* keep the brand block to one line in the mid zone */
   .left-panel{width:224px;min-width:224px}
   .cards-panel{width:296px;min-width:296px}
-  .view-btn{padding:0 9px;font-size:11.5px;gap:5px}
-  .stats-bar{flex-wrap:wrap}
-  .stat-card{flex:1 1 30%;min-width:118px}
+  .view-btn{padding:0 9px}
+  /* Instrument strip reverts to discrete cards once the row wraps */
+  .stats-bar{flex-wrap:wrap;gap:10px;background:transparent;border:0;box-shadow:none;padding:0;overflow:visible}
+  .stat-card{flex:1 1 30%;min-width:118px;border:1px solid var(--hairline);border-radius:var(--radius-lg);box-shadow:var(--shadow-1);background:var(--white)}
+  .stat-card:first-child{border-left:1px solid var(--hairline)}
+  .stats-bar.has-selection .stat-card:first-child{border-color:var(--navy)}
 }
 @media (max-width:880px){
   .header-sub{display:none}
@@ -589,7 +697,7 @@ kbd{display:inline-block;font-family:Arial,Helvetica,sans-serif;font-size:10px;f
   .live-chip{order:2}
   .view-toggle{order:10;width:100%;overflow-x:auto;padding-bottom:2px}
   #shareBtn,#exportPdfBtn,.login-signout{order:11}
-  .stats-bar{flex-wrap:wrap;padding:12px 12px 0}
+  .stats-bar{flex-wrap:wrap;margin:12px 12px 0;padding:0}
   .stat-card{flex:1 1 44%}
   .app-body{flex-direction:column;height:auto;padding:10px 12px 18px;gap:10px}
   .left-panel{width:100%!important;min-width:0}
