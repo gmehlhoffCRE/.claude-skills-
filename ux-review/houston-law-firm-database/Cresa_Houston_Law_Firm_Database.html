@@ -3043,7 +3043,7 @@ function openDashboard(f){
         <div><div class="header-title">Houston Law Firm Database</div><div class="header-sub">Firm Profile</div></div>
       </div>
       <div style="flex:1"></div>
-      <button id="dashExportBtn" onclick="exportFirmBifoldPDF()" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border:1px solid var(--navy);padding:0 14px;height:32px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;letter-spacing:-.1px;font-family:inherit;transition:background var(--transition);margin-right:8px" onmouseover="this.style.background='var(--navy-light)'" onmouseout="this.style.background='var(--navy)'">
+      <button id="dashExportBtn" onclick="exportFirmProfilePDF()" style="display:inline-flex;align-items:center;gap:6px;background:var(--navy);color:#fff;border:1px solid var(--navy);padding:0 14px;height:32px;border-radius:var(--radius);cursor:pointer;font-size:12px;font-weight:600;letter-spacing:-.1px;font-family:inherit;transition:background var(--transition);margin-right:8px" onmouseover="this.style.background='var(--navy-light)'" onmouseout="this.style.background='var(--navy)'">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" style="width:13px;height:13px"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
         Export PDF
       </button>
@@ -3987,9 +3987,105 @@ const RPT={
   navy:'#001E5A',gold:'#FFB600',
   ink:'#0E1220',ink2:'#2B3350',ink3:'#5A6580',ink4:'#8A93A8',
   line:'#E4E8F0',lineSoft:'#EEF1F6',tint:'#F4F7FC',peerFill:'#D6DCE7',
+  // Template swatches (Kirkland profile): card fill, gold highlight row, navy band.
+  card:'#F2F3F5',cardLine:'#E3E8F0',tintGold:'#FFF4D6',bandNavy:'#001F59',
   W:612,H:792,M:48,
 };
 RPT.CW=RPT.W-RPT.M*2; // content width (516pt)
+
+// ---------- Advisor roster + contact picker ------------------------------
+// Cresa Houston advisors offered on the firm-profile back page. Fill with
+// real people {name,title,phone,email}; the export picker lists these plus an
+// "add one-off" form. Empty is fine — add-new still works.
+const CRESA_ADVISORS=[
+  // {name:'Jane Doe', title:'Principal', phone:'713-555-0100', email:'jdoe@cresa.com'},
+];
+
+// Modal: pick up to 4 advisors (roster + ad-hoc) for the back page.
+// Resolves to an array of {name,title,phone,email}; [] if none chosen;
+// null if the export is cancelled.
+function openContactPicker(){
+  return new Promise(resolve=>{
+    const MAX=4;
+    const roster=CRESA_ADVISORS.map(a=>({...a}));
+    const chosen=[]; // references into a combined list
+    const ov=document.createElement('div');
+    ov.className='rpt-picker-ov';
+    ov.style.cssText='position:fixed;inset:0;z-index:10000;background:rgba(0,16,46,0.55);display:flex;align-items:center;justify-content:center;font-family:Arial,Helvetica,sans-serif;padding:20px';
+    const card=document.createElement('div');
+    card.style.cssText='background:#fff;width:min(560px,100%);max-height:88vh;overflow:auto;border-radius:14px;box-shadow:0 24px 70px rgba(0,30,90,0.35);padding:0';
+    ov.appendChild(card);
+    const esc=s=>String(s==null?'':s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+    let adhoc=[]; // user-added one-offs
+    const selected=new Set(); // indices into combined
+    function combined(){return roster.concat(adhoc);}
+    function render(){
+      const list=combined();
+      const rows=list.map((a,i)=>{
+        const on=selected.has(i);
+        return '<label style="display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid '+(on?'var(--navy)':'var(--line)')+';border-radius:10px;margin-bottom:8px;cursor:pointer;background:'+(on?'#F4F7FC':'#fff')+'">'
+          +'<input type="checkbox" data-i="'+i+'" '+(on?'checked':'')+' style="margin-top:2px;accent-color:var(--navy)">'
+          +'<span style="flex:1"><span style="font-weight:700;color:var(--navy);font-size:13px">'+esc(a.name||'(no name)')+'</span>'
+          +(a.title?' <span style="color:var(--ink-3);font-size:12px">· '+esc(a.title)+'</span>':'')
+          +'<br><span style="color:var(--ink-3);font-size:11.5px">'+esc([a.phone,a.email].filter(Boolean).join('  ·  ')||'—')+'</span></span></label>';
+      }).join('');
+      const emptyNote=list.length?'':'<div style="color:var(--ink-3);font-size:12.5px;padding:4px 2px 10px">No saved advisors yet — add one below, or generate with placeholder slots.</div>';
+      card.innerHTML=
+        '<div style="padding:20px 22px 14px;border-bottom:1px solid var(--line)">'
+          +'<div style="font-size:16px;font-weight:700;color:var(--navy)">Add advisors to this report</div>'
+          +'<div style="font-size:12.5px;color:var(--ink-3);margin-top:3px">Pick up to '+MAX+' for the back page. Choose none to keep fill-in placeholders.</div>'
+        +'</div>'
+        +'<div style="padding:16px 22px 4px">'+emptyNote+rows+'</div>'
+        +'<div style="padding:4px 22px 8px">'
+          +'<details style="border:1px dashed var(--line);border-radius:10px;padding:0"><summary style="cursor:pointer;padding:10px 12px;font-size:12.5px;font-weight:600;color:var(--navy)">+ Add a contact not on the list</summary>'
+          +'<div style="padding:4px 12px 12px;display:grid;grid-template-columns:1fr 1fr;gap:8px">'
+            +'<input id="rpName" placeholder="Name" style="grid-column:1/2">'
+            +'<input id="rpTitle" placeholder="Title" style="grid-column:2/3">'
+            +'<input id="rpPhone" placeholder="Phone">'
+            +'<input id="rpEmail" placeholder="Email">'
+            +'<button id="rpAdd" type="button" style="grid-column:1/3;background:var(--navy);color:#fff;border:none;border-radius:8px;padding:8px;font-weight:600;cursor:pointer">Add contact</button>'
+          +'</div></details>'
+        +'</div>'
+        +'<div style="display:flex;justify-content:space-between;align-items:center;padding:14px 22px 20px;gap:12px;border-top:1px solid var(--line)">'
+          +'<span style="font-size:12px;color:var(--ink-3)" id="rpCount">'+selected.size+' of '+MAX+' selected</span>'
+          +'<span style="display:flex;gap:10px"><button id="rpCancel" type="button" style="background:#fff;color:var(--ink);border:1px solid var(--line);border-radius:8px;padding:9px 16px;font-weight:600;cursor:pointer">Cancel</button>'
+          +'<button id="rpGo" type="button" style="background:var(--gold);color:var(--navy);border:none;border-radius:8px;padding:9px 18px;font-weight:700;cursor:pointer">Generate PDF</button></span>'
+        +'</div>';
+      card.querySelectorAll('input[type=checkbox]').forEach(cb=>{
+        cb.onchange=()=>{
+          const i=+cb.dataset.i;
+          if(cb.checked){if(selected.size>=MAX){cb.checked=false;return;}selected.add(i);}else selected.delete(i);
+          render();
+        };
+      });
+      const add=card.querySelector('#rpAdd');
+      if(add)add.onclick=()=>{
+        const g=id=>(card.querySelector(id)||{}).value||'';
+        const a={name:g('#rpName').trim(),title:g('#rpTitle').trim(),phone:g('#rpPhone').trim(),email:g('#rpEmail').trim()};
+        if(!a.name&&!a.email){return;}
+        adhoc.push(a);
+        if(selected.size<MAX)selected.add(roster.length+adhoc.length-1);
+        render();
+      };
+      card.querySelector('#rpCancel').onclick=()=>{cleanup();resolve(null);};
+      card.querySelector('#rpGo').onclick=()=>{
+        const list=combined();
+        const out=[...selected].sort((a,b)=>a-b).map(i=>list[i]);
+        cleanup();resolve(out);
+      };
+    }
+    function cleanup(){document.removeEventListener('keydown',onKey);ov.remove();}
+    function onKey(e){if(e.key==='Escape'){cleanup();resolve(null);}}
+    const st=document.createElement('style');
+    st.textContent='.rpt-picker-ov input[placeholder]{border:1px solid var(--line);border-radius:7px;padding:8px 10px;font-size:12.5px;font-family:inherit;width:100%;box-sizing:border-box}'
+      +'.rpt-picker-ov input[placeholder]:focus{outline:none;border-color:var(--navy)}';
+    ov.appendChild(st);
+    document.addEventListener('keydown',onKey);
+    ov.addEventListener('mousedown',e=>{if(e.target===ov){cleanup();resolve(null);}});
+    document.body.appendChild(ov);
+    render();
+  });
+}
 
 // ---------- Data ----------------------------------------------------------
 // Same peer-set, median, weighted-average, rank and lease maths the
@@ -4057,32 +4153,6 @@ function rptFirmData(f){
   return{f,peers,peerLabel,peerMed,peerAvg,metrics,mi,le,remainMo,remainStr,leasePct,closest};
 }
 
-// Short, factual sentences built only from the firm's own numbers.
-function rptTakeaways(d){
-  const {f,peerMed,remainMo,remainStr}=d;
-  const out=[];
-  const cmp=(v,m,unit)=>{
-    const p=(v-m)/m*100;
-    if(Math.abs(p)<5)return'in line with the peer median of '+unit(m);
-    return Math.round(Math.abs(p))+'% '+(p>0?'above':'below')+' the peer median of '+unit(m);
-  };
-  if(f.sfa!=null&&peerMed.sfa)
-    out.push({lead:'Space per attorney',text:fmtComma(f.sfa)+' SF per attorney, '+cmp(f.sfa,peerMed.sfa,fmtComma)+'.'});
-  if(f.agra!=null&&peerMed.agra)
-    out.push({lead:'Occupancy cost',text:fmtMoney0(f.agra)+' market annual gross rent per attorney, '+cmp(f.agra,peerMed.agra,fmtMoney0)+'.'});
-  if(remainMo!=null)
-    out.push({lead:'Lease timing',text:remainMo===0
-      ?'The current term is shown as expired ('+fmtLE(f.le)+').'
-      :remainStr+' remaining; the current term expires '+fmtLE(f.le)+'.'});
-  if(f.grs!=null&&f.sr!=null){
-    const dlt=f.grs-f.sr,where=f.bn||f.addr||'the building';
-    out.push({lead:'Building rent',text:fmtMoney(f.grs)+'/SF market rent at '+where+', '+
-      (Math.abs(dlt)<0.5?'in line with':fmtMoney(Math.abs(dlt))+' '+(dlt>0?'above':'below'))+
-      ' the '+(f.sm||'submarket')+' average of '+fmtMoney(f.sr)+'/SF.'});
-  }
-  return out;
-}
-
 // ---------- Drawing primitives -------------------------------------------
 function rptKit(pdf){
   const k={pdf};
@@ -4128,276 +4198,207 @@ function rptLogoChip(k,x,y,h){
 // Interior running header. The logo sits on the OUTER edge and the
 // gold gutter tab on the INNER edge, so the open spread (L next to R)
 // frames symmetrically and the two gold tabs meet across the fold.
-function rptInteriorHead(k,d,dateStr,side){
-  const {pdf}=k,{f}=d,W=RPT.W,M=RPT.M;
-  const lh=26,lw=lh*556/189,left=side==='L';
-  pdf.addImage(PDF_LOGO_SRC,'PNG',left?M:W-M-lw,30,lw,lh,'cresaLogo','FAST');
-  k.font('normal',8,RPT.ink3);
-  k.text(k.fit(f.n,230),left?W-M:M,46,{align:left?'right':'left'});
-  k.hr(M,70,W-M,RPT.line,0.8);
-  pdf.setFillColor(RPT.gold);
-  if(left)pdf.rect(W-M-40,69,40,2,'F');else pdf.rect(M,69,40,2,'F');
+// Interior page header: logo left, section kicker (gold) right, hairline rule.
+function rptHeadT(k,kicker){
+  const {pdf}=k,W=RPT.W,M=RPT.M,lh=22,lw=lh*556/189;
+  pdf.addImage(PDF_LOGO_SRC,'PNG',M,32,lw,lh,'cresaLogo','FAST');
+  if(kicker){k.font('bold',7.5,RPT.gold);const cs=1.2,kw=k.width(kicker)+cs*(kicker.length-1);pdf.text(kicker,W-M-kw,47,{charSpace:cs});}
+  k.hr(M,66,W-M,RPT.line,0.8);
+}
+// Interior page footer: confidential · database · page N of 4.
+function rptFootT(k,page){
+  const {W,M}=RPT,y=RPT.H-30;
+  k.hr(M,y-12,W-M,RPT.line,0.8);
+  k.label('Cresa · Confidential',M,y);
+  k.label('Houston Law Firm Database',W/2,y,{align:'center'});
+  k.label('Page '+page+' of 4',W-M,y,{align:'right'});
 }
 
-function rptFooter(k,page,total){
-  const {pdf}=k,M=RPT.M,y=RPT.H-30;
-  k.hr(M,y-12,RPT.W-M);
-  k.label('Cresa Houston  |  Confidential',M,y);
-  k.label('Houston Law Firm Database',RPT.W/2,y,{align:'center'});
-  k.label('Page '+page+' of '+total,RPT.W-M,y,{align:'right'});
-}
-
-function rptSectionTitle(k,title,sub,y){
-  k.font('bold',14,RPT.navy);k.text(k.fit(title,RPT.CW),RPT.M,y);
-  if(!sub)return y+18;
-  k.font('normal',8.5,RPT.ink3);
-  const lines=k.pdf.splitTextToSize(sub,RPT.CW).slice(0,2);
-  lines.forEach((ln,i)=>k.text(ln,RPT.M,y+14+i*11));
-  return y+28+(lines.length-1)*11;
-}
-
-// Wrap a paragraph that starts with a bold lead phrase.
-function rptLeadPara(k,lead,body,x,y,w,size,lh){
-  const {pdf}=k;
-  k.font('bold',size,RPT.navy);
-  const leadTxt=lead+'.  ';
-  const lw=k.width(leadTxt);
-  k.font('normal',size,RPT.ink2);
-  // First line shares space with the lead; remaining lines use full width.
-  const words=body.split(' ');let first='';
-  while(words.length&&k.width((first?first+' ':'')+words[0])<=w-lw){first+=(first?' ':'')+words.shift();}
-  const rest=words.length?pdf.splitTextToSize(words.join(' '),w):[];
-  k.font('bold',size,RPT.navy);k.text(leadTxt,x,y);
-  k.font('normal',size,RPT.ink2);k.text(first,x+lw,y);
-  rest.forEach((ln,i)=>k.text(ln,x,y+lh*(i+1)));
-  return y+lh*(rest.length+1);
-}
-
-// ---------- Page 1: Cover (bifold front) ---------------------------------
-// Full-bleed building photo over a navy identity block; when no photo is on
-// file the whole face is a branded navy field with a subtle dot motif.
-function rptCover(k,d,photo,dateStr){
+// ---------- Page 1: Cover -------------------------------------------------
+// White page, inset hero image (building photo, or a branded navy panel with
+// a dot motif + centered logo when none), identity block, two hero stats.
+function rptCoverT(k,d,photo,dateStr){
   const {pdf}=k,{f}=d,W=RPT.W,H=RPT.H,M=RPT.M,CW=RPT.CW;
-  const splitY=photo?498:0;
-  if(photo)pdf.addImage(photo,'JPEG',0,0,W,splitY,'coverPhoto','MEDIUM');
-  pdf.setFillColor(RPT.navy);pdf.rect(0,splitY,W,H-splitY,'F');
-  if(!photo){
-    // Subtle dot motif (barely-lighter navy) echoing the Cresa mark.
-    pdf.setFillColor('#0A2A68');
-    for(let gy=92;gy<384;gy+=24)for(let gx=W-46;gx>W-286;gx-=24)pdf.circle(gx,gy,1.5,'F');
+  const lh=24,lw=lh*556/189;
+  pdf.addImage(PDF_LOGO_SRC,'PNG',M,34,lw,lh,'cresaLogo','FAST');
+  k.font('normal',7.5,RPT.ink3);{const cc='CRESA · CONFIDENTIAL',cs=0.6,cw=k.width(cc)+cs*(cc.length-1);pdf.text(cc,W-M-cw,44,{charSpace:cs});}
+  k.font('normal',8,RPT.ink4);k.text(dateStr,W-M,56,{align:'right'});
+
+  // Hero image panel (inset)
+  const bx=M,by=96,bw=CW,bh=376;
+  if(photo){
+    pdf.addImage(photo,'JPEG',bx,by,bw,bh,'coverPhoto','MEDIUM');
+    pdf.setDrawColor(RPT.cardLine);pdf.setLineWidth(0.8);pdf.rect(bx,by,bw,bh,'S');
   }else{
-    pdf.setFillColor(RPT.gold);pdf.rect(0,splitY-3,W,3,'F'); // seam
+    pdf.setFillColor(RPT.navy);pdf.rect(bx,by,bw,bh,'F');
+    pdf.setFillColor('#0A2A68');
+    for(let gy=by+28;gy<by+bh-20;gy+=24)for(let gx=bx+bw-28;gx>bx+bw-250;gx-=24)pdf.circle(gx,gy,1.5,'F');
+    rptLogoChip(k,bx+bw/2-46,by+bh/2-18,34); // centered mark
   }
-  rptLogoChip(k,M,44,34);
+  pdf.setFillColor(RPT.gold);pdf.rect(bx,by+bh,bw,3,'F'); // gold seam under image
 
-  const ty=photo?splitY+56:470;
-  k.font('bold',8.5,RPT.gold);k.text('FIRM PROFILE',M,ty,{charSpace:1.4});
-  k.font('bold',30,'#FFFFFF');
+  // Identity
+  let y=by+bh+40;
+  k.font('bold',8,RPT.gold);k.text('FIRM PROFILE',M,y,{charSpace:1.4});y+=26;
+  k.font('bold',27,RPT.navy);
   const nm=pdf.splitTextToSize(f.n,CW).slice(0,2);
-  nm.forEach((ln,i)=>k.text(ln,M,ty+30+i*32));
-  let yy=ty+30+(nm.length-1)*32+18;
-  pdf.setFillColor(RPT.gold);pdf.rect(M,yy,54,2.5,'F');yy+=24;
+  nm.forEach((ln,i)=>k.text(ln,M,y+i*29));
+  y+=(nm.length-1)*29+16;
+  k.font('normal',10.5,RPT.ink2);
+  k.text(k.fit((f.addr?f.addr+', Houston, TX':'Houston, TX')+(f.sm?'   ·   '+f.sm:''),CW),M,y);
+  y+=26;
 
-  let lx=M;
-  if(f.rank){
-    k.font('bold',7.5,RPT.navy);
-    const chip='AM LAW #'+f.rank,cw=k.width(chip)+chip.length*0.6+16;
-    pdf.setFillColor(RPT.gold);pdf.roundedRect(lx,yy-10,cw,15,7.5,7.5,'F');
-    k.text(chip,lx+8,yy,{charSpace:0.6});lx+=cw+16;
-  }
-  k.font('normal',10,'#CDD6E8');
-  const facts=[f.hq&&('HQ '+f.hq),f.cat,f.att!=null&&(fmtComma(f.att)+' attorneys')].filter(Boolean).join('       ');
-  k.text(k.fit(facts,M+CW-lx),lx,yy);yy+=22;
-  if(f.addr){k.font('normal',9.5,'#AEB9D2');k.text(k.fit((f.addr+', Houston, TX')+(f.sm?'   ·   '+f.sm:''),CW),M,yy);}
+  // Two hero stats
+  pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.8);k.hr(M,y,M+CW,RPT.line,0.8);y+=20;
+  const stat=(x,label,value)=>{k.label(label,x,y);k.font('bold',24,RPT.navy);k.text(value,x,y+28);};
+  stat(M,'Houston attorneys',f.att!=null?fmtComma(f.att):'—');
+  stat(M+CW/2,'Am Law rank',f.rank?'#'+f.rank:'—');
+  pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M+CW/2-18,y-4,M+CW/2-18,y+30);
 
-  k.font('normal',8,'#8A96B4');
-  k.text('Cresa Houston Law Firm Database',M,H-30);
-  k.text(dateStr,W-M,H-30,{align:'right'});
+  // Footer
+  k.font('bold',8,RPT.navy);k.text('Houston Law Firm Database',M,H-44);
+  k.font('normal',8,RPT.ink3);k.text('Occupancy benchmarking & peer analysis',M,H-32);
   pdf.setFillColor(RPT.gold);pdf.rect(0,H-8,W,8,'F');
 }
 
-// Four key figures as a ruled strip, each set against its peer median.
-function rptKpiStrip(k,d,y){
-  const {pdf}=k,{f}=d,M=RPT.M,CW=RPT.CW;
-  k.hr(M,y,M+CW,RPT.navy,1);
-  const figs=[
-    ['Total RSF',f.rsf,fmtComma,d.peerMed.rsf],
-    ['SF per attorney',f.sfa,fmtComma,d.peerMed.sfa],
-    ['Market annual gross rent',f.agr,fmtMoneyC,null],
-    ['Market AGR per attorney',f.agra,fmtMoney0,d.peerMed.agra],
+// Four benchmark metric tiles (gray cards): value, peer median, vs-median + rank.
+function rptMetricTiles(k,d,y){
+  const {pdf}=k,{f,peerMed,metrics}=d,M=RPT.M,CW=RPT.CW;
+  const defs=[
+    {k:'rsf', l:'Total RSF',        fmt:fmtComma},
+    {k:'sfa', l:'SF per attorney',  fmt:fmtComma},
+    {k:'grs', l:'Market rent / SF', fmt:fmtMoney},
+    {k:'agra',l:'AGR per attorney', fmt:fmtMoney0},
   ];
-  const fw=CW/4;
-  figs.forEach(([l,v,fm,med],i)=>{
-    const fx=M+i*fw+(i?12:0);
-    if(i){pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M+i*fw,y+10,M+i*fw,y+58);}
-    k.label(l,fx,y+18);
-    k.font('bold',20,RPT.navy);k.text(v!=null?fm(v):'—',fx,y+42);
+  const n=4,gap=10,tw=(CW-gap*(n-1))/n,th=80;
+  defs.forEach((def,i)=>{
+    const x=M+i*(tw+gap);
+    pdf.setFillColor(RPT.card);pdf.setDrawColor(RPT.cardLine);pdf.setLineWidth(0.8);
+    pdf.roundedRect(x,y,tw,th,5,5,'FD');
+    k.label(def.l,x+10,y+16);
+    const val=f[def.k],m=metrics.find(mm=>mm.k===def.k);
+    k.font('bold',17,RPT.navy);k.text(val!=null?def.fmt(val):'—',x+10,y+38);
     k.font('normal',7.5,RPT.ink3);
-    k.text(med!=null?'Peer median '+fm(med):(i===2&&f.grs!=null?fmtMoney(f.grs)+'/SF × RSF':''),fx,y+55);
+    k.text(peerMed[def.k]!=null?'Peer median '+def.fmt(peerMed[def.k]):'—',x+10,y+51);
+    if(m&&m.diff!=null){
+      const dd=Math.round(m.diff);
+      k.font('bold',8,RPT.navy);const t1=(dd>=0?'+':'')+dd+'%';k.text(t1,x+10,y+67);
+      k.font('normal',7.5,RPT.ink3);k.text('  ·  '+m.rank.pos+' of '+m.rank.total,x+10+k.width(t1),y+67);
+    }
   });
-  k.hr(M,y+68,M+CW);
-  return y+68;
+  return y+th;
 }
 
-// Premises & lease: location definition-list on the left, lease / rent /
-// building-health column on the right. Returns the lowest y used.
-function rptPremises(k,d,y){
-  const {pdf}=k,{f}=d,M=RPT.M,CW=RPT.CW;
-  k.font('bold',11,RPT.navy);k.text('Premises & lease',M,y);
-  y+=10;k.hr(M,y,M+CW);y+=18;
-  const colW=(CW-32)/2,rx=M+colW+32;
+// A 5-step navy meter (ownership / amenity). Returns next y.
+function rptMeter(k,x,label,v,y,w){
+  const {pdf}=k;
+  k.label(label,x,y);
+  k.font('bold',9,RPT.navy);k.text(v!=null?v+' / 5':'—',x+w,y,{align:'right'});
+  const sw=(w-8)/5;
+  for(let i=0;i<5;i++){pdf.setFillColor(v!=null&&i<v?RPT.navy:RPT.cardLine);pdf.roundedRect(x+i*(sw+2),y+5,sw,4,1.5,1.5,'F');}
+  return y+22;
+}
 
-  const rows=[
-    ['Address',(f.addr||'—')+', Houston, TX'],
-    ['Submarket',f.sm||'—'],
-    ['Building',f.bn||'—'],
-    ['Class',f.bc||'—'],
-    ['Year built',f.yb||'—'],
-    ['Floors',f.fl||'—'],
-    ['Landlord',f.ll||'—'],
-    ['Landlord rep',f.lr||'—'],
-  ].filter(([l,v])=>l==='Address'||(v&&v!=='—'));
-  let ly=y;
-  rows.forEach(([l,v])=>{
-    k.font('normal',8.5,RPT.ink3);k.text(l,M,ly);
-    k.font('bold',8.5,RPT.ink);
-    const lines=pdf.splitTextToSize(String(v),colW-78).slice(0,2);
-    lines.forEach((ln,i)=>k.text(ln,M+78,ly+i*11));
-    ly+=11*lines.length+6;
-  });
+// Firm Snapshot: a three-column definition grid of location / building / lease.
+// Returns the lowest y used.
+function rptSnapshot(k,d,y){
+  const {f}=d,M=RPT.M,CW=RPT.CW,cw=CW/3,c1=M,c2=M+cw,c3=M+2*cw;
+  const field=(x,label,value,yy)=>{
+    k.label(label,x,yy);k.font('bold',9,RPT.navy);
+    const ln=k.pdf.splitTextToSize(String(value==null||value===''?'—':value),cw-14).slice(0,2);
+    ln.forEach((l,i)=>k.text(l,x,yy+13+i*11));
+    return yy+13+11*ln.length+8;
+  };
+  let y1=y,y2=y,y3=y;
+  y1=field(c1,'Location',f.bn||f.addr||'—',y1);
+  y1=field(c1,'Address',(f.addr?f.addr+', Houston, TX':'—'),y1);
+  y1=field(c1,'Submarket',f.sm,y1);
+  y2=field(c2,'Class · built',(f.bc||'—')+(f.yb?'  ·  '+f.yb:''),y2);
+  y2=field(c2,'Landlord',f.ll,y2);
+  y2=field(c2,'Landlord rep',f.lr,y2);
+  y3=field(c3,'Lease expiration',fmtLE(f.le),y3);
+  y3=rptMeter(k,c3,'Ownership health',f.oh,y3,cw-14)+2;
+  y3=rptMeter(k,c3,'Amenity index',f.ai,y3,cw-14)+2;
+  y3=field(c3,'% of building occupied',f.occ!=null?f.occ+'%':'—',y3);
+  return Math.max(y1,y2,y3);
+}
 
-  let ry=y;
-  k.label('Remaining term',rx,ry);
-  k.label('Lease type',rx+colW,ry,{align:'right'});
-  k.font('bold',20,RPT.navy);k.text(d.remainStr||'—',rx,ry+22);
-  k.font('bold',11,RPT.navy);k.text(f.lt||'—',rx+colW,ry+22,{align:'right'});
-  ry+=36;
-  if(d.leasePct!=null){
-    const bw=colW,bx=rx,by=ry+6,pct=d.leasePct/100;
-    pdf.setFillColor(RPT.line);pdf.roundedRect(bx,by,bw,5,2.5,2.5,'F');
-    if(pct>0){pdf.setFillColor(RPT.navy);pdf.roundedRect(bx,by,Math.max(5,bw*pct),5,2.5,2.5,'F');}
-    const tx=bx+bw*pct;
-    pdf.setFillColor(RPT.gold);pdf.rect(tx-1,by-4,2,13,'F');
-    k.font('bold',6.5,RPT.navy);
-    k.text('TODAY',Math.min(Math.max(tx,bx+12),bx+bw-12),by-7,{align:'center',charSpace:0.4});
-    k.font('normal',7.5,RPT.ink3);
-    k.text('Move-in '+fmtLE(f.mi),bx,by+17);
-    k.text('Expires '+fmtLE(f.le),bx+bw,by+17,{align:'right'});
-    ry+=36;
-  }else if(f.le){
-    k.font('normal',8,RPT.ink3);k.text('Expires '+fmtLE(f.le),rx,ry+4);ry+=16;
+// Short analyst prose built only from the firm's own numbers vs. its peer set.
+function rptNarrativeText(d){
+  const {f,metrics,peerLabel}=d;
+  const by=key=>metrics.find(m=>m.k===key);
+  const nth=n=>ordSuffix(n).replace(/^\d+/,'');
+  const out=[];
+  const att=by('att');
+  if(att){
+    const p=att.rank.pos,t=att.rank.total;
+    const where=p===1?'the largest Houston office in its '+peerLabel+' peer set'
+      :p<=3?'among the largest Houston offices in its '+peerLabel+' peer set ('+p+' of '+t+')'
+      :'the '+p+nth(p)+' largest of '+t+' in its '+peerLabel+' peer set';
+    out.push(f.n+' runs '+where+' at '+fmtComma(f.att)+' attorneys.');
   }
-  ry+=8;k.hr(rx,ry,rx+colW,RPT.lineSoft);ry+=16;
-
-  k.label('Building market rent',rx,ry);
-  k.label('Class',rx+colW,ry,{align:'right'});
-  k.font('bold',14,RPT.navy);k.text(f.grs!=null?fmtMoney(f.grs)+'/SF':'—',rx,ry+18);
-  k.font('bold',14,RPT.navy);k.text(f.bc||'—',rx+colW,ry+18,{align:'right'});
-  k.font('normal',7.5,RPT.ink3);
-  if(f.grs!=null&&f.sr!=null){
-    const dl=f.grs-f.sr;
-    k.text((Math.abs(dl)<0.005?'Equal to':fmtMoney(Math.abs(dl))+(dl>0?' above':' below'))+' the '+(f.sm||'submarket')+' average of '+fmtMoney(f.sr)+'/SF',rx,ry+30);
-  }else if(f.sr!=null){k.text('Submarket average '+fmtMoney(f.sr)+'/SF',rx,ry+30);}
-  ry+=40;k.hr(rx,ry,rx+colW,RPT.lineSoft);ry+=16;
-
-  [['Ownership health',f.oh],['Amenity index',f.ai]].forEach(([l,v])=>{
-    k.label(l,rx,ry);
-    k.font('bold',8.5,RPT.navy);k.text(v!=null?v+' / 5':'—',rx+colW,ry,{align:'right'});
-    const sw=(colW-8)/5;
-    for(let i=0;i<5;i++){
-      pdf.setFillColor(v!=null&&i<v?RPT.navy:RPT.line);
-      pdf.roundedRect(rx+i*(sw+2),ry+5,sw,4,1.5,1.5,'F');
-    }
-    ry+=24;
-  });
-  return Math.max(ly,ry);
+  const sfa=by('sfa');
+  if(sfa&&sfa.med!=null){
+    const dd=Math.round(sfa.diff);
+    const rel=Math.abs(dd)<5?'uses space in line with peers':(dd>0?'uses '+dd+'% more space than the peer median':'uses '+Math.abs(dd)+'% less space than the peer median');
+    out.push('It '+rel+' at '+fmtComma(f.sfa)+' SF per attorney (peer median '+fmtComma(sfa.med)+').');
+  }
+  const rent=by('grs'),agra=by('agra');
+  if(rent&&rent.med!=null){
+    let s='Its cost position is driven by rate: '+fmtMoney(f.grs)+'/SF building rent ranks '+rent.rank.pos+' of '+rent.rank.total;
+    if(agra&&agra.med!=null){const dd=Math.round(agra.diff);s+=', putting market annual gross rent at '+fmtMoney0(f.agra)+' per attorney, '+(Math.abs(dd)<5?'in line with':(dd>0?dd+'% above':Math.abs(dd)+'% below'))+' the peer median';}
+    out.push(s+'.');
+  }
+  return out.join(' ');
+}
+// Draw the narrative paragraph. Returns next y.
+function rptNarrative(k,d,x,y,w){
+  const txt=rptNarrativeText(d);
+  if(!txt){k.font('normal',9.5,RPT.ink3);k.text('Not enough data on file to summarize.',x,y);return y+14;}
+  k.font('normal',10,RPT.ink2);
+  const lines=k.pdf.splitTextToSize(txt,w);
+  lines.forEach((ln,i)=>k.text(ln,x,y+i*15));
+  return y+lines.length*15;
 }
 
-// Benchmark table with an integrated "vs median" bar column. Returns new y.
-function rptBenchTable(k,d,y){
-  const {pdf}=k,{metrics}=d,M=RPT.M,CW=RPT.CW;
-  const cols=[
-    {t:'Metric',      x:M,       w:112,a:'left'},
-    {t:'Firm',        x:M+112,   w:58, a:'right'},
-    {t:'Peer median', x:M+170,   w:70, a:'right'},
-    {t:'Peer average',x:M+240,   w:72, a:'right'},
-    {t:'vs median',   x:M+324,   w:116,a:'center'},
-    {t:'Rank',        x:M+440,   w:38, a:'right'},
-    {t:'Pctile',      x:M+478,   w:38, a:'right'},
-  ];
-  const ax=c=>c.a==='right'?c.x+c.w:c.a==='center'?c.x+c.w/2:c.x;
-  cols.forEach(c=>k.label(c.t,ax(c),y,{align:c.a}));
-  y+=8;k.hr(M,y,M+CW,RPT.navy,1);
-  const rh=30;
-  const bc=cols[4],mid=bc.x+bc.w/2,half=bc.w/2-4,cap=100;
-  metrics.forEach((m,i)=>{
-    const cy=y+rh/2+3;
-    k.font('normal',9,RPT.ink);k.text(m.l,cols[0].x,cy);
-    k.font('bold',9,RPT.navy);k.text(m.fmt(m.val),ax(cols[1]),cy,{align:'right'});
-    k.font('normal',9,RPT.ink2);
-    k.text(m.med!=null?m.fmt(m.med):'—',ax(cols[2]),cy,{align:'right'});
-    k.text(m.avg!=null?m.fmt(m.avg):'—',ax(cols[3]),cy,{align:'right'});
-    pdf.setDrawColor(RPT.ink4);pdf.setLineWidth(0.6);pdf.line(mid,y+6,mid,y+rh-6);
-    if(m.diff!=null){
-      const p=Math.max(-cap,Math.min(cap,m.diff)),bw=Math.abs(p)/cap*half;
-      pdf.setFillColor(RPT.navy);
-      pdf.rect(p>=0?mid:mid-bw,cy-6,Math.max(bw,0.8),7,'F');
-      k.font('bold',7,RPT.navy);
-      const lbl=(m.diff>0?'+':'')+Math.round(m.diff)+'%';
-      const tw=k.width(lbl);
-      // Keep the label outside the bar; on a near-clamped bar that would reach
-      // the Rank column, set it inside the bar end instead (white).
-      const outFits=p>=0?(mid+bw+3+tw<=bc.x+bc.w-2):(mid-bw-3-tw>=bc.x+2);
-      if(outFits){
-        k.text(lbl,p>=0?mid+bw+3:mid-bw-3,cy-0.5,{align:p>=0?'left':'right'});
-      }else{
-        k.font('bold',7,'#FFFFFF');
-        k.text(lbl,p>=0?mid+bw-3:mid-bw+3,cy-0.5,{align:p>=0?'right':'left'});
-      }
-    }
-    k.font('normal',9,RPT.ink2);k.text(m.rank.pos+' / '+m.rank.total,ax(cols[5]),cy,{align:'right'});
-    k.font('bold',9,RPT.navy);k.text(ordSuffix(m.pctile),ax(cols[6]),cy,{align:'right'});
-    y+=rh;
-    k.hr(M,y,M+CW,i===metrics.length-1?RPT.line:RPT.lineSoft);
-  });
-  y+=13;
-  k.font('normal',7,RPT.ink3);
-  pdf.text(pdf.splitTextToSize('Rank 1 = most attorneys or largest RSF; for space and cost metrics, rank 1 = lowest. Percentile follows the same direction. '+
-    'Peer average for SF per attorney, rent and AGR per attorney is weighted by firm size. Bars show the firm’s difference from the peer median, capped at ±100%.',CW),M,y);
-  return y+30;
-}
-
-// ---------- Page 2: Inside-left — key figures + benchmark + takeaways -----
-function rptPageBench(k,d){
-  const {f,peers,peerLabel}=d,M=RPT.M,CW=RPT.CW;
-  let y=rptSectionTitle(k,'How '+f.n+' measures up',
-    'Benchmarked against the '+peerLabel+' peer set ('+peers.length+' firms, subject excluded). Rank is among the peer set plus '+f.n+'.',112);
-  y+=12;
-  y=rptKpiStrip(k,d,y)+26;
-  y=rptBenchTable(k,d,y)+22;
-  k.font('bold',11,RPT.navy);k.text('What the numbers say',M,y);
-  let ty=y+18;
-  const takes=rptTakeaways(d);
-  takes.forEach((t,i)=>{
-    ty=rptLeadPara(k,t.lead,t.text,M,ty,CW,9.5,13.5);
-    if(i<takes.length-1){ty+=4;k.hr(M,ty,M+CW,RPT.lineSoft);ty+=14;}
-  });
-  if(!takes.length){k.font('normal',9.5,RPT.ink3);k.text('Not enough data on file to summarize.',M,ty);}
-}
-
-// ---------- Page 3: Inside-right — peer landscape + locator map ----------
-async function rptPageLandscape(k,d){
-  const {closest}=d,M=RPT.M,CW=RPT.CW;
-  let y=rptSectionTitle(k,'Peer landscape',
-    'The '+closest.length+' closest peers by headcount: SF per attorney vs market AGR per attorney, bubble area = total RSF. Numbers match the table on page 4.',112);
-  y+=10;
-  const bubbleH=272;
-  rptBubbleChart(k,d,M,y,CW,bubbleH);
-  y+=bubbleH+20;
-  k.font('bold',11,RPT.navy);k.text('Where they sit',M,y);
-  k.font('normal',8,RPT.ink3);k.text('Same numbering as the chart and the table',RPT.W-M,y,{align:'right'});
+// ---------- Page 2: Overview & Benchmarking ------------------------------
+function rptPageOverviewBench(k,d){
+  const {f,peers}=d,M=RPT.M,CW=RPT.CW;
+  rptHeadT(k,'OVERVIEW & BENCHMARKING');
+  let y=98;
+  k.font('bold',16,RPT.navy);k.text('Firm Snapshot',M,y);
+  k.font('normal',9.5,RPT.ink3);k.text(k.fit(f.n,230),RPT.W-M,y,{align:'right'});
+  y+=22;
+  y=rptSnapshot(k,d,y)+12;
+  k.hr(M,y,M+CW,RPT.line,0.8);y+=22;
+  k.font('bold',13,RPT.navy);k.text('Against the peer median',M,y);
+  k.font('normal',8,RPT.ink3);k.text('Rank 1 = most / largest, lowest space or cost · '+(peers.length+1)+' firms',RPT.W-M,y,{align:'right'});
   y+=14;
-  await rptMap(k,d,M,y,CW,250);
+  y=rptMetricTiles(k,d,y)+26;
+  k.font('bold',12,RPT.navy);k.text('What the numbers say',M,y);y+=18;
+  rptNarrative(k,d,M,y,CW);
+  rptFootT(k,2);
+}
+
+// ---------- Page 3: Peer Landscape + Peer Comparison ---------------------
+async function rptPageLandscapeCompare(k,d){
+  const {closest}=d,M=RPT.M,CW=RPT.CW;
+  rptHeadT(k,'PEER LANDSCAPE');
+  let y=98;
+  k.font('bold',16,RPT.navy);k.text('Peer landscape',M,y);
+  k.font('normal',9,RPT.ink3);
+  k.text('SF per attorney against AGR per attorney. Bubble area = total RSF. Numbers match the table below.',M,y+14);
+  y+=28;
+  const bubbleH=248;
+  rptBubbleChart(k,d,M,y,CW,bubbleH);
+  y+=bubbleH+22;
+  k.font('bold',13,RPT.navy);k.text('Peer Comparison',M,y);
+  k.font('normal',8,RPT.ink3);k.text('The '+closest.length+' closest peers by headcount',RPT.W-M,y,{align:'right'});
+  const headY=y+16;
+  const rh=17.5,bandTop=RPT.H-52;
+  const maxRows=Math.max(3,Math.min(closest.length,Math.floor((bandTop-(headY+8+rh))/rh)));
+  rptPeerTable(k,d,headY,maxRows);
+  rptFootT(k,3);
 }
 
 function rptNiceTicks(min,max,count){
@@ -4482,7 +4483,7 @@ function rptPeerTable(k,d,y,maxRows){
   const rh=17.5;
   const row=(p,subject)=>{
     const cy=y+rh/2+3;
-    if(subject){pdf.setFillColor(RPT.tint);pdf.rect(M,y+0.5,CW,rh-1,'F');}
+    if(subject){pdf.setFillColor(RPT.tintGold);pdf.rect(M,y+0.5,CW,rh-1,'F');}
     k.marker(ax(cols[0]),cy-2.8,subject?4.2:5.6,p.num,subject);
     k.font(subject?'bold':'normal',8.5,subject?RPT.navy:RPT.ink);
     k.text(k.fit(p.n,cols[1].w),cols[1].x,cy);
@@ -4503,48 +4504,48 @@ function rptPeerTable(k,d,y,maxRows){
   pdf.text(pdf.splitTextToSize('Rent / SF is the building market rent. AGR = market rent / SF × RSF. Source: Cresa Houston Law Firm Database.'+extra,CW),M,y);
 }
 
-// Navy contact band at the foot of the back cover. Broker fields are left as
-// fill-in placeholders; the positioning line is Cresa's occupier-only promise.
-function rptContactBand(k,d,by){
-  const {pdf}=k,W=RPT.W,H=RPT.H,M=RPT.M,CW=RPT.CW;
-  pdf.setFillColor(RPT.navy);pdf.rect(0,by,W,H-by,'F');
-  pdf.setFillColor(RPT.gold);pdf.rect(0,by,W,3,'F');
-  rptLogoChip(k,W-M-((30-12)*556/189+16),by+22,30);
-  let y=by+30;
-  k.font('bold',8.5,RPT.gold);k.text('YOUR CRESA ADVISOR',M,y,{charSpace:1.4});
-  y+=26;
-  const colW=(CW-40)/2;
-  [0,1].forEach(i=>{
-    const cx=M+i*(colW+40);
-    k.font('bold',13,'#FFFFFF');k.text('[ Broker Name ]',cx,y);
-    k.font('normal',9,'#CDD6E8');k.text('[ Title ]',cx,y+15);
-    k.font('normal',9,'#AEB9D2');k.text('[ phone ]      [ email ]',cx,y+30);
+// Inset navy "Your Cresa advisor(s)" band. Renders 1–4 chosen advisors, or two
+// fill-in placeholder slots when none were selected.
+function rptContactsBand(k,d,by,bh,contacts){
+  const {pdf}=k,M=RPT.M,CW=RPT.CW;
+  pdf.setFillColor(RPT.navy);pdf.roundedRect(M,by,CW,bh,6,6,'F');
+  pdf.setFillColor(RPT.gold);pdf.roundedRect(M,by,CW,3,1.5,1.5,'F');
+  const list=(contacts&&contacts.length)?contacts.slice(0,4):[{},{}];
+  const n=list.length;
+  k.font('bold',8.5,RPT.gold);k.text('YOUR CRESA ADVISOR'+(n>1?'S':''),M+20,by+26,{charSpace:1.4});
+  rptLogoChip(k,M+CW-20-((28-12)*556/189+16),by+16,28);
+  const gap=16,colW=(CW-40-gap*(n-1))/n,ty=by+52,tight=n>=3;
+  list.forEach((c,i)=>{
+    const cx=M+20+i*(colW+gap);
+    k.font('bold',tight?11:13,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
+    k.font('normal',tight?8:9,'#CDD6E8');k.text(k.fit(c.title||'[ Title ]',colW),cx,ty+14);
+    k.font('normal',tight?8:8.5,'#AEB9D2');
+    if(tight){ // stack phone + email so neither truncates in a narrow column
+      k.text(k.fit(c.phone||'[ phone ]',colW),cx,ty+28);
+      k.text(k.fit(c.email||'[ email ]',colW),cx,ty+40);
+    }else{
+      k.text(k.fit([c.phone||'[ phone ]',c.email||'[ email ]'].join('  ·  '),colW),cx,ty+28);
+    }
   });
-  y+=52;
-  k.hr(M,y,W-M,'#1C356E',0.8);y+=16;
-  k.font('normal',8.5,'#AEB9D2');
-  k.text('Cresa Houston   ·   [ office address ]   ·   cresa.com',M,y);
   k.font('normal',8,'#8A96B4');
-  k.text('The world’s largest occupier-only commercial real estate firm — we represent you, never the landlord.',M,y+14);
-  pdf.setFillColor(RPT.gold);pdf.rect(0,H-8,W,8,'F');
+  k.text('The world’s largest occupier-only commercial real estate firm — we represent you, never the landlord.',M+20,by+bh-14);
 }
 
-// ---------- Page 4: Back cover — property/lease, peers, contact -----------
-function rptBackPage(k,d){
-  const {pdf}=k,{closest}=d,M=RPT.M,CW=RPT.CW,W=RPT.W;
-  k.font('bold',7,RPT.gold);k.text('CRESA HOUSTON LAW FIRM DATABASE',M,54,{charSpace:1.2});
-  k.hr(M,64,W-M,RPT.line,0.8);
-  pdf.setFillColor(RPT.gold);pdf.rect(M,63,40,2,'F');
-  k.font('bold',16,RPT.navy);k.text(k.fit('Property, lease & peer detail',CW),M,90);
-
-  let y=rptPremises(k,d,112)+26;
-  const bandTop=602,rh=17.5;
-  k.font('bold',11,RPT.navy);k.text('Closest peers',M,y);
-  k.font('normal',8,RPT.ink3);k.text('By attorney headcount · numbers match page 3',W-M,y,{align:'right'});
-  const headY=y+16;
-  const maxRows=Math.max(3,Math.min(closest.length,Math.floor((bandTop-16-(headY+8+rh))/rh)));
-  rptPeerTable(k,d,headY,maxRows);
-  rptContactBand(k,d,bandTop);
+// ---------- Page 4: Back — Map Overview + Cresa advisors -----------------
+async function rptPageBackMap(k,d,contacts){
+  const {f,closest}=d,M=RPT.M,CW=RPT.CW;
+  rptHeadT(k,'LOCATION');
+  let y=98;
+  k.font('bold',16,RPT.navy);k.text('Map Overview',M,y);
+  const cbd=closest.filter(p=>/cbd/i.test(p.sm||'')).length;
+  k.font('normal',9,RPT.ink3);
+  k.text(cbd+' of '+closest.length+' peers are in the CBD. Numbers match the peer table on page 3.',M,y+14);
+  y+=28;
+  const mapTop=y,mapH=430;
+  await rptMap(k,d,M,mapTop,CW,mapH);
+  rptLogoChip(k,M+12,mapTop+12,28); // white logo chip on the map
+  rptContactsBand(k,d,mapTop+mapH+18,150,contacts);
+  rptFootT(k,4);
 }
 
 // --- Map: static basemap when reachable, otherwise a vector locator ------
@@ -4677,30 +4678,35 @@ async function rptLoadPhoto(src,aspect){
 
 // 4-page bifold firm profile. Reader order: cover, inside-left, inside-right,
 // back — fold an 11x17 sheet once and the four Letter faces fall in place.
-async function exportFirmBifoldPDF(){
+// 4-page firm profile (matches the Cresa InDesign template): cover, overview &
+// benchmarking, peer landscape + comparison, map + advisors. Prompts for the
+// back-page advisors before generating.
+async function exportFirmProfilePDF(){
   const btn=document.getElementById('dashExportBtn');
   const firm=window._dashboardFirmId!=null?FIRMS[window._dashboardFirmId]:null;
   if(!firm){alert('No firm loaded for export.');return;}
+  const contacts=await openContactPicker();
+  if(contacts===null)return; // cancelled
   const orig=btn?btn.innerHTML:'';
   if(btn){btn.innerHTML='Generating...';btn.disabled=true;}
   try{
     const {jsPDF}=window.jspdf;
     const pdf=new jsPDF({unit:'pt',format:'letter',orientation:'portrait',compress:true});
-    pdf.setProperties({title:firm.n+' — Firm Profile',subject:'Firm profile bifold',author:'Cresa Houston',creator:'Houston Law Firm Database'});
+    pdf.setProperties({title:firm.n+' — Firm Profile',subject:'Firm profile',author:'Cresa Houston',creator:'Houston Law Firm Database'});
     const k=rptKit(pdf);
     const d=rptFirmData(firm);
     const dateStr=new Date().toLocaleDateString('en-US',{month:'long',day:'numeric',year:'numeric'});
-    const cover=await rptLoadPhoto(firm.img,RPT.W/498);
+    const cover=await rptLoadPhoto(firm.img,RPT.CW/330);
 
-    rptCover(k,d,cover,dateStr);
-    pdf.addPage();rptInteriorHead(k,d,dateStr,'L');rptPageBench(k,d);rptFooter(k,2,4);
-    pdf.addPage();rptInteriorHead(k,d,dateStr,'R');await rptPageLandscape(k,d);rptFooter(k,3,4);
-    pdf.addPage();rptBackPage(k,d);
+    rptCoverT(k,d,cover,dateStr);
+    pdf.addPage();rptPageOverviewBench(k,d);
+    pdf.addPage();await rptPageLandscapeCompare(k,d);
+    pdf.addPage();await rptPageBackMap(k,d,contacts);
 
     const safe=firm.n.replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'');
     pdf.save('Cresa_Firm_Profile_'+safe+'.pdf');
   }catch(e){
-    console.error('Firm bifold export error:',e);
+    console.error('Firm profile export error:',e);
     alert('Error generating PDF. Please try again.');
   }
   if(btn){btn.innerHTML=orig;btn.disabled=false;}
