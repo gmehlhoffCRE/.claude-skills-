@@ -4551,16 +4551,10 @@ function rptBubbleChart(k,d,x,y,w,h){
   });
   nodes.filter(n=>!n.subj).forEach(n=>{k.font('normal',n.r>7?7.5:6.5,'#FFFFFF');pdf.text(String(n.p.num),n.cx,n.cy,{align:'center',baseline:'middle'});});
 
-  // subject: gold disc with a navy ring, labelled on a legible white pill
+  // subject: gold disc with a navy ring (unlabelled — the gold marks it, and
+  // its figures are in the table below; a label here crowds nearby bubbles).
   const s=nodes.find(n=>n.subj);
   pdf.setFillColor(RPT.gold);pdf.circle(s.cx,s.cy,s.r,'F');pdf.setDrawColor(RPT.navy);pdf.setLineWidth(1);pdf.circle(s.cx,s.cy,s.r,'S');
-  const cap2=fmtComma(f.sfa)+' SF · '+fmtMoney0(f.agra);
-  k.font('normal',10,RPT.body);let nmSz=10;while(nmSz>7.5&&k.width(f.n)>150){nmSz-=0.5;pdf.setFontSize(nmSz);}
-  const nmW=Math.min(k.width(f.n),150);k.font('normal',8,RPT.ink3);const boxW=Math.max(nmW,k.width(cap2))+12;
-  const right=s.cx+s.r+6+boxW<pr,lx=right?s.cx+s.r+6:s.cx-s.r-6-boxW,ly=s.cy-11;
-  k.alpha(0.86);pdf.setFillColor('#FFFFFF');pdf.rect(lx,ly,boxW,24,'F');k.alpha(1);
-  rptName(k,f.n,lx+6,ly+10,150,10,7.5,RPT.body);
-  k.font('normal',8,RPT.ink3);k.text(cap2,lx+6,ly+20);
 }
 
 // Peer Comparison table (exact columns): subject cream row with gold marker,
