@@ -4475,9 +4475,11 @@ async function rptPageLandscapeCompare(k,d){
   k.font('normal',10,RPT.ink2);
   k.text('SF per attorney against AGR per attorney. Bubble area = total RSF. Numbers in the chart match the table below.',M,108);
   rptBubbleChart(k,d,M,122,516,234);
-  const headY=379,rh=28;
-  const maxRows=Math.max(3,Math.min(closest.length,Math.floor((RPT.H-60-(headY+9+rh))/rh)));
-  rptPeerTableExact(k,d,headY,maxRows);
+  // Show every peer (up to 15). With 8+ peers, fit the rows to the available
+  // space; with fewer, keep comfortable 28pt rows (whitespace below is fine).
+  const headY=379,nrows=closest.length+1,avail=(RPT.H-78)-(headY+9);
+  const rh=closest.length>=8?Math.max(18,Math.min(32,avail/nrows)):28;
+  rptPeerTableExact(k,d,headY,closest.length,rh);
   rptFootT(k,3,'right');
 }
 
@@ -4557,12 +4559,12 @@ function rptBubbleChart(k,d,x,y,w,h){
 
 // Peer Comparison table (exact columns): subject cream row with gold marker,
 // then peers numbered plainly in the # column.
-function rptPeerTableExact(k,d,y,maxRows){
-  const {pdf}=k,{f,closest}=d,M=48,W=RPT.W;
+function rptPeerTableExact(k,d,y,maxRows,rh){
+  const {pdf}=k,{f,closest}=d,M=48,W=RPT.W;rh=rh||28;
   const cols=[['#',48,0],['FIRM',70,0],['SUBMARKET',236,0],['ATTYS',359,1],['RSF',414,1],['SF/ATTY',462,1],['RENT/SF',512,1],['AGR/ATTY',564,1]];
   cols.forEach(([t,x,r])=>rptCaps(k,t,x,y,7.5,RPT.ink3,0.3,r?'right':null));
   pdf.setDrawColor(RPT.navy);pdf.setLineWidth(0.8);pdf.line(M,y+9,W-M,y+9);
-  const rh=28;let ry=y+9;
+  let ry=y+9;
   const drawRow=(p,subject)=>{
     const cy=ry+rh/2+4;
     if(subject){pdf.setFillColor(RPT.tintGold);pdf.rect(M,ry+2,W-2*M,rh-2,'F');pdf.setFillColor(RPT.gold);pdf.circle(55,cy-3.5,5,'F');}
@@ -4607,13 +4609,13 @@ function rptContactsBand(k,d,by,bh,contacts){
 function rptPeerLegend(k,d,y){
   const {pdf}=k,{closest}=d;
   const n=closest.length;if(!n)return;
-  const per=Math.ceil(n/3),colX=[48,225,402],rh=Math.min(30,116/per);
+  const per=Math.ceil(n/3),colX=[48,225,402],rh=Math.min(30,118/per);
   closest.forEach((p,i)=>{
-    const col=Math.floor(i/per),row=i%per,cx=colX[col]+6,cy=y+row*rh+10;
-    pdf.setFillColor(RPT.navy);pdf.circle(cx,cy-3.5,6,'F');
-    k.font('normal',7.5,'#FFFFFF');pdf.text(String(p.num),cx,cy-3.5,{align:'center',baseline:'middle'});
+    const col=Math.floor(i/per),row=i%per,top=y+row*rh,cy=top+rh/2+3,cx=colX[col]+6;
+    pdf.setFillColor(RPT.navy);pdf.circle(cx,cy-3,6,'F'); // marker vertically centered in the row
+    k.font('normal',7.5,'#FFFFFF');pdf.text(String(p.num),cx,cy-3,{align:'center',baseline:'middle'});
     k.font('normal',9.5,RPT.body);k.text(k.fit(p.n+(p.sm&&!/cbd/i.test(p.sm)?' · '+p.sm:''),143),cx+16,cy);
-    pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.5);pdf.line(colX[col],cy+13,colX[col]+165,cy+13);
+    pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.5);pdf.line(colX[col],top+rh,colX[col]+165,top+rh);
   });
 }
 
