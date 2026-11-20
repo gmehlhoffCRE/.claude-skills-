@@ -4402,28 +4402,26 @@ function rptNarrative(k,d,x,y,w){
 // "Against the peer median" table with gold vs-median bars.
 function rptBenchTableExact(k,d){
   const {pdf}=k,{metrics}=d,M=48;
+  const firmX=248,medX=346,barX=388,barMax=62,pctX=500,rankX=564;
   rptCaps(k,'Metric',M,325,8.5,RPT.ink3,0.3);
-  rptCaps(k,'Firm',294,325,8.5,RPT.ink3,0.3,'right');
-  rptCaps(k,'Peer median',371,325,8.5,RPT.ink3,0.3,'right');
-  rptCaps(k,'Vs median',425,325,8.5,RPT.ink3,0.3);
-  rptCaps(k,'Rank',564,325,8.5,RPT.ink3,0.3,'right');
+  rptCaps(k,'Firm',firmX,325,8.5,RPT.ink3,0.3,'right');
+  rptCaps(k,'Peer median',medX,325,8.5,RPT.ink3,0.3,'right');
+  rptCaps(k,'Vs median',barX,325,8.5,RPT.ink3,0.3);
+  rptCaps(k,'Change',pctX,325,8.5,RPT.ink3,0.3,'right');
+  rptCaps(k,'Rank',rankX,325,8.5,RPT.ink3,0.3,'right');
   pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M,334,564,334);
   const rowsY=[351,382,412,443,473];
   metrics.slice(0,5).forEach((m,i)=>{
     const y=rowsY[i];
-    k.font('normal',9,RPT.body);k.text(k.fit(m.l,200),M,y);
-    k.text(m.fmt(m.val),294,y,{align:'right'});
-    k.text(m.med!=null?m.fmt(m.med):'—',371,y,{align:'right'});
+    k.font('normal',9,RPT.body);k.text(k.fit(m.l,180),M,y);
+    k.text(m.fmt(m.val),firmX,y,{align:'right'});
+    k.text(m.med!=null?m.fmt(m.med):'—',medX,y,{align:'right'});
     if(m.diff!=null){
-      const pct=Math.max(-100,Math.min(100,m.diff)),len=Math.max(Math.abs(pct)/100*72,1.5);
-      pdf.setFillColor(RPT.gold);pdf.rect(425,y-7.5,len,8,'F');
-      k.font('normal',8.5,RPT.body);const lbl=(m.diff>=0?'+':'')+Math.round(m.diff)+'%';
-      // Keep the label clear of the Rank column; if a clamped bar would collide, set it inside the bar.
-      if(425+len+5+k.width(lbl)<=516)k.text(lbl,425+len+5,y-0.5);
-      else k.text(lbl,425+len-4,y-0.5,{align:'right'});
-      k.font('normal',9,RPT.body);
+      const len=Math.max(Math.min(Math.abs(m.diff),100)/100*barMax,1.5);
+      pdf.setFillColor(RPT.gold);pdf.rect(barX,y-7.5,len,8,'F');            // bar column
+      k.text((m.diff>=0?'+':'')+Math.round(m.diff)+'%',pctX,y,{align:'right'}); // % column
     }
-    k.text(m.rank.pos+' of '+m.rank.total,564,y,{align:'right'});
+    k.text(m.rank.pos+' of '+m.rank.total,rankX,y,{align:'right'});
     pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M,y+10,564,y+10);
   });
   k.font('normal',9,RPT.ink3);
