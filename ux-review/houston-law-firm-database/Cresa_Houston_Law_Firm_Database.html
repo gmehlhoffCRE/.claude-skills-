@@ -4236,26 +4236,26 @@ function rptCoverT(k,d,photo,dateStr){
     rptLogoChip(k,M+CW/2-46,by+bh/2-18,34);
   }
 
-  rptCaps(k,'FIRM PROFILE',M,476,9,RPT.ink3,2.2);
-  k.font('normal',40,RPT.navy);k.text(k.fit(f.n,CW),M,520);
+  rptCaps(k,'FIRM PROFILE',M,472,9,RPT.ink3,2.2);
+  k.font('normal',40,RPT.navy);k.text(k.fit(f.n,CW),M,513);
   k.font('normal',14,RPT.ink2);
-  k.text(k.fit((f.addr?f.addr+', Houston, TX':'Houston, TX')+(f.sm?' · '+f.sm:''),CW),M,553);
+  k.text(k.fit((f.addr?f.addr+', Houston, TX':'Houston, TX')+(f.sm?' · '+f.sm:''),CW),M,549);
   pdf.setFillColor(RPT.gold);pdf.rect(M,562,44,3,'F');
-  k.font('normal',13.5,RPT.ink2);k.text('Houston Law Firm Database',M,593);
-  k.font('normal',13.5,RPT.ink3);k.text('Occupancy benchmarking & peer analysis',M,611);
+  k.font('normal',13.5,RPT.ink2);k.text('Houston Law Firm Database',M,591);
+  k.font('normal',13.5,RPT.ink3);k.text('Occupancy benchmarking & peer analysis',M,609);
 
   // Two hero stats, bracketed by hairlines, split by a vertical rule.
   k.hr(M,638,M+CW,RPT.line,0.8);
-  const stat=(x,label,value)=>{rptCaps(k,label,x,661,8.5,RPT.ink3,1.2);k.font('normal',28,RPT.navy);k.text(value,x,687);};
+  const stat=(x,label,value)=>{rptCaps(k,label,x,658,8.5,RPT.ink3,1.2);k.font('normal',18,RPT.navy);k.text(value,x,677);};
   stat(M,'AM LAW RANK',f.rank?'#'+f.rank:'—');
   stat(238,'HOUSTON ATTORNEYS',f.att!=null?fmtComma(f.att):'—');
-  pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.8);pdf.line(214,644,214,694);
+  pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.8);pdf.line(214,644,214,690);
   k.hr(M,700,M+CW,RPT.line,0.8);
 
   // Footer: navy rule, confidential left, date right.
   pdf.setDrawColor(RPT.navy);pdf.setLineWidth(1.6);pdf.line(M,726,M+CW,726);
-  rptCaps(k,'CRESA · CONFIDENTIAL',M,748,8.5,RPT.ink3,1.0);
-  k.font('normal',9,RPT.ink3);k.text(dateStr,M+CW,748,{align:'right'});
+  rptCaps(k,'CRESA · CONFIDENTIAL',M,746,8.5,RPT.ink3,1.0);
+  k.font('normal',9,RPT.ink3);k.text(dateStr,M+CW,746,{align:'right'});
 }
 
 // Four benchmark metric tiles: gray card, gold top accent, value, vs-median + rank.
@@ -4374,8 +4374,8 @@ function rptBuildingBlock(k,d){
 function rptPageOverviewBench(k,d){
   const {f}=d,M=48;
   rptHeadT(k,'OVERVIEW & BENCHMARKING',f.n);
-  k.font('normal',30,RPT.navy);k.text('Firm Snapshot',M,101);
-  rptNarrative(k,d,M,123,516);
+  k.font('normal',22,RPT.navy);k.text('Firm Snapshot',M,91);
+  rptNarrative(k,d,M,120,516);
   rptMetricTiles(k,d);
   k.font('normal',13,RPT.navy);k.text('Against the peer median',M,306);
   rptBenchTableExact(k,d);
@@ -4387,10 +4387,10 @@ function rptPageOverviewBench(k,d){
 async function rptPageLandscapeCompare(k,d){
   const {f,closest}=d,M=48;
   rptHeadT(k,'PEER LANDSCAPE',f.n);
-  k.font('normal',30,RPT.navy);k.text('Peer Comparison',M,101);
+  k.font('normal',19,RPT.navy);k.text('Peer Comparison',M,83);
   k.font('normal',10,RPT.ink2);
-  k.text('SF per attorney against AGR per attorney. Bubble area = total RSF. Numbers in the chart match the table below.',M,123);
-  rptBubbleChart(k,d,M,138,516,218);
+  k.text('SF per attorney against AGR per attorney. Bubble area = total RSF. Numbers in the chart match the table below.',M,108);
+  rptBubbleChart(k,d,M,122,516,234);
   const headY=379,rh=28;
   const maxRows=Math.max(3,Math.min(closest.length,Math.floor((RPT.H-60-(headY+9+rh))/rh)));
   rptPeerTableExact(k,d,headY,maxRows);
@@ -4518,10 +4518,10 @@ function rptPeerLegend(k,d,y){
 async function rptPageBackMap(k,d,contacts){
   const {f,closest}=d,M=48;
   rptHeadT(k,'LOCATION',f.n);
-  k.font('normal',30,RPT.navy);k.text('Map Overview',M,92);
+  k.font('normal',19,RPT.navy);k.text('Map Overview',M,80);
   const cbd=closest.filter(p=>/cbd/i.test(p.sm||'')).length;
-  k.font('normal',11,RPT.ink2);
-  k.text(cbd+' of '+closest.length+' peers are in the CBD. Numbers match the peer table on page 3.',M,112);
+  k.font('normal',10,RPT.ink2);
+  k.text(cbd+' of '+closest.length+' peers are in the CBD. Numbers match the peer table on page 3.',M,103);
   await rptMap(k,d,M,127,516,383);
   rptPeerLegend(k,d,526);
   rptContactsBand(k,d,648,114,contacts);
