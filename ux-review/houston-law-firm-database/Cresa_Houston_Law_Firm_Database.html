@@ -4439,7 +4439,7 @@ function rptBuildingBlock(k,d){
     k.font('normal',8,RPT.ink4);k.text('No photo on file',px+pw/2,py+ph/2,{align:'center'});}
   const rows=[
     [['Submarket',f.sm],['Class · built',(f.bc||'—')+(f.yb?' · '+f.yb:'')]],
-    [['Lease expiration',fmtLE(f.le)],['% of building occupied',f.occ!=null?f.occ+'%':'[ % ]']],
+    [['Lease expiration',fmtLE(f.le)],['% of building occupied',f.bl!=null?Math.round(f.bl*100)+'%':'—']],
     [['Landlord',f.ll],['Landlord rep',f.lr]],
   ];
   const aL=219,aR=380,bL=402,bR=562;let yy=596;
