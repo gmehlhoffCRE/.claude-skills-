@@ -4411,17 +4411,17 @@ function rptBenchTableExact(k,d){
   const rowsY=[351,382,412,443,473];
   metrics.slice(0,5).forEach((m,i)=>{
     const y=rowsY[i];
-    k.font('normal',10,RPT.body);k.text(k.fit(m.l,200),M,y);
+    k.font('normal',9,RPT.body);k.text(k.fit(m.l,200),M,y);
     k.text(m.fmt(m.val),294,y,{align:'right'});
     k.text(m.med!=null?m.fmt(m.med):'—',371,y,{align:'right'});
     if(m.diff!=null){
       const pct=Math.max(-100,Math.min(100,m.diff)),len=Math.max(Math.abs(pct)/100*72,1.5);
       pdf.setFillColor(RPT.gold);pdf.rect(425,y-7.5,len,8,'F');
-      k.font('normal',9.5,RPT.body);const lbl=(m.diff>=0?'+':'')+Math.round(m.diff)+'%';
+      k.font('normal',8.5,RPT.body);const lbl=(m.diff>=0?'+':'')+Math.round(m.diff)+'%';
       // Keep the label clear of the Rank column; if a clamped bar would collide, set it inside the bar.
       if(425+len+5+k.width(lbl)<=516)k.text(lbl,425+len+5,y-0.5);
       else k.text(lbl,425+len-4,y-0.5,{align:'right'});
-      k.font('normal',10,RPT.body);
+      k.font('normal',9,RPT.body);
     }
     k.text(m.rank.pos+' of '+m.rank.total,564,y,{align:'right'});
     pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M,y+10,564,y+10);
@@ -4568,8 +4568,8 @@ function rptPeerTableExact(k,d,y,maxRows){
   const drawRow=(p,subject)=>{
     const cy=ry+rh/2+4;
     if(subject){pdf.setFillColor(RPT.tintGold);pdf.rect(M,ry+2,W-2*M,rh-2,'F');pdf.setFillColor(RPT.gold);pdf.circle(55,cy-3.5,5,'F');}
-    else{k.font('normal',9.5,RPT.body);k.text(String(p.num),48,cy);}
-    k.font('normal',9.5,RPT.body);k.text(k.fit(p.n,162),70,cy);
+    else{k.font('normal',9,RPT.body);k.text(String(p.num),48,cy);}
+    k.font('normal',9,RPT.body);k.text(k.fit(p.n,162),70,cy);
     k.text(k.fit(p.sm||'—',118),236,cy);
     k.text(p.att!=null?fmtComma(p.att):'—',359,cy,{align:'right'});
     k.text(p.rsf!=null?fmtComma(p.rsf):'—',414,cy,{align:'right'});
