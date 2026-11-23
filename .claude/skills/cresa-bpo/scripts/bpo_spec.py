@@ -5,6 +5,7 @@ import os, json
 
 W, H = 792, 612
 LOGO, LOGO_AR = "cresa_logo.png", 1500 / 260
+RIGHT = 42.4 + 708.6  # right edge of the content area (page gutter); interior logos align to it
 COLORS = {"Navy": (0, 30, 90), "Gold": (255, 182, 0), "Blue": (0, 86, 218), "Cell Gray": (233, 233, 233), "Text": (51, 51, 51),
           "Rule": (205, 205, 205), "Rule Light": (140, 155, 192), "Navy Dark": (29, 38, 87), "Placeholder": (213, 218, 227), "Disclaimer Gray": (110, 110, 110)}
 PSTYLES = {  # name: (Helvetica Neue LT Pro style, size, leading, color, justification, extras)
@@ -71,7 +72,7 @@ def tag():
 
 
 def header(title):
-    return tag() + [text(42.4, 64, 420, 46, [P("Page Title", title)], name="Page title"), image(517, 39, 134, 134 / LOGO_AR, LOGO, layer="Content", name="Cresa logo")]
+    return tag() + [text(42.4, 64, 420, 46, [P("Page Title", title)], name="Page title"), image(RIGHT - 134, 39, 134, 134 / LOGO_AR, LOGO, layer="Content", name="Cresa logo")]
 
 
 import bpo_spec_sort
@@ -90,17 +91,25 @@ def photo_note(key, right, bottom):
             text(right - w - 8, bottom - h - 8, w, h, [P("Callout Text", note)], valign="CenterAlign", inset=(2, 6, 2, 6), name="Photo note")]
 
 
+def text_width(t, size):
+    """Width in points of t at size, measured with Arial metrics (wider than Helvetica Neue Light, so it errs safe)."""
+    from PIL import ImageFont
+    f = ImageFont.truetype("/usr/share/fonts/truetype/liberation/LiberationSans-Regular.ttf", 1000)
+    return f.getlength(t) * size / 1000
+
+
 def p_cover():
     it = placeholder(335, 65, 457, 392, "faded backdrop", opacity=40, note_box=False) + placeholder(0, 385, 457, 227, "faded backdrop", opacity=40, note_box=False)
     if D.get("cover_photo_file"):
         it.append(image(36.6, 102, 718.8, 473.5, D["cover_photo_file"], name="Cover photo")); it += photo_note("cover_photo", 36.6 + 718.8, 102 + 473.5)
     else: it += placeholder(36.6, 102, 718.8, 473.5, "PLACE PHOTO: Cover image of property")
     it.append(image(36, 36, 114.5, 114.5 / LOGO_AR, LOGO, layer="Content", name="Cresa logo"))
-    it += [rect(0, 140, 307, 106.6, opacity=92, name="Cover title box"), rect(0, 246.6, 307, 43.1, name="Cover label bar")]
-    size = str(D.get("cover_point_size", 30 if len(D["address"]) <= 16 else 26))
-    it.append(text(36, 152, 262, 90, [P("Cover Address", (D["address"], {"PointSize": size})), P("Cover City", D["city_line"])], valign="CenterAlign", name="Cover address"))
-    it.append(text(36, 246.6, 262, 43.1, [P("Cover Label", "Broker Price Opinion")], valign="CenterAlign"))
-    for cx in (281, 297, 313):
+    size = D.get("cover_point_size", 30 if len(D["address"]) <= 16 else 26)
+    bw = max(307, round(36 + text_width(D["address"], size) + 30))  # widen the box so the street address stays on one line
+    it += [rect(0, 140, bw, 106.6, opacity=92, name="Cover title box"), rect(0, 246.6, bw, 43.1, name="Cover label bar")]
+    it.append(text(36, 152, bw - 45, 90, [P("Cover Address", (D["address"], {"PointSize": str(size)})), P("Cover City", D["city_line"])], valign="CenterAlign", name="Cover address"))
+    it.append(text(36, 246.6, bw - 45, 43.1, [P("Cover Label", "Broker Price Opinion")], valign="CenterAlign"))
+    for cx in (bw - 26, bw - 10, bw + 6):
         for cy in (128, 144): it.append(rect(cx, cy, 2.2, 2.2, fill="Gold", name="dot"))
     for i, cx in enumerate(range(682, 763, 16)):
         for j, cy in enumerate(range(486, 583, 16)):
