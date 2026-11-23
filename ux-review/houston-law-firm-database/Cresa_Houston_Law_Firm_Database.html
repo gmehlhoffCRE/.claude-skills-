@@ -4404,7 +4404,7 @@ function rptBenchTableExact(k,d){
   const {pdf}=k,{metrics}=d,M=48;
   // Trimmed table on the left; the radar profile on the right carries the
   // visual comparison that the old bar/change columns used to.
-  const firmX=206,medX=300,rankX=354,tRight=360;
+  const firmX=200,medX=288,rankX=340,tRight=346;
   rptCaps(k,'Metric',M,325,8.5,RPT.ink3,0.3);
   rptCaps(k,'Firm',firmX,325,8.5,RPT.ink3,0.3,'right');
   rptCaps(k,'Peer median',medX,325,8.5,RPT.ink3,0.3,'right');
@@ -4413,13 +4413,13 @@ function rptBenchTableExact(k,d){
   const rowsY=[351,382,412,443,473];
   metrics.slice(0,5).forEach((m,i)=>{
     const y=rowsY[i];
-    k.font('normal',9,RPT.body);k.text(k.fit(m.l,150),M,y);
+    k.font('normal',9,RPT.body);k.text(k.fit(m.l,106),M,y);
     k.text(m.fmt(m.val),firmX,y,{align:'right'});
     k.text(m.med!=null?m.fmt(m.med):'—',medX,y,{align:'right'});
     k.text(m.rank.pos+' of '+m.rank.total,rankX,y,{align:'right'});
     pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M,y+10,tRight,y+10);
   });
-  rptRadarProfile(k,d,468,404,56);
+  rptRadarProfile(k,d,456,394,58);
   k.font('normal',9,RPT.ink3);
   pdf.text(pdf.splitTextToSize('Peer set: '+d.peers.length+' Houston firms with '+d.peerLabel.toLowerCase()+'. Rank 1 = most attorneys or largest RSF, and lowest space or cost. AGR = market rent/SF × RSF.',516),M,505);
 }
