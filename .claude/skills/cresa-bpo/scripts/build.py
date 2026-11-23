@@ -54,7 +54,7 @@ def build_maps(D, links, work, which):
         geom = {"centroids": [m.page_xy(sum(p[1] for p in r) / len(r), sum(p[0] for p in r) / len(r)) for r in rings],
                 "center": m.page_xy(sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)),
                 "minx": min(p[0] for p in pp), "maxx": max(p[0] for p in pp), "miny": min(p[1] for p in pp), "maxy": max(p[1] for p in pp)}
-        geom["traffic"] = [list(m.page_xy(t["lat"], t["lon"])) if t.get("lat") is not None else None for t in D.get("traffic_counts", [])]
+        geom["labels"] = road_labels(D, m)
         geom["map"] = {"z": z, "x0": m.x0, "y0": m.y0, "S": m.S, "pt": m.pt}  # lets page points be converted back to lat/lon
         json.dump(geom, open(os.path.join(work, "geom.json"), "w"))
     if "location" in which:
@@ -97,6 +97,39 @@ def crop_to(src, w_pt, h_pt, focus=(0.5, 0.5), zoom=1.0):
 
 
 FRAMES = {"cover_photo": ("cover_photo.jpg", 718.8, 473.5), "intro_photo": ("intro_photo.jpg", 792, 327)}
+
+
+def snap(pts):
+    """Snap (lat, lon) points to the nearest road centerline with the Google Roads API; returns the input on failure."""
+    key = os.environ.get("GKEY")
+    if not key: return pts
+    import requests
+    try:
+        r = requests.get("https://roads.googleapis.com/v1/nearestRoads", params={"points": "|".join(f"{a},{o}" for a, o in pts), "key": key}, timeout=30).json()
+        out = list(pts)
+        for sp in r.get("snappedPoints", []):
+            i = sp["originalIndex"]
+            if out[i] is pts[i]: out[i] = (sp["location"]["latitude"], sp["location"]["longitude"])
+        return out
+    except Exception:
+        return pts
+
+
+def road_labels(D, m):
+    """Each traffic_counts / road_labels item gives two points along its road ('a' and 'b' as [lat, lon]).
+    The label is centered between them and rotated to the road's angle, kept readable (-90..90 degrees)."""
+    out = []
+    items = [("traffic", t) for t in D.get("traffic_counts", [])] + [("road", t) for t in D.get("road_labels", [])]
+    for kind, t in items:
+        if "a" not in t or "b" not in t: continue
+        a, b = (tuple(t["a"]), tuple(t["b"])) if t.get("snap") is False else snap([tuple(t["a"]), tuple(t["b"])])
+        (x1, y1), (x2, y2) = m.page_xy(*a), m.page_xy(*b)
+        ang = math.degrees(math.atan2(y2 - y1, x2 - x1))
+        ang = (ang + 90) % 180 - 90
+        cx, cy = (x1 + x2) / 2, (y1 + y2) / 2
+        if not (0 < cx < 792 and 0 < cy < 612): print(f"NOTE {kind} label off the aerial: {t.get('name') or t.get('road')}")
+        out.append(dict(kind=kind, x=cx, y=cy, angle=round(ang, 2), vpd=t.get("vpd"), name=t.get("name") or t.get("road")))
+    return out
 
 
 def prep_photos(D, work, links):

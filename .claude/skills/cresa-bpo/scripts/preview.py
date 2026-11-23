@@ -86,6 +86,14 @@ def render(path):
             for it in items:
                 if it["layer"] != layer: continue
                 t = it["t"]
+                if it.get("rot"):  # draw rotated about the item's center
+                    cx, cy = it["x"] + it["w"] / 2, it["y"] + it["h"] / 2
+                    c.saveState(); c.translate(cx, H - cy); c.rotate(-it["rot"])
+                    loc = dict(it, x=-it["w"] / 2, y=H - it["h"] / 2, rot=0)
+                    if t == "rect":
+                        c.setFillColor(col(loc["fill"], loc["opacity"] / 100)); c.rect(-loc["w"] / 2, -loc["h"] / 2, loc["w"], loc["h"], stroke=0, fill=1)
+                    elif t == "text": draw_text(c, loc)
+                    c.restoreState(); continue
                 if t in ("rect", "placeholder"):
                     c.setFillColor(col("Placeholder" if t == "placeholder" else it["fill"], it["opacity"] / 100))
                     c.rect(it["x"], H - it["y"] - it["h"], it["w"], it["h"], stroke=0, fill=1)

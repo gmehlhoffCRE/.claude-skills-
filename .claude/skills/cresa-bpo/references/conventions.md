@@ -106,6 +106,7 @@ unless the user says otherwise for a specific report.
   repeat expiration, escalations, remaining term or costs there; missing items collapse into one "Pending from lease
   abstract" line.
 - Contract vs. market: within 2.5% reads "in line with market"; outside that, state the % above or below.
-- Owned bank sites show CoStar traffic counts on the Overhead Aerial (`traffic_counts`): the frontage road, the nearest
-  freeway and any signalized cross street. Zoom the aerial out (aerial_fill ~0.2-0.3) so those roads are in frame.
-  Skip CoStar counts that are implausible for the road (e.g. a freeway-scale figure on a local street) and flag them.
+- Owned bank sites show CoStar traffic counts on the Overhead Aerial (`traffic_counts`): just the count and "VPD" in a
+  gold box sitting on the road, rotated to the road's angle. No points or leader lines. Label the main roads by name
+  (`road_labels`) the same way. Frame the aerial so the counted roads are in view, and keep labels clear of the site
+  callout. Skip counts that are implausible for the road or that the user drops, and flag them.

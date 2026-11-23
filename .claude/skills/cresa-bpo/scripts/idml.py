@@ -67,12 +67,22 @@ def story(sid, inner):
                     f'{inner}</Story></idPkg:Story>')
 
 
-def text_frame(x, y, w, h, inner, layer, valign="TopAlign", inset=(0, 0, 0, 0), cols=1, gutter=12, fill=None, name=None):
+def geom(x, y, w, h, rot=0):
+    """(path points, ItemTransform). rot = clockwise degrees on the page, about the box center."""
+    if not rot: return box(x, y, w, h), "1 0 0 1 0 0"
+    import math
+    a = math.radians(rot); c, s = math.cos(a), math.sin(a)
+    pts = [(-w / 2, -h / 2), (-w / 2, h / 2), (w / 2, h / 2), (w / 2, -h / 2)]
+    return pts, f"{f(c)} {f(s)} {f(-s)} {f(c)} {f(x + w / 2)} {f(y + h / 2 - HALF)}"
+
+
+def text_frame(x, y, w, h, inner, layer, valign="TopAlign", inset=(0, 0, 0, 0), cols=1, gutter=12, fill=None, name=None, rot=0):
     sid, fid = uid(), uid()
     story(sid, inner)
+    pts, tr = geom(x, y, w, h, rot)
     return (f'<TextFrame Self="{fid}" ParentStory="{sid}" PreviousTextFrame="n" NextTextFrame="n" ContentType="TextType" '
             f'ItemLayer="{LAYER_ID[layer]}" Name={quoteattr(name or "$ID/")} FillColor="{cref(fill)}" StrokeColor="Swatch/None" StrokeWeight="0" '
-            f'ItemTransform="1 0 0 1 0 0" AppliedObjectStyle="ObjectStyle/$ID/[Normal Text Frame]">{path_xml(box(x, y, w, h))}'
+            f'ItemTransform="{tr}" AppliedObjectStyle="ObjectStyle/$ID/[Normal Text Frame]">{path_xml(pts)}'
             f'<TextFramePreference TextColumnCount="{cols}" TextColumnGutter="{f(gutter)}" VerticalJustification="{valign}" '
             f'InsetSpacing="{" ".join(f(v) for v in inset)}" AutoSizingType="Off" FirstBaselineOffset="AscentOffset" '
             f'IgnoreWrap="false" UseFixedColumnWidth="false"/></TextFrame>')
@@ -104,12 +114,12 @@ def table_xml(it):
     return text_frame(it["x"], it["y"], sum(colw) + 2, sum(r["h"] for r in rows) + 6, inner, it["layer"], name=it.get("name"))
 
 
-def rect_xml(x, y, w, h, fill, layer, opacity=100, stroke=None, sw=0, content="Unassigned", name=None, inner=""):
+def rect_xml(x, y, w, h, fill, layer, opacity=100, stroke=None, sw=0, content="Unassigned", name=None, inner="", rot=0):
     fit = ('<FrameFittingOption AutoFit="false" LeftCrop="0" TopCrop="0" RightCrop="0" BottomCrop="0" '
            'FittingOnEmptyFrame="FillProportionally" FittingAlignment="CenterAnchor"/>') if content == "GraphicType" else ""
     return (f'<Rectangle Self="{uid()}" ContentType="{content}" StoryTitle="$ID/" ItemLayer="{LAYER_ID[layer]}" Name={quoteattr(name or "$ID/")} '
-            f'FillColor="{cref(fill)}" StrokeColor="{cref(stroke)}" StrokeWeight="{f(sw)}" ItemTransform="1 0 0 1 0 0" '
-            f'AppliedObjectStyle="ObjectStyle/$ID/[None]">{path_xml(box(x, y, w, h))}{transp(opacity)}{fit}{inner}</Rectangle>')
+            f'FillColor="{cref(fill)}" StrokeColor="{cref(stroke)}" StrokeWeight="{f(sw)}" ItemTransform="{geom(x, y, w, h, rot)[1]}" '
+            f'AppliedObjectStyle="ObjectStyle/$ID/[None]">{path_xml(geom(x, y, w, h, rot)[0])}{transp(opacity)}{fit}{inner}</Rectangle>')
 
 
 def image_xml(it):
@@ -134,7 +144,7 @@ def image_xml(it):
 def item_xml(it):
     t = it["t"]
     if t == "rect":
-        return rect_xml(it["x"], it["y"], it["w"], it["h"], it["fill"], it["layer"], it["opacity"], it["stroke"], it["sw"], name=it.get("name"))
+        return rect_xml(it["x"], it["y"], it["w"], it["h"], it["fill"], it["layer"], it["opacity"], it["stroke"], it["sw"], name=it.get("name"), rot=it.get("rot", 0))
     if t == "placeholder":
         return rect_xml(it["x"], it["y"], it["w"], it["h"], "Placeholder", it["layer"], it["opacity"], content="GraphicType", name=it["name"])
     if t == "poly":
@@ -149,7 +159,7 @@ def item_xml(it):
                 f'AppliedObjectStyle="ObjectStyle/$ID/[None]">{path_xml([(x1, y1 - HALF), (x2, y2 - HALF)], closed=False)}</GraphicLine>')
     if t == "image": return image_xml(it)
     if t == "text":
-        return text_frame(it["x"], it["y"], it["w"], it["h"], runs_xml(it["paras"]), it["layer"], it["valign"], it["inset"], it["cols"], it["gutter"], it.get("fill"), it.get("name"))
+        return text_frame(it["x"], it["y"], it["w"], it["h"], runs_xml(it["paras"]), it["layer"], it["valign"], it["inset"], it["cols"], it["gutter"], it.get("fill"), it.get("name"), it.get("rot", 0))
     if t == "table": return table_xml(it)
     raise ValueError(t)
 

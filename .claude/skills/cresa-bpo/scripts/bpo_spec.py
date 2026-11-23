@@ -26,6 +26,7 @@ PSTYLES = {  # name: (Helvetica Neue LT Pro style, size, leading, color, justifi
     "Back Body": ("55 Roman", 8.5, 13, "Paper", "LeftAlign", {}), "Back Name": ("75 Bold", 9, 13, "Paper", "LeftAlign", {}),
     "Back Contact": ("55 Roman", 9, 13, "Paper", "LeftAlign", {}), "Placeholder Note": ("75 Bold", 10, 13, "Navy", "CenterAlign", {}),
     "North": ("75 Bold", 16, 18, "Paper", "CenterAlign", {}),
+    "Traffic Count": ("75 Bold", 9.5, 11, "Navy", "CenterAlign", {}), "Road Label": ("75 Bold", 8.5, 10, "Paper", "CenterAlign", {}),
 }
 B = {"FontStyle": "75 Bold"}
 LS = "\u2028"
@@ -43,13 +44,13 @@ G = json.load(open(os.environ["GEOM"])) if os.environ.get("GEOM") and os.path.ex
 
 
 def ls(s): return (s or "").replace("\n", LS)
-def rect(x, y, w, h, fill="Navy", opacity=100, layer="Content", name=None):
-    return dict(t="rect", x=x, y=y, w=w, h=h, fill=fill, stroke=None, sw=0, opacity=opacity, layer=layer, name=name)
+def rect(x, y, w, h, fill="Navy", opacity=100, layer="Content", name=None, rot=0):
+    return dict(t="rect", x=x, y=y, w=w, h=h, fill=fill, stroke=None, sw=0, opacity=opacity, layer=layer, name=name, rot=rot)
 def poly(pts, fill="Paper", layer="Content"): return dict(t="poly", pts=pts, fill=fill, layer=layer)
 def line(x1, y1, x2, y2, color="Rule", sw=0.75, layer="Content"): return dict(t="line", p=(x1, y1, x2, y2), color=color, sw=sw, layer=layer)
 def image(x, y, w, h, file, layer="Images", name=None): return dict(t="image", x=x, y=y, w=w, h=h, file=file, layer=layer, name=name)
-def text(x, y, w, h, paras, valign="TopAlign", inset=(0, 0, 0, 0), cols=1, gutter=18, fill=None, layer="Content", name=None):
-    return dict(t="text", x=x, y=y, w=w, h=h, paras=paras, valign=valign, inset=inset, cols=cols, gutter=gutter, fill=fill, layer=layer, name=name)
+def text(x, y, w, h, paras, valign="TopAlign", inset=(0, 0, 0, 0), cols=1, gutter=18, fill=None, layer="Content", name=None, rot=0):
+    return dict(t="text", x=x, y=y, w=w, h=h, paras=paras, valign=valign, inset=inset, cols=cols, gutter=gutter, fill=fill, layer=layer, name=name, rot=rot)
 def table(x, y, colw, rows, layer="Content", name=None): return dict(t="table", x=x, y=y, colw=colw, rows=rows, layer=layer, name=name)
 def P(style, *runs): return (style, [(ls(r), {}) if isinstance(r, str) else (ls(r[0]), r[1]) for r in runs])
 def cellp(style, v): return [P(style, v)] if v not in (None, "") else [(style, EMPTY)]
@@ -191,35 +192,23 @@ def p_aerial():
 
 
 def traffic_badges():
-    """Traffic count markers on the aerial. Each traffic_counts item: road, vpd, year, lat/lon of the count point,
-    optional side (right/left/up/down: where the label sits relative to the point). Points off the frame are pinned
-    to the nearest edge with an arrow toward the road."""
+    """Road-name labels and traffic-count boxes on the aerial, each centered on its road and rotated to the road's angle.
+    Positions and angles come from build.py (geom.json 'labels'), which snaps each item's points to the road."""
     out = []
-    pts = G.get("traffic", [])
-    for t, p in zip(D.get("traffic_counts", []), pts):
-        if not p: continue
-        x, y = p; w, h = t.get("width", 112), 30
-        off = not (20 < x < W - 20 and 70 < y < H - 20)
-        arrow = ""
-        if off:
-            if x <= 20: arrow, x = "\u2190 ", 24
-            elif x >= W - 20: arrow, x = "\u2192 ", W - 24
-            if y <= 70: arrow, y = "\u2191 ", 74
-            elif y >= H - 20: arrow, y = "\u2193 ", H - 24
-        side = t.get("side", "right")
-        bx = {"right": x + 8, "left": x - w - 8}.get(side, x - w / 2); by = {"up": y - h - 8, "down": y + 8}.get(side, y - h / 2)
-        bx = min(max(bx, 8), W - w - 8); by = min(max(by, 70), H - h - 30)
-        if not off:
-            out.append(rect(x - 4, y - 4, 8, 8, fill="Gold", name="Traffic count point"))
-            cx, cy = (bx if side == "right" else bx + w if side == "left" else x), (by + h / 2 if side in ("right", "left") else by + h if side == "up" else by)
-            out.append(line(x, y, cx, cy, color="Gold", sw=1))
-        out += [rect(bx, by, w, h, name="Traffic badge"), rect(bx, by, 4, h, fill="Gold", name="Traffic badge bar"),
-                text(bx + 4, by, w - 4, h, [P("Callout Title", f"{arrow}{t['vpd']:,} VPD"), P("Callout Text", f"{t['road']} ({t.get('year', '')})".replace(" ()", ""))],
-                     valign="CenterAlign", inset=(2, 7, 2, 4), name="Traffic badge text")]
-    if out:
-        out.append(text(W - 230, H - 22, 210, 12, [P("Callout Text", "Traffic counts: CoStar 2026, vehicles per day (VPD)")], name="Traffic source"))
+    for lb in G.get("labels", []):
+        cx, cy, ang = lb["x"], lb["y"], lb["angle"]
+        if lb["kind"] == "traffic":
+            txt = f"{lb['vpd']:,} VPD"; w, h = 14 + 5.6 * len(txt), 17
+            out += [rect(cx - w / 2, cy - h / 2, w, h, fill="Gold", rot=ang, name="Traffic count"),
+                    text(cx - w / 2, cy - h / 2, w, h, [P("Traffic Count", txt)], valign="CenterAlign", rot=ang, name="Traffic count text")]
+        else:
+            txt = lb["name"]; w, h = 12 + 4.7 * len(txt), 15
+            out += [rect(cx - w / 2, cy - h / 2, w, h, fill="Navy", opacity=80, rot=ang, name="Road label"),
+                    text(cx - w / 2, cy - h / 2, w, h, [P("Road Label", txt)], valign="CenterAlign", rot=ang, name="Road label text")]
+    if any(lb["kind"] == "traffic" for lb in G.get("labels", [])):
+        out += [rect(W - 232, H - 28, 214, 14, opacity=80, name="Traffic source box"),
+                text(W - 232, H - 28, 214, 14, [P("Callout Text", D.get("traffic_source", "Traffic counts: CoStar 2026, vehicles per day (VPD)"))], valign="CenterAlign", inset=(1, 6, 1, 6), name="Traffic source")]
     return out
-
 
 def p_buildings():
     bd = D["buildings"]
