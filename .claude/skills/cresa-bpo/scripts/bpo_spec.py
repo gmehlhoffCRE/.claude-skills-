@@ -215,8 +215,9 @@ def traffic_badges():
             out += [rect(cx - w / 2, cy - h / 2, w, h, fill="Navy", opacity=80, rot=ang, name="Road label"),
                     text(cx - w / 2, cy - h / 2, w, h, [P("Road Label", txt)], valign="CenterAlign", rot=ang, name="Road label text")]
     if any(lb["kind"] == "traffic" for lb in G.get("labels", [])):
-        out += [rect(W - 232, H - 28, 214, 14, opacity=80, name="Traffic source box"),
-                text(W - 232, H - 28, 214, 14, [P("Callout Text", D.get("traffic_source", "Traffic counts: CoStar 2026, vehicles per day (VPD)"))], valign="CenterAlign", inset=(1, 6, 1, 6), name="Traffic source")]
+        src = D.get("traffic_source", "Traffic counts: CoStar 2026, vehicles per day (VPD)"); sw = max(214, text_width(src, 7.5) + 14)
+        out += [rect(W - 18 - sw, H - 28, sw, 14, opacity=80, name="Traffic source box"),
+                text(W - 18 - sw, H - 28, sw, 14, [P("Callout Text", src)], valign="CenterAlign", inset=(1, 6, 1, 6), name="Traffic source")]
     return out
 
 def p_buildings():
