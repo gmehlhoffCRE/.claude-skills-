@@ -81,7 +81,8 @@ AC_TXT = "{:.2f}".format(D["land_ac"]) if D.get("land_ac") else "TBD"
 
 def p_cover():
     it = placeholder(335, 65, 457, 392, "faded backdrop", opacity=40, note_box=False) + placeholder(0, 385, 457, 227, "faded backdrop", opacity=40, note_box=False)
-    it += placeholder(36.6, 102, 718.8, 473.5, "PLACE PHOTO: Cover image of property")
+    if D.get("cover_photo_file"): it.append(image(36.6, 102, 718.8, 473.5, D["cover_photo_file"], name="Cover photo"))
+    else: it += placeholder(36.6, 102, 718.8, 473.5, "PLACE PHOTO: Cover image of property")
     it.append(image(36, 36, 114.5, 114.5 / LOGO_AR, LOGO, layer="Content", name="Cresa logo"))
     it += [rect(0, 140, 307, 106.6, opacity=92, name="Cover title box"), rect(0, 246.6, 307, 43.1, name="Cover label bar")]
     size = str(D.get("cover_point_size", 30 if len(D["address"]) <= 16 else 26))
@@ -96,7 +97,8 @@ def p_cover():
 
 
 def p_intro():
-    it = placeholder(0, 0, W, 327, D.get("intro_photo_note", "PLACE PHOTO: Street-level view of property")) + tag()
+    if D.get("intro_photo_file"): it = [image(0, 0, W, 327, D["intro_photo_file"], name="Intro photo")] + tag()
+    else: it = placeholder(0, 0, W, 327, D.get("intro_photo_note", "PLACE PHOTO: Street-level view of property")) + tag()
     it.append(rect(0, 307, 207.5, 305, name="Stat panel"))
     labels = D.get("stat_labels", {})
     stats = ((D.get("property_type", "Industrial"), "Property Type"), (SF_TXT + " SF", labels.get("sf", "Total Building Area")), (AC_TXT + " AC", labels.get("ac", "Total Land Area")))

@@ -42,6 +42,8 @@ Everything content-related lives in one `property.json`. The scripts handle maps
 3. **Write `property.json`.** Copy `templates/property_template.json` and fill it. Read `references/conventions.md`
    before writing any narrative, table rows or pricing; it holds the house rules and wording patterns the user approved.
    Geocode every comp and store `lat`/`lon`. Put comp photos in the work folder and reference them with `photo_src`.
+   Property photos go in `cover_photo` and `intro_photo` (`{"src": "photos/x.jpg", "focus": [0.5, 0.4]}`); the build
+   crops them to the frame and warns when a source is under 300 dpi at placed size.
 
 4. **Build.**
    ```bash

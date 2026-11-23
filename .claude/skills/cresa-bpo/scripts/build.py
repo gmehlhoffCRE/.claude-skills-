@@ -83,7 +83,28 @@ def build_maps(D, links, work, which):
     return gmaps
 
 
+def crop_to(src, w_pt, h_pt, focus=(0.5, 0.5)):
+    """Crop an image to the frame's aspect ratio around a focus point (fractions of width/height)."""
+    im = Image.open(src).convert("RGB"); w, h = im.size; ar = w_pt / h_pt
+    if w / h > ar:
+        nw = int(h * ar); x0 = min(max(0, int(w * focus[0] - nw / 2)), w - nw); return im.crop((x0, 0, x0 + nw, h))
+    nh = int(w / ar); y0 = min(max(0, int(h * focus[1] - nh / 2)), h - nh); return im.crop((0, y0, w, y0 + nh))
+
+
+FRAMES = {"cover_photo": ("cover_photo.jpg", 718.8, 473.5), "intro_photo": ("intro_photo.jpg", 792, 327)}
+
+
 def prep_photos(D, work, links):
+    for key, (name, wpt, hpt) in FRAMES.items():
+        spec = D.get(key)
+        if not spec: continue
+        spec = {"src": spec} if isinstance(spec, str) else spec
+        src = spec["src"] if os.path.isabs(spec["src"]) else os.path.join(work, spec["src"])
+        im = crop_to(src, wpt, hpt, tuple(spec.get("focus", (0.5, 0.5))))
+        tw = int(wpt / 72 * 300)  # 300 dpi at placed size
+        if im.size[0] < tw: print(f"NOTE {key}: source is {im.size[0]}px wide, about {int(im.size[0] / wpt * 72)} dpi at placed size (300 recommended)")
+        im.resize((min(tw, im.size[0]) if im.size[0] < tw else tw, int((min(tw, im.size[0]) if im.size[0] < tw else tw) * hpt / wpt)), Image.LANCZOS).save(os.path.join(links, name), quality=92, dpi=(300, 300))
+        D[key + "_file"] = name
     import bpo_spec_sort
     comps = bpo_spec_sort.sort(D.get("comps") or [])
     for k in range(0, len(comps), 5):
@@ -121,7 +142,7 @@ def main():
     name = f'{D["address"]} - BPO'
     out = os.path.join(work, "out", name); shutil.rmtree(os.path.join(work, "out"), ignore_errors=True); os.makedirs(os.path.join(out, "Links"))
     for f in os.listdir(links):
-        if f.endswith(".png"): shutil.copy(links + f, os.path.join(out, "Links"))
+        if f.endswith((".png", ".jpg")): shutil.copy(links + f, os.path.join(out, "Links"))
     env = dict(os.environ, PROPERTY=resolved, GEOM=os.path.join(work, "geom.json"), LINKS=links, PYTHONPATH=HERE)
     subprocess.run([sys.executable, os.path.join(HERE, "idml.py"), os.path.join(out, name + ".idml")], env=env, check=True)
     for f in os.listdir(links):  # light preview copies

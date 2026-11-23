@@ -98,7 +98,8 @@ def render(path):
                 elif t == "image":
                     fn = LINKS + it["file"]
                     if not os.path.exists(fn): fn = fn.rsplit(".", 1)[0] + ".jpg"
-                    c.drawImage(fn, it["x"], H - it["y"] - it["h"], it["w"], it["h"], mask="auto")
+                    c.saveState(); c.setFillAlpha(1)  # PDF fill alpha also applies to images; reset after translucent rects
+                    c.drawImage(fn, it["x"], H - it["y"] - it["h"], it["w"], it["h"], mask="auto"); c.restoreState()
                 elif t == "text": draw_text(c, it)
                 elif t == "table": draw_table(c, it)
         c.showPage()
