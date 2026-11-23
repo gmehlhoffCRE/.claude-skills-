@@ -32,6 +32,8 @@ Everything content-related lives in one `property.json`. The scripts handle maps
    python $S/parcels.py hcad 0041760000227 1310110010001 --out parcels.geojson      # Harris County by account #
    python $S/parcels.py near <lat> <lon> --county fortbend --dist 80                  # list nearby Fort Bend parcels
    python $S/parcels.py fbcad 3518-01-000-0010-907 --out parcels.geojson             # Fort Bend by property #
+   python $S/parcels.py mcad 215605 --out parcels.geojson                             # Montgomery by MCAD pid
+   python $S/parcels.py wcad 20202 --out parcels.geojson                              # Waller by WCAD prop_id
    ```
    Show the user owner/acreage for the parcels you picked. Flag any parcel with a different owner or any acreage that
    disagrees with CoStar; let the user decide what's in the sale. Census geocoding misses frontage-road addresses like
