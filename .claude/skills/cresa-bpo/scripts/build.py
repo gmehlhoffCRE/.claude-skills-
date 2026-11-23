@@ -86,12 +86,14 @@ def build_maps(D, links, work, which):
     return gmaps
 
 
-def crop_to(src, w_pt, h_pt, focus=(0.5, 0.5)):
-    """Crop an image to the frame's aspect ratio around a focus point (fractions of width/height)."""
+def crop_to(src, w_pt, h_pt, focus=(0.5, 0.5), zoom=1.0):
+    """Crop an image to the frame's aspect ratio around a focus point (fractions of width/height).
+    zoom > 1 crops tighter (1.3 = building 30% larger in the frame), at the cost of placed resolution."""
     im = Image.open(src).convert("RGB"); w, h = im.size; ar = w_pt / h_pt
-    if w / h > ar:
-        nw = int(h * ar); x0 = min(max(0, int(w * focus[0] - nw / 2)), w - nw); return im.crop((x0, 0, x0 + nw, h))
-    nh = int(w / ar); y0 = min(max(0, int(h * focus[1] - nh / 2)), h - nh); return im.crop((0, y0, w, y0 + nh))
+    cw, ch = (h * ar, h) if w / h > ar else (w, w / ar)
+    cw, ch = int(cw / max(zoom, 1)), int(ch / max(zoom, 1))
+    x0 = min(max(0, int(w * focus[0] - cw / 2)), w - cw); y0 = min(max(0, int(h * focus[1] - ch / 2)), h - ch)
+    return im.crop((x0, y0, x0 + cw, y0 + ch))
 
 
 FRAMES = {"cover_photo": ("cover_photo.jpg", 718.8, 473.5), "intro_photo": ("intro_photo.jpg", 792, 327)}
@@ -103,7 +105,7 @@ def prep_photos(D, work, links):
         if not spec: continue
         spec = {"src": spec} if isinstance(spec, str) else spec
         src = spec["src"] if os.path.isabs(spec["src"]) else os.path.join(work, spec["src"])
-        im = crop_to(src, wpt, hpt, tuple(spec.get("focus", (0.5, 0.5))))
+        im = crop_to(src, wpt, hpt, tuple(spec.get("focus", (0.5, 0.5))), spec.get("zoom", 1.0))
         tw = int(wpt / 72 * 300)  # 300 dpi at placed size
         if im.size[0] < tw: print(f"NOTE {key}: source is {im.size[0]}px wide, about {int(im.size[0] / wpt * 72)} dpi at placed size (300 recommended)")
         im.resize((min(tw, im.size[0]) if im.size[0] < tw else tw, int((min(tw, im.size[0]) if im.size[0] < tw else tw) * hpt / wpt)), Image.LANCZOS).save(os.path.join(links, name), quality=92, dpi=(300, 300))
