@@ -1,0 +1,313 @@
+{
+ "_notes": {
+  "general": "Every string becomes InDesign text. Use \\n inside table cells or callout lines for a forced line break. No em dashes.",
+  "site": "lat/lon of the building (parcels.py geocode).",
+  "parcels_geojson": "File in the work folder from parcels.py. Omit to show a pin instead of outlines.",
+  "stat_labels": "Optional. e.g. {\"sf\": \"Enclosed + Covered Area\"} when covered storage is included.",
+  "cover_point_size": "Optional. Defaults to 30 for short addresses, 26 for long ones.",
+  "aerial_callouts": "Optional. parcel = 'all' or the 0-based index of a feature in parcels_geojson. side = left/right.",
+  "buildings": "Optional Building Summary page: heads, colw (sum 708.6), rows, total, site [[label, value, label, value], ...], note.",
+  "comps": "Any order; the build sorts newest first. Needs lat/lon for the map. photo_src = image file in the work folder.",
+  "comp_fields": "Rows of the matrix as [label, key]. Keys refer to fields on each comp.",
+  "pricing": "ask / trade totals in dollars (or $/RSF/yr when mode is 'lease'); sf_basis defaults to building_sf. Optional placeholder text. Omit pricing to show $TBD.",
+  "brokers": "Up to 4: name, title (optional), phone, email. Empty list shows placeholders.",
+  "map_options": "Optional: site_fill, aerial_fill, aerial_shift_pt, location_zoom, location_label_side, comps_label_side, pin_radius_m (framing when no parcels).",
+  "skip_aerial": "Optional true: drop the Overhead Aerial page (leased sites).",
+  "lease_mode": "Leased sites: pricing = {mode: 'lease', ask/trade = $/RSF/yr, ask_label: 'Suggested Asking Rent', trade_label: 'Expected Achievable Rent'}, comps_title = 'Recent Lease Comps', disclaimer = lease wording, comp_fields e.g. [City, Lease Date, SF Leased, Rent/SF/Yr, Lease Type, Term, Year Built, Notes].",
+  "lease": "Written by scripts/lease_to_json.py from the lease workbook: as_of, summary_rows, notes, opinion, pf_rows, pf_total, pf_note. Adds Lease Summary and Cash Flow Pro Forma pages.",
+  "comps_title": "Optional page title for the comps pages (default 'Recent Sales Comps').",
+  "disclaimer": "Optional replacement for the fee simple disclaimer on the Market Value page."
+ },
+ "address": "13550 S Gessner Rd",
+ "city_line": "Missouri City, Texas 77489",
+ "site": {
+  "lat": 29.626753,
+  "lon": -95.540756
+ },
+ "parcels_geojson": "parcels.geojson",
+ "property_type": "Warehouse",
+ "building_sf": 29325,
+ "land_ac": 1.76,
+ "intro_photo_note": "PLACE PHOTO: Building exterior from S Gessner Rd",
+ "intro": [
+  "At your request, Cresa has prepared a Broker Price Opinion (BPO) for 13550 South Gessner Road in Missouri City, Texas, considering current market conditions, property-specific characteristics, and recent comparable sales of warehouse and industrial facilities across the greater Houston market.",
+  "The Subject Property is an approximately 29,325 SF Class B industrial warehouse on roughly 1.76 acres (76,666 SF) fronting South Gessner Road just north of US 90A in Missouri City. Built in 2011, the single-tenant building includes approximately 4,725 SF of office and 24,600 SF of warehouse space with 26-foot clear height, three drive-in doors, one exterior dock, fire sprinklers, and heavy 1,600-amp, 460-volt three-phase power on a fenced site. The property is currently occupied by its owner, Waterworld USA Inc, and for this analysis is assumed to be delivered vacant at sale.",
+  "The purpose of this report is to provide an estimated fair market value of the fee simple interest, assuming vacant delivery, based on current market conditions, expressed as a range from a suggested asking price to an expected trade value, supported by maps, parcel data, and comparable market data. This opinion was prepared without an on-site or interior inspection; land and building information is based on CoStar, Fort Bend Central Appraisal District (FBCAD) records, and information provided by ownership. This opinion is not a certified appraisal."
+ ],
+ "summary_rows": [
+  [
+   "Property Address",
+   "13550 S Gessner Rd\nMissouri City, Texas 77489"
+  ],
+  [
+   "Submarket",
+   "Hwy 59/Hwy 90 (Alt), Southwest Corridor"
+  ],
+  [
+   "FBCAD Parcel",
+   "3518-01-000-0010-907"
+  ],
+  [
+   "Total Land Area",
+   "±1.76 AC (76,666 SF)"
+  ],
+  [
+   "Total Building Area",
+   "±29,325 SF"
+  ],
+  [
+   "Building Breakdown",
+   "±4,725 SF office (16%)\n±24,600 SF warehouse (84%)"
+  ],
+  [
+   "Year Built",
+   "2011"
+  ],
+  [
+   "Clear Height",
+   "26'"
+  ],
+  [
+   "Loading",
+   "3 drive-ins; 1 exterior dock"
+  ],
+  [
+   "Power",
+   "1,600A / 460V, 3-phase (heavy)"
+  ],
+  [
+   "Sprinklers / Site",
+   "Sprinklered; fenced lot; 8 surface spaces"
+  ],
+  [
+   "Occupancy at Sale",
+   "Vacant (assumed)"
+  ],
+  [
+   "Floodplain",
+   "Zones B and X (moderate to low risk)\nNot in Special Flood Hazard Area"
+  ]
+ ],
+ "location_text": [
+  "The Subject is located in Missouri City on South Gessner Road near Pike Road, within the Hwy 59/Hwy 90 (Alt) industrial submarket of Houston’s Southwest Corridor. The site sits about a half mile north of US 90A and less than a mile west of Beltway 8 (Sam Houston Tollway), with Interstate 69/US 59 roughly two miles to the northwest and downtown Houston about 14 miles to the northeast.",
+  "This positioning offers quick access to the Beltway 8 loop and Houston’s southwest freight routes, linking the Subject to Stafford, Sugar Land, and the broader region. South Gessner Road carries more than 32,000 vehicles per day at the site."
+ ],
+ "demographics": {
+  "rows": [
+   [
+    "Population (2025)",
+    "5,791",
+    "122,546",
+    "404,460"
+   ],
+   [
+    "Projected Population (2030)",
+    "6,319",
+    "134,153",
+    "440,520"
+   ],
+   [
+    "Annual Growth (2025-2030)",
+    "1.8%",
+    "1.9%",
+    "1.8%"
+   ],
+   [
+    "Households (2025)",
+    "2,065",
+    "43,645",
+    "142,297"
+   ],
+   [
+    "Median Age",
+    "39.0",
+    "37.2",
+    "37.2"
+   ],
+   [
+    "Median Household Income",
+    "$80,272",
+    "$61,742",
+    "$61,670"
+   ],
+   [
+    "Average Household Income",
+    "$103,684",
+    "$81,320",
+    "$84,514"
+   ],
+   [
+    "Daytime Employees",
+    "4,555",
+    "54,353",
+    "136,324"
+   ],
+   [
+    "Total Businesses",
+    "345",
+    "5,654",
+    "17,254"
+   ],
+   [
+    "Goods-Producing Employees",
+    "1,642",
+    "9,685",
+    "17,451"
+   ],
+   [
+    "Manufacturing Employees",
+    "806",
+    "6,222",
+    "10,383"
+   ]
+  ],
+  "summary": "The Subject sits in an established, growing trade area, with roughly 404,500 residents and 136,300 daytime employees within five miles and population projected to grow 1.8% annually through 2030. Median household income within one mile is $80,272, well above the wider area, and South Gessner Road carries more than 32,000 vehicles per day at the site.",
+  "source": "Source: CoStar; 2025 estimates and 2030 projections. Traffic counts: CoStar, 2026."
+ },
+ "aerial_callouts": [
+  {
+   "title": "13550 S Gessner Rd",
+   "lines": [
+    "±29,325 SF warehouse (2011)",
+    "26' clear | 3 drive-ins | 1 dock",
+    "±1.76 AC fenced site"
+   ],
+   "parcel": "all",
+   "side": "left"
+  }
+ ],
+ "comp_fields": [
+  [
+   "City",
+   "city"
+  ],
+  [
+   "Close Date",
+   "date"
+  ],
+  [
+   "Building Area SF",
+   "sf"
+  ],
+  [
+   "Year Built",
+   "yr"
+  ],
+  [
+   "Sale Price",
+   "price"
+  ],
+  [
+   "Price/SF",
+   "psf"
+  ],
+  [
+   "Clear Height",
+   "clear"
+  ],
+  [
+   "Notes",
+   "notes"
+  ],
+  [
+   "Buyer",
+   "buyer"
+  ],
+  [
+   "Seller",
+   "seller"
+  ],
+  [
+   "Buyer Broker",
+   "bb"
+  ],
+  [
+   "Seller Broker",
+   "sb"
+  ]
+ ],
+ "comps": [
+  {
+   "addr": "7400 W Sam Houston Pkwy N",
+   "city": "Houston, TX 77040",
+   "date": "12/2025",
+   "sf": "50,903",
+   "price": "Not disclosed",
+   "psf": "$161",
+   "clear": "32'",
+   "notes": "Rear load; 1,200A power",
+   "bb": "Oxford Partners",
+   "sb": "Boyd",
+   "photo_src": "photos/7400_W_Sam_Houston_Pky_N_-_Brookhollow_West_Industrial_Park.png",
+   "lat": 29.8809109,
+   "lon": -95.54801479999999
+  },
+  {
+   "addr": "7711 Blankenship Dr",
+   "city": "Houston, TX 77055",
+   "date": "12/2024",
+   "sf": "46,050",
+   "yr": "New construction",
+   "price": "$7,460,100",
+   "psf": "$162",
+   "notes": "2,861 SF office",
+   "sb": "Partners (AJ Williams, Travis Land)",
+   "photo_src": "photos/7711_Blankenship_Dr.jpg",
+   "lat": 29.819181027876,
+   "lon": -95.486571319608
+  },
+  {
+   "addr": "12701 Directors Dr",
+   "city": "Stafford, TX 77477",
+   "date": "04/2024",
+   "sf": "80,030",
+   "yr": "1994",
+   "price": "$11,100,000",
+   "psf": "$139",
+   "buyer": "Elliott Electric",
+   "bb": "NAIRL (Nick Lee, Dallas)",
+   "sb": "CBRE (Stephen King, Wesley King)",
+   "photo_src": "photos/12701_Directors_Dr.jpg",
+   "lat": 29.634866766237,
+   "lon": -95.591144874603
+  },
+  {
+   "addr": "5919 Bonhomme Rd",
+   "city": "Houston, TX 77036",
+   "date": "12/01/2023",
+   "sf": "55,000",
+   "price": "$7,500,000",
+   "psf": "$136",
+   "buyer": "Unishow USA Inc.",
+   "seller": "Harwin Multi Complex LLC",
+   "photo_src": "photos/5919_Bonhomme_Rd.jpg",
+   "lat": 29.714778443474,
+   "lon": -95.51357405737
+  }
+ ],
+ "pricing": {
+  "ask": 4200000,
+  "trade": 4000000,
+  "narrative": [
+   "The Hwy 59/Hwy 90 (Alt) submarket remains one of Houston’s stronger industrial markets, with vacancy of about 6% against a 7% citywide average, though conditions have softened in 2026 as new deliveries add supply. Small-bay vacancy has risen to roughly 5% but remains below the broader market. Recent sales of 46,000 to 80,000 SF buildings across southwest and northwest Houston traded between $136 and $162 per SF, with the new and high-clear product at 7711 Blankenship Dr and 7400 W Sam Houston Pkwy N at the top of the range.",
+   "The Subject’s 2011 construction, 26-foot clear height, heavy three-phase power, and fenced site near Beltway 8 align most closely with the 12701 Directors Dr and 5919 Bonhomme Rd trades at $136 to $139 per SF. Its smaller size supports pricing at or slightly above that range, while its limited dock loading and older vintage keep it below the $161 to $162 per SF achieved by newer product. We suggest an asking price of $4,200,000 ($143.22/SF) with an expected trade near $4,000,000 ($136.40/SF)."
+  ]
+ },
+ "brokers": [
+  {
+   "name": "Gary Lawless, Jr",
+   "phone": "281.546.8737",
+   "email": "glawless@cresa.com"
+  },
+  {
+   "name": "[Broker Name]",
+   "phone": "[Phone]",
+   "email": "[Email]"
+  }
+ ],
+ "map_options": {
+  "aerial_fill": 0.62,
+  "aerial_shift_pt": 90
+ },
+ "buildings": null
+}

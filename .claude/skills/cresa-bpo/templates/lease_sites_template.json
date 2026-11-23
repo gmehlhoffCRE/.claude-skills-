@@ -1,0 +1,9 @@
+{
+ "title": "Client Leased Locations: Lease Snapshot Summary",
+ "subtitle": "Prepared by Cresa for [Client]. Draft: lease terms pending.",
+ "analysis_date": "2027-01-01",
+ "sites": [
+  {"tab": "Main St", "address": "123 Main St, Houston, TX 77002", "premises": "Suite 100", "landlord": "Example Landlord LLC",
+   "rsf": 2500, "commencement": null, "expiration": "2031-09-30", "notes": "Expiration per CoStar; confirm with lease abstract."}
+ ]
+}
