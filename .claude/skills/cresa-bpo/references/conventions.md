@@ -90,7 +90,9 @@ unless the user says otherwise for a specific report.
 - Property Summary for bank sites follows the Site Information table of the Owned/Leased Property BOV templates, in
   this order: Address; Building Type (freestanding branch, in-line or end-cap in a named center, or multi-tenant office,
   with stories); Location Type (Branch, or Office when there is no retail banking); Ownership Entity (owner of record,
-  or landlord for leased sites); Zoning (Houston and unincorporated Harris County: "None (Harris County)"); Client
+  or landlord for leased sites); Zoning (Texas counties cannot zone: Houston and unincorporated areas read "None (...)"; The Woodlands reads "None
+  (deed restricted; The Woodlands covenants)"; Pasadena has no zoning; otherwise the city district, e.g. "CBD, Central Business
+  District (City of Hempstead)"); Client
   Premises (NRA) for leased space; Total Building SF (building or center); Year Built / Reno; Acreage with the CAD parcel
   number; Parking; Drive-Thru (lane count from the client's facility inventory, e.g. "3 lanes"); ATM / ITM (count and
   drive-thru vs. walk-up for each, straight from the inventory's ATM and ITM columns, e.g. "1 drive-thru ITM");
