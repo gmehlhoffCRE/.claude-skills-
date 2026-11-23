@@ -48,11 +48,14 @@ def build_maps(D, links, work, which):
         clon -= shift_pt * ppt * mpp(clat, z) / (111320 * math.cos(math.radians(clat)))
         m = GMap(clat, clon, z, 792, 612, ppt=ppt, maptype="satellite")
         for r in rings: m.poly(r, fill=(255, 182, 0, 0), width=2.5)
+        if not rings: m.pin(*S, size=22)  # no parcel outline: mark the building
         m.save("aerial_overhead.png")
         pp = [m.page_xy(la, lo) for la, lo in pts]
         geom = {"centroids": [m.page_xy(sum(p[1] for p in r) / len(r), sum(p[0] for p in r) / len(r)) for r in rings],
                 "center": m.page_xy(sum(p[0] for p in pts) / len(pts), sum(p[1] for p in pts) / len(pts)),
                 "minx": min(p[0] for p in pp), "maxx": max(p[0] for p in pp), "miny": min(p[1] for p in pp), "maxy": max(p[1] for p in pp)}
+        geom["traffic"] = [list(m.page_xy(t["lat"], t["lon"])) if t.get("lat") is not None else None for t in D.get("traffic_counts", [])]
+        geom["map"] = {"z": z, "x0": m.x0, "y0": m.y0, "S": m.S, "pt": m.pt}  # lets page points be converted back to lat/lon
         json.dump(geom, open(os.path.join(work, "geom.json"), "w"))
     if "location" in which:
         m = GMap(*S, mo.get("location_zoom", 13), 500.5, 463.1, ppt=1.2)

@@ -174,8 +174,40 @@ def p_aerial():
             q["x"] += x; q["y"] += y
         it.append(line(x + w if side == "left" else x, y + h / 2, ax, ay, color="Gold", sw=1))
         it += parts
+    it += traffic_badges()
     it += [poly([(32, 562), (38, 554), (44, 562)]), text(24, 562, 28, 22, [P("North", "N")])]
     return it
+
+
+def traffic_badges():
+    """Traffic count markers on the aerial. Each traffic_counts item: road, vpd, year, lat/lon of the count point,
+    optional side (right/left/up/down: where the label sits relative to the point). Points off the frame are pinned
+    to the nearest edge with an arrow toward the road."""
+    out = []
+    pts = G.get("traffic", [])
+    for t, p in zip(D.get("traffic_counts", []), pts):
+        if not p: continue
+        x, y = p; w, h = t.get("width", 112), 30
+        off = not (20 < x < W - 20 and 70 < y < H - 20)
+        arrow = ""
+        if off:
+            if x <= 20: arrow, x = "\u2190 ", 24
+            elif x >= W - 20: arrow, x = "\u2192 ", W - 24
+            if y <= 70: arrow, y = "\u2191 ", 74
+            elif y >= H - 20: arrow, y = "\u2193 ", H - 24
+        side = t.get("side", "right")
+        bx = {"right": x + 8, "left": x - w - 8}.get(side, x - w / 2); by = {"up": y - h - 8, "down": y + 8}.get(side, y - h / 2)
+        bx = min(max(bx, 8), W - w - 8); by = min(max(by, 70), H - h - 30)
+        if not off:
+            out.append(rect(x - 4, y - 4, 8, 8, fill="Gold", name="Traffic count point"))
+            cx, cy = (bx if side == "right" else bx + w if side == "left" else x), (by + h / 2 if side in ("right", "left") else by + h if side == "up" else by)
+            out.append(line(x, y, cx, cy, color="Gold", sw=1))
+        out += [rect(bx, by, w, h, name="Traffic badge"), rect(bx, by, 4, h, fill="Gold", name="Traffic badge bar"),
+                text(bx + 4, by, w - 4, h, [P("Callout Title", f"{arrow}{t['vpd']:,} VPD"), P("Callout Text", f"{t['road']} ({t.get('year', '')})".replace(" ()", ""))],
+                     valign="CenterAlign", inset=(2, 7, 2, 4), name="Traffic badge text")]
+    if out:
+        out.append(text(W - 230, H - 22, 210, 12, [P("Callout Text", "Traffic counts: CoStar 2026, vehicles per day (VPD)")], name="Traffic source"))
+    return out
 
 
 def p_buildings():

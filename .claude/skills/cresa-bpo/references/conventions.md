@@ -104,3 +104,6 @@ unless the user says otherwise for a specific report.
   repeat expiration, escalations, remaining term or costs there; missing items collapse into one "Pending from lease
   abstract" line.
 - Contract vs. market: within 2.5% reads "in line with market"; outside that, state the % above or below.
+- Owned bank sites show CoStar traffic counts on the Overhead Aerial (`traffic_counts`): the frontage road, the nearest
+  freeway and any signalized cross street. Zoom the aerial out (aerial_fill ~0.2-0.3) so those roads are in frame.
+  Skip CoStar counts that are implausible for the road (e.g. a freeway-scale figure on a local street) and flag them.
