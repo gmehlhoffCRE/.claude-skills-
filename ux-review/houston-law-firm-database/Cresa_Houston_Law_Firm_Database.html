@@ -4332,9 +4332,16 @@ function rptCoverT(k,d,photo,dateStr){
   // Two hero stats, bracketed by hairlines, split by a vertical rule.
   k.hr(M,638,M+CW,RPT.line,0.8);
   const stat=(x,label,value)=>{rptCaps(k,label,x,658,8.5,RPT.ink3,1.2);k.font('normal',18,RPT.body);k.text(value,x,677);};
-  stat(M,'AM LAW RANK',f.rank?'#'+f.rank:'—');
-  stat(238,'HOUSTON ATTORNEYS',f.att!=null?fmtComma(f.att):'—');
-  pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.8);pdf.line(214,644,214,690);
+  const atts=f.att!=null?fmtComma(f.att):'—';
+  if(f.rank){
+    // Two hero stats with a vertical divider.
+    stat(M,'AM LAW RANK','#'+f.rank);
+    stat(238,'HOUSTON ATTORNEYS',atts);
+    pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.8);pdf.line(214,644,214,690);
+  }else{
+    // Not Am Law ranked: drop that data point; attorneys takes the lead slot.
+    stat(M,'HOUSTON ATTORNEYS',atts);
+  }
   k.hr(M,700,M+CW,RPT.line,0.8);
 
   // Footer: navy rule, confidential left, date right.
