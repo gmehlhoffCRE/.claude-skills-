@@ -76,7 +76,8 @@ For a site the client leases, the report values the lease rather than the fee si
    ```bash
    python $S/lease_to_json.py Lease_Pro_Forma.xlsx lease_map.json   # {"<work>/property.json": "<tab name>", ...}
    ```
-   Empty inputs render as TBD, so the pages can ship as placeholders. Re-run after the user fills the workbook, then
+   Set `skip_value: true` to drop the Market Value page; the Lease Summary's "Lease Opinion of Value" and the lease
+   disclaimer then carry the opinion. Empty inputs render as TBD, so the pages can ship as placeholders. Re-run after the user fills the workbook, then
    rebuild with `--maps none`.
 
 For multi-tenant buildings, describe the building or center first, then the client's specific premises (suite, SF,

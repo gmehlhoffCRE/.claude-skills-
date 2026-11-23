@@ -286,7 +286,11 @@ def p_lease_summary():
     it.append(table(42.4, 128, [230, 150], rows, name="Lease summary table"))
     paras = [P("Map Key Title", "Lease Notes")] + [P("Body", "\u2022  " + n) for n in ls_.get("notes", [])]
     paras += [P("Map Key Title", "Lease Opinion of Value"), P("Body", ls_.get("opinion", "[Lease opinion to come once lease comparables are finalized.]"))]
-    it.append(text(452, 128, 298, 446, paras, name="Lease notes"))
+    if D.get("skip_value"):  # Market Value page dropped: the opinion lives here, so carry the disclaimer too
+        it.append(text(452, 128, 298, 380, paras, name="Lease notes"))
+        it.append(text(42.4, 536, 708.6, 40, [P("Source Note", D.get("disclaimer", DISCLAIMER))], name="Disclaimer"))
+    else:
+        it.append(text(452, 128, 298, 446, paras, name="Lease notes"))
     return it
 
 
@@ -317,7 +321,8 @@ def build_pages():
     chunks = [COMPS[i:i + 5] for i in range(0, len(COMPS), 5)] or [[]]
     for k, ch in enumerate(chunks): pages.append(p_comptable(ch, 1 + 5 * k))
     if D.get("lease"): pages += [p_lease_summary(), p_proforma()]
-    pages += [p_value(), p_back()]
+    if not D.get("skip_value"): pages.append(p_value())
+    pages.append(p_back())
     return pages
 
 
