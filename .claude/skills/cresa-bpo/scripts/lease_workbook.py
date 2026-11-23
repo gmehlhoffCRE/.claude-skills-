@@ -126,13 +126,13 @@ def site_tab(name, addr, suite, ll, rsf, comm, exp, notes, example=False):
     ws.cell(L0, 1, "LEASE SUMMARY (calculated)").font = BOLD
     rng = lambda col: f"{col}{P0 + 1}:{col}{P0 + MAXP}"
     rows = [
-     ("Remaining Lease Term (Months)", f'=IF({ok},DATEDIF({B["adate"]},{B["exp"]}+1,"m"),"")', NUM),
+     ("Remaining Lease Term (Months)", f'=IF(AND({B["adate"]}<>"",{B["exp"]}<>"",{B["exp"]}>={B["adate"]}),DATEDIF({B["adate"]},{B["exp"]}+1,"m"),"")', NUM),
      ("Year 1 Gross Rent / RSF (Base + Expenses)", f'=IF({B["rent"]}="","",{B["rent"]}+N({B["opex"]}))', CUR2),
      ("Total Base Rent (Less Free Rent)", f"=SUM({rng('F')})", CUR),
      ("Total Additional Expenses", f"=SUM({rng('H')})", CUR),
      ("TOTAL REMAINING CASH LEASE COST", f"=SUM({rng('I')})", CUR),
-     ("Average Annual Cost", f'=IF(N(B{L0 + 1})=0,"",B{L0 + 5}/B{L0 + 1}*12)', CUR),
-     ("Average Monthly Cost", f'=IF(N(B{L0 + 1})=0,"",B{L0 + 5}/B{L0 + 1})', CUR),
+     ("Average Annual Cost", f'=IF(OR(N(B{L0 + 1})=0,N(B{L0 + 5})=0),"",B{L0 + 5}/B{L0 + 1}*12)', CUR),
+     ("Average Monthly Cost", f'=IF(OR(N(B{L0 + 1})=0,N(B{L0 + 5})=0),"",B{L0 + 5}/B{L0 + 1})', CUR),
      ("Average Annual Cost / RSF", f'=IF(OR(B{L0 + 6}="",N({B["rsf"]})=0),"",B{L0 + 6}/{B["rsf"]})', CUR2),
      ("Contract Rent vs. Market Opinion", f'=IF(OR(N({B["mkt"]})=0,{B["rent"]}=""),"",{B["rent"]}/{B["mkt"]}-1)', PCT),
      ("Contract Position", f'=IF(B{L0 + 9}="","",IF(B{L0 + 9}>0.025,"Above market",IF(B{L0 + 9}<-0.025,"Below market","At market")))', None),

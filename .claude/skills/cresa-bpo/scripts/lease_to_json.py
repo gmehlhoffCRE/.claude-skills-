@@ -41,12 +41,35 @@ for p, tab in MAP.items():
             ["TOTAL CASH LEASE COST", m(g("TOTAL REMAINING CASH LEASE COST")) if g("TOTAL REMAINING CASH LEASE COST") else "TBD"],
             ["Average Annual Cost", m(g("Average Annual Cost"))], ["Average Monthly Cost", m(g("Average Monthly Cost"))],
             ["Average Annual Cost / RSF", m(g("Average Annual Cost / RSF"), 2)]]
-    notes = [f'Premises: {txt(g("Premises"))}', f'Landlord: {txt(g("Landlord"))}', f'Commencement: {d(g("Original Lease Commencement"))}',
-             f'Expiration: {d(g("Lease Expiration"))}', f'Renewal Options: {txt(g("Renewal Options"))}', f'Termination Option: {txt(g("Termination Option"))}',
-             f'ROFR / ROFO: {txt(g("ROFR / ROFO"))}', f'Holdover: {txt(g("Holdover"))}',
-             f'Rate Increases: {"TBD" if blank(g("Annual Rent Escalation")) else pct(g("Annual Rent Escalation")) + " per year"}',
-             f'Sublease / Assignment: {txt(g("Sublease / Assignment"))}']
+    # Notes carry what the summary table does not: premises/landlord, term history, lease rights and site context.
+    # Expiration, escalations, remaining term and costs live in the table, so they are not repeated here.
+    notes = []
+    prem, ll = g("Premises"), g("Landlord")
+    parts = [str(prem)] if not blank(prem) else []
+    if not blank(ll): parts.append(f"leased from {ll}")
+    if parts:
+        line = ", ".join(parts)
+        notes.append(line[:1].upper() + line[1:] + ".")
+    comm, exp = g("Original Lease Commencement"), g("Lease Expiration")
+    if hasattr(comm, "year"):
+        line = f"Original lease commenced {d(comm)}"
+        if hasattr(exp, "year"):
+            months = (exp.year - comm.year) * 12 + exp.month - comm.month + 1
+            y, mo = divmod(months, 12)
+            line += f" ({y}-year term)" if not mo else (f" ({y}-year, {mo}-month term)" if y else f" ({mo}-month term)")
+        notes.append(line + ".")
+    pending = [] if hasattr(comm, "year") else ["commencement date"]
+    for key, label in [("Renewal Options", "renewal options"), ("Termination Option", "termination option"), ("ROFR / ROFO", "ROFR / ROFO"),
+                       ("Holdover", "holdover"), ("Sublease / Assignment", "sublease / assignment")]:
+        v = g(key)
+        if blank(v): pending.append(label)
+        else: notes.append(f"{label[:1].upper() + label[1:]}: {v}.")
+    fr = g("Free Rent Remaining (Months)")
+    if not blank(fr) and fr: notes.append(f"Free rent remaining: {fr:g} months.")
     if not blank(g("Notes / Source")): notes.append(str(g("Notes / Source")))
+    if blank(g("Current Base Rent / RSF / Yr")): pending.append("rent schedule")
+    if pending:
+        notes.append("Pending from lease abstract: " + ", ".join(pending) + ".")
     pos, vs = g("Contract Position"), g("Contract Rent vs. Market Opinion")
     if blank(pos):
         op = "[Lease opinion to come once lease comparables are finalized and the current lease terms are confirmed.]"

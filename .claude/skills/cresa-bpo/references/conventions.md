@@ -91,4 +91,8 @@ unless the user says otherwise for a specific report.
 - Value the lease: market rent opinion (asking vs. expected achievable rent per RSF per year) with lease comps.
 - Lease Summary and Cash Flow Pro Forma pages come from the lease workbook; never fill lease terms that aren't in a lease
   abstract or client data. CoStar lease expirations can be shown as "(CoStar)" until confirmed.
+- Lease Notes (beside the summary table) carry only what the table doesn't: premises and landlord, original commencement
+  and full term, lease rights (renewal, termination, ROFR/ROFO, holdover, sublease), free rent and site context. Never
+  repeat expiration, escalations, remaining term or costs there; missing items collapse into one "Pending from lease
+  abstract" line.
 - Contract vs. market: within 2.5% reads "in line with market"; outside that, state the % above or below.
