@@ -92,7 +92,8 @@ unless the user says otherwise for a specific report.
   with stories); Location Type (Branch, or Office when there is no retail banking); Ownership Entity (owner of record,
   or landlord for leased sites); Zoning (Houston and unincorporated Harris County: "None (Harris County)"); Client
   Premises (NRA) for leased space; Total Building SF (building or center); Year Built / Reno; Acreage with the CAD parcel
-  number; Parking; Drive-Thru (lanes); ATM / ITM (count and drive-thru vs. walk-up); Branch Deposits (FDIC Summary of
+  number; Parking; Drive-Thru (drive-thru banking lanes only, e.g. "3 banking lanes"); ATM (drive-thru ATMs only, e.g. "1 drive-thru
+  ATM", else "None"; call every machine an ATM, never ITM); Branch Deposits (FDIC Summary of
   Deposits, or TBD); then Ownership History (owned) or Lease Expiration (leased).
 - Leave out submarket, stories as a separate row, frontage, signage, certifications, occupancy at sale, tenure and
   floodplain on these sites. Safe deposit and after-hours depository go in the intro text, not the table.
