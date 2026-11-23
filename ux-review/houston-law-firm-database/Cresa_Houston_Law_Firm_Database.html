@@ -4419,53 +4419,61 @@ function rptBenchTableExact(k,d){
     k.text(m.rank.pos+' of '+m.rank.total,rankX,y,{align:'right'});
     pdf.setDrawColor(RPT.line);pdf.setLineWidth(0.6);pdf.line(M,y+10,tRight,y+10);
   });
-  rptRadarProfile(k,d,468,409,58);
+  rptRadarProfile(k,d,468,404,56);
   k.font('normal',9,RPT.ink3);
-  pdf.text(pdf.splitTextToSize('Peer set: '+d.peers.length+' Houston firms with '+d.peerLabel.toLowerCase()+'. Rank 1 = most attorneys or largest RSF, and lowest space or cost. AGR = market rent/SF × RSF.',516),M,503);
+  pdf.text(pdf.splitTextToSize('Peer set: '+d.peers.length+' Houston firms with '+d.peerLabel.toLowerCase()+'. Rank 1 = most attorneys or largest RSF, and lowest space or cost. AGR = market rent/SF × RSF.',516),M,505);
 }
 
-// Radar "profile" of the firm across the benchmark metrics. Each axis is the
-// firm's percentile among the peer set by raw magnitude (center = bottom of
-// the set, outer ring = top). The mid ring marks the peer median (~50th pct),
-// so the gold shape shows at a glance where the firm runs large or small.
+// Radar chart matching the web-app dashboard: the firm (blue, solid) over the
+// peer median (gold, dashed), five axes in the same order, each normalized to
+// the larger of the two so the dominant series reaches the outer ring.
 function rptRadarProfile(k,d,cx,cy,R){
-  const {pdf}=k,{metrics,peers}=d;
-  const short={att:'Attorneys',rsf:'Total RSF',sfa:'SF / atty',grs:'Rent / SF',agra:'AGR / atty'};
-  const axes=metrics.slice(0,5).map(m=>{
-    const vals=peers.map(p=>p[m.k]).filter(v=>v!=null);
-    const n=vals.length,below=vals.filter(v=>v<=m.val).length;
-    return{lbl:short[m.k]||m.l,pct:n?below/n:0.5};
-  });
+  const {pdf}=k,{f,peerMed,peerLabel}=d;
+  const FIRM='#2E6CC7',MED=RPT.gold,GRID='#E4E8F0',LBL='#2B3350';
+  const axes=[
+    {lbl:'SF/Atty',    fv:f.sfa, mv:peerMed.sfa},
+    {lbl:'Asking Rate',fv:f.grs, mv:peerMed.grs},
+    {lbl:'Rent/Atty',  fv:f.agra,mv:peerMed.agra},
+    {lbl:'Headcount',  fv:f.att, mv:peerMed.att},
+    {lbl:'Total SF',   fv:f.rsf, mv:peerMed.rsf},
+  ];
+  if(!axes.some(a=>a.fv!=null)){k.font('normal',9,RPT.ink3);k.text('No metrics to plot.',cx-50,cy);return;}
   const N=axes.length;
-  if(N<3){k.font('normal',9,RPT.ink3);k.text('Profile needs at least three metrics.',cx-70,cy);return;}
+  axes.forEach(a=>{const mx=Math.max(a.fv||0,a.mv||0)||1;a.fn=a.fv!=null?a.fv/mx:0;a.mn=a.mv!=null?a.mv/mx:0;});
   const ang=i=>-Math.PI/2+i*2*Math.PI/N;
   const pt=(i,rad)=>[cx+Math.cos(ang(i))*rad,cy+Math.sin(ang(i))*rad];
-  const ring=(rad,color,w)=>{
-    const p=axes.map((_,i)=>pt(i,rad)),rel=[];
-    for(let i=1;i<N;i++)rel.push([p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]]);
-    pdf.setDrawColor(color);pdf.setLineWidth(w);pdf.lines(rel,p[0][0],p[0][1],[1,1],'S',true);
-  };
-  // spokes + reference rings (outer = top of peer set, mid ring = peer median)
-  pdf.setDrawColor(RPT.cardLine);pdf.setLineWidth(0.5);
+  const poly=fn=>{const p=axes.map((a,i)=>pt(i,R*Math.max(0,Math.min(1,fn(a))))),rel=[];
+    for(let i=1;i<N;i++)rel.push([p[i][0]-p[i-1][0],p[i][1]-p[i-1][1]]);return{p,rel};};
+  // concentric grid rings (0.2..1.0) + spokes, like Chart.js radar gridlines
+  pdf.setDrawColor(GRID);pdf.setLineWidth(0.5);
+  [0.2,0.4,0.6,0.8,1].forEach(fr=>{const g=poly(()=>fr);pdf.lines(g.rel,g.p[0][0],g.p[0][1],[1,1],'S',true);});
   axes.forEach((_,i)=>{const e=pt(i,R);pdf.line(cx,cy,e[0],e[1]);});
-  ring(R,RPT.cardLine,0.7);
-  ring(R*0.5,'#CBD2E0',0.7);
-  // firm polygon: gold fill + stroke, navy vertex dots
-  const fp=axes.map((a,i)=>pt(i,R*Math.max(0.1,Math.min(1,a.pct)))),frel=[];
-  for(let i=1;i<N;i++)frel.push([fp[i][0]-fp[i-1][0],fp[i][1]-fp[i-1][1]]);
-  k.alpha(0.3);pdf.setFillColor(RPT.gold);pdf.lines(frel,fp[0][0],fp[0][1],[1,1],'F',true);k.alpha(1);
-  pdf.setDrawColor(RPT.gold);pdf.setLineWidth(1.3);pdf.lines(frel,fp[0][0],fp[0][1],[1,1],'S',true);
-  fp.forEach(p=>{pdf.setFillColor(RPT.navy);pdf.circle(p[0],p[1],1.5,'F');});
-  // axis labels, anchored outward so they clear the shape
-  k.font('normal',7,RPT.ink3);
-  axes.forEach((a,i)=>{
-    const c=Math.cos(ang(i)),s=Math.sin(ang(i)),lx=cx+c*(R+8),ly=cy+s*(R+8)+2.4;
-    const align=c>0.25?'left':c<-0.25?'right':'center';
-    k.text(a.lbl,lx,ly,{align});
-  });
-  // caption under the dial
-  k.font('normal',6.5,RPT.ink3);
-  pdf.text('Edge = top of peer set · mid-ring = peer median',cx,cy+R+22,{align:'center'});
+  // peer-median polygon: gold, translucent fill, dashed outline
+  const med=poly(a=>a.mn);
+  k.alpha(0.12);pdf.setFillColor(MED);pdf.lines(med.rel,med.p[0][0],med.p[0][1],[1,1],'F',true);k.alpha(1);
+  pdf.setLineDashPattern([2.5,2],0);pdf.setDrawColor(MED);pdf.setLineWidth(1.1);
+  pdf.lines(med.rel,med.p[0][0],med.p[0][1],[1,1],'S',true);pdf.setLineDashPattern([],0);
+  med.p.forEach(q=>{pdf.setFillColor(MED);pdf.circle(q[0],q[1],1.2,'F');});
+  // firm polygon: blue, translucent fill, solid outline, white-ringed points
+  const frm=poly(a=>a.fn);
+  k.alpha(0.2);pdf.setFillColor(FIRM);pdf.lines(frm.rel,frm.p[0][0],frm.p[0][1],[1,1],'F',true);k.alpha(1);
+  pdf.setDrawColor(FIRM);pdf.setLineWidth(1.6);pdf.lines(frm.rel,frm.p[0][0],frm.p[0][1],[1,1],'S',true);
+  frm.p.forEach(q=>{pdf.setFillColor('#FFFFFF');pdf.circle(q[0],q[1],2.3,'F');pdf.setFillColor(FIRM);pdf.circle(q[0],q[1],1.6,'F');});
+  // axis labels anchored outward
+  k.font('normal',7,LBL);
+  axes.forEach((a,i)=>{const c=Math.cos(ang(i)),s=Math.sin(ang(i)),lx=cx+c*(R+9),ly=cy+s*(R+9)+2.4;
+    const align=c>0.25?'left':c<-0.25?'right':'center';k.text(a.lbl,lx,ly,{align});});
+  // legend naming both series, centered below the dial
+  const nm=k.fit(f.n,118),ml=k.fit((peerLabel||'Peer')+' median',118);
+  k.font('normal',7,RPT.body);
+  const legend=(y,color,dashed,txt)=>{
+    const tw=k.width(txt),x0=cx-(13+tw)/2;
+    if(dashed){pdf.setLineDashPattern([2.5,2],0);pdf.setDrawColor(color);pdf.setLineWidth(1.4);pdf.line(x0,y-2,x0+9,y-2);pdf.setLineDashPattern([],0);}
+    else{pdf.setFillColor('#FFFFFF');pdf.circle(x0+4.5,y-2,2.3,'F');pdf.setFillColor(color);pdf.circle(x0+4.5,y-2,1.6,'F');}
+    k.text(txt,x0+13,y);
+  };
+  legend(cy+R+15,FIRM,false,nm);
+  legend(cy+R+26,MED,true,ml);
 }
 
 // "609 Main at Texas" building block: photo + two-column definition grid.
