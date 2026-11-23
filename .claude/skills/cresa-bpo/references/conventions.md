@@ -85,7 +85,15 @@ unless the user says otherwise for a specific report.
   residents and employees, then the 5-year growth (% and new residents), then one standout.
 - When the client's facility inventory and CoStar disagree on SF, use the inventory figure only unless told otherwise;
   don't print the CoStar figure beside it. List the conflict in the reply instead.
-- List the banking features the inventory gives (drive-thru lanes, ATM/ITM, safe deposit, after-hours depository).
+- Property Summary for bank sites follows the Site Information table of the Owned/Leased Property BOV templates, in
+  this order: Address; Building Type (freestanding branch, in-line or end-cap in a named center, or multi-tenant office,
+  with stories); Location Type (Branch, or Office when there is no retail banking); Ownership Entity (owner of record,
+  or landlord for leased sites); Zoning (Houston and unincorporated Harris County: "None (Harris County)"); Client
+  Premises (NRA) for leased space; Total Building SF (building or center); Year Built / Reno; Acreage with the CAD parcel
+  number; Parking; Drive-Thru (lanes); ATM / ITM (count and drive-thru vs. walk-up); Branch Deposits (FDIC Summary of
+  Deposits, or TBD); then Ownership History (owned) or Lease Expiration (leased).
+- Leave out submarket, stories as a separate row, frontage, signage, certifications, occupancy at sale, tenure and
+  floodplain on these sites. Safe deposit and after-hours depository go in the intro text, not the table.
 
 ## Leased sites
 - Value the lease: market rent opinion (asking vs. expected achievable rent per RSF per year) with lease comps.
