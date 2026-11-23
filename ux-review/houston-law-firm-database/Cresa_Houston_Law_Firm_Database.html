@@ -4653,13 +4653,13 @@ function rptContactsBand(k,d,by,bh,contacts){
   const big=n>=3,fs=big?8.5:9;
   list.forEach((c,i)=>{
     const cx=M+pad+i*(colW+gap);
-    // Name (slightly larger), title, then a clear gap to the contact lines —
-    // phone and email on their own lines, plain and legible.
-    k.font('normal',big?12.5:15,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
-    k.font('normal',fs,'#C2CCE0');k.text(k.fit(c.title||'[ Title ]',colW),cx,ty+16);
+    // Name (bold white), title (gold), then phone and email in light type —
+    // four tight lines.
+    k.font('bold',big?11.5:13,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
+    k.font('normal',fs,RPT.gold);k.text(k.fit(c.title||'[ Title ]',colW),cx,ty+14);
     k.font('normal',fs,'#E3E9F4');
-    k.text(k.fit(c.phone||'[ phone ]',colW),cx,ty+36);
-    k.text(k.fit(c.email||'[ email ]',colW),cx,ty+49);
+    k.text(k.fit(c.phone||'[ phone ]',colW),cx,ty+27);
+    k.text(k.fit(c.email||'[ email ]',colW),cx,ty+40);
   });
   k.font('normal',8.5,'#8EA0C0');
   k.text('The world’s largest occupier-only commercial real estate firm. We represent you, never the landlord.',M+pad,by+bh-14);
@@ -4713,6 +4713,14 @@ function rptLoadImage(url,ms){
 // Approximate freeway loops for the vector fallback (lat, lng).
 const RPT_LOOP_610=[[29.806,-95.452],[29.784,-95.456],[29.752,-95.456],[29.727,-95.452],[29.703,-95.443],[29.686,-95.428],[29.680,-95.405],[29.682,-95.375],[29.689,-95.340],[29.697,-95.306],[29.712,-95.279],[29.735,-95.269],[29.760,-95.269],[29.780,-95.273],[29.800,-95.290],[29.808,-95.320],[29.809,-95.360],[29.808,-95.400],[29.807,-95.430],[29.806,-95.452]];
 const RPT_BW8=[[29.945,-95.540],[29.900,-95.562],[29.840,-95.563],[29.780,-95.560],[29.720,-95.556],[29.665,-95.540],[29.625,-95.500],[29.600,-95.440],[29.598,-95.370],[29.600,-95.290],[29.625,-95.220],[29.680,-95.175],[29.760,-95.165],[29.840,-95.170],[29.910,-95.210],[29.945,-95.290],[29.950,-95.380],[29.950,-95.460],[29.945,-95.540]];
+// Major Houston freeways (approximate) for the vector fallback, each labelled.
+const RPT_FWYS=[
+  {n:'I-45',   pts:[[29.890,-95.410],[29.820,-95.385],[29.760,-95.365],[29.710,-95.305],[29.655,-95.262]], lab:[29.803,-95.377]},
+  {n:'I-10',   pts:[[29.785,-95.560],[29.780,-95.450],[29.771,-95.370],[29.775,-95.270],[29.780,-95.178]], lab:[29.773,-95.300]},
+  {n:'US-59',  pts:[[29.650,-95.492],[29.710,-95.440],[29.748,-95.375],[29.800,-95.330],[29.862,-95.272]], lab:[29.718,-95.432]},
+  {n:'US-290', pts:[[29.886,-95.560],[29.835,-95.482],[29.800,-95.432],[29.785,-95.410]], lab:[29.842,-95.492]},
+  {n:'TX-288', pts:[[29.745,-95.372],[29.700,-95.378],[29.638,-95.386]], lab:[29.688,-95.381]},
+];
 
 async function rptMap(k,d,x,y,w,h){
   const {pdf}=k,{f,closest}=d;
@@ -4734,8 +4742,28 @@ async function rptMap(k,d,x,y,w,h){
   const c=rptMerc(cLat,cLng,z);
   const proj=(lat,lng)=>{const p=rptMerc(lat,lng,z);return{x:x+((p.x-c.x)+pxW/2)*(w/pxW),y:y+((p.y-c.y)+pxH/2)*(h/pxH)};};
 
-  const style=['feature:all|saturation:-100|lightness:30','feature:poi|visibility:off','feature:transit|visibility:off',
-    'feature:road|element:labels.icon|visibility:off','feature:administrative|element:labels|visibility:off']
+  // On-brand basemap (matches the dashboard) with major highways and roads
+  // labelled: white roadways, navy-edged highways, visible highway shields and
+  // road-name text, muted city labels, neighbourhood clutter removed.
+  const style=[
+    'feature:poi|visibility:off',
+    'feature:transit|visibility:off',
+    'element:geometry|color:0xF1F4F9',
+    'feature:landscape|element:geometry|color:0xF1F4F9',
+    'feature:administrative|element:labels.text.fill|color:0x5E6472',
+    'feature:administrative.neighborhood|element:labels|visibility:off',
+    'feature:administrative.land_parcel|visibility:off',
+    'feature:road|element:geometry.fill|color:0xFFFFFF',
+    'feature:road|element:labels.text.fill|color:0x5E6472',
+    'feature:road|element:labels.text.stroke|color:0xFFFFFF',
+    'feature:road.arterial|element:geometry|color:0xFFFFFF',
+    'feature:road.arterial|element:labels|visibility:on',
+    'feature:road.highway|element:geometry|color:0xFFFFFF',
+    'feature:road.highway|element:geometry.stroke|color:0x3A5488|weight:1',
+    'feature:road.highway|element:labels|visibility:on',
+    'feature:road.highway|element:labels.text.fill|color:0x1B3161',
+    'feature:road.highway|element:labels.text.stroke|color:0xFFFFFF',
+    'feature:water|element:geometry.fill|color:0xC6D8EC']
     .map(s=>'&style='+encodeURIComponent(s)).join('');
   const url='https://maps.googleapis.com/maps/api/staticmap?center='+cLat+','+cLng+'&zoom='+z+
     '&size='+pxW+'x'+pxH+'&scale=2&format=png&key='+RPT_MAPS_KEY+style;
@@ -4751,9 +4779,11 @@ async function rptMap(k,d,x,y,w,h){
       pdf.setDrawColor(col);pdf.setLineWidth(lw);
       for(let i=1;i<pts.length;i++){const a=proj(...pts[i-1]),b=proj(...pts[i]);pdf.line(a.x,a.y,b.x,b.y);}
     };
-    poly(RPT_BW8,'#D3D9E4',2.2);
-    poly(RPT_LOOP_610,'#D3D9E4',2.2);
-    const lab=(t,lat,lng)=>{const p=proj(lat,lng);if(p.x>x+10&&p.x<x+w-30&&p.y>y+10&&p.y<y+h-6){k.font('bold',6.5,RPT.ink4);k.text(t,p.x,p.y,{charSpace:0.5});}};
+    poly(RPT_BW8,'#C7CFDD',2);
+    poly(RPT_LOOP_610,'#C7CFDD',2);
+    RPT_FWYS.forEach(fw=>poly(fw.pts,'#B4BED2',1.8));
+    const lab=(t,lat,lng)=>{const p=proj(lat,lng);if(p.x>x+12&&p.x<x+w-34&&p.y>y+12&&p.y<y+h-10){k.font('bold',6.5,RPT.ink4);k.text(t,p.x,p.y,{charSpace:0.4});}};
+    RPT_FWYS.forEach(fw=>lab(fw.n,fw.lab[0],fw.lab[1]));
     lab('I-610',29.812,-95.335);lab('BELTWAY 8',29.954,-95.43);
   }
   pdf.restoreGraphicsState();
