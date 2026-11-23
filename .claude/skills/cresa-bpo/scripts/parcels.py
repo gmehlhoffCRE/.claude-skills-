@@ -11,9 +11,10 @@ Outputs GeoJSON (EPSG:4326). Always print owner/acreage so the user can confirm 
 import sys, os, json, argparse, requests
 
 HCAD = "https://www.gis.hctx.net/arcgis/rest/services/HCAD/Parcels/MapServer/0/query"
-FBCAD = "https://gisweb.fbcad.org/arcgis/rest/services/Hosted/FBCADPublicData/FeatureServer/0/query"
+# FBCAD's own GIS server now requires a token; this public ArcGIS Online copy of FBCAD Public Data does not.
+FBCAD = "https://services2.arcgis.com/D4saGHECICkCeoJm/arcgis/rest/services/FBCAD_Public_Data/FeatureServer/0/query"
 KEEP = {"hcad": ["HCAD_NUM", "owner_name_1", "site_str_num", "site_str_name", "site_str_sfx", "acreage_1", "land_sqft", "new_owner_date"],
-        "fbcad": ["propnumber", "ownername", "situs", "landsizeac", "landsizeft", "legal", "deeddate", "impvalue", "landvalue"]}
+        "fbcad": ["PROPNUMBER", "OWNERNAME", "SITUS", "LANDSIZEAC", "LANDSIZEFT", "QUICKREFID"]}
 
 
 def query(url, **params):
@@ -55,7 +56,7 @@ if __name__ == "__main__":
         fc = query(HCAD, where=f"HCAD_NUM IN ({ids})"); show(fc, "hcad")
     elif a.cmd == "fbcad":
         ids = ",".join(f"'{i}'" for i in a.args)
-        fc = query(FBCAD, where=f"propnumber IN ({ids})"); show(fc, "fbcad")
+        fc = query(FBCAD, where=f"PROPNUMBER IN ({ids})"); show(fc, "fbcad")
     else:
         lat, lon = map(float, a.args[:2]); kind = "fbcad" if a.county.startswith("fort") else "hcad"
         fc = query(FBCAD if kind == "fbcad" else HCAD, geometry=f"{lon},{lat}", geometryType="esriGeometryPoint", inSR=4326,

@@ -35,8 +35,8 @@ Everything content-related lives in one `property.json`. The scripts handle maps
    ```
    Show the user owner/acreage for the parcels you picked. Flag any parcel with a different owner or any acreage that
    disagrees with CoStar; let the user decide what's in the sale. Census geocoding misses frontage-road addresses like
-   "W Sam Houston Pkwy N"; `parcels.py geocode` falls back to Google when `GKEY` is set. FBCAD's public GIS service may
-   require a token; when parcel queries fail, omit `parcels_geojson` and the maps frame a pin with a buffer
+   "W Sam Houston Pkwy N"; `parcels.py geocode` falls back to Google when `GKEY` is set. Fort Bend queries use a public ArcGIS
+   Online copy of FBCAD Public Data (FBCAD's own server needs a token); when parcel queries fail, omit `parcels_geojson` and the maps frame a pin with a buffer
    (`map_options.pin_radius_m`, default 70 m).
 
 3. **Write `property.json`.** Copy `templates/property_template.json` and fill it. Read `references/conventions.md`
