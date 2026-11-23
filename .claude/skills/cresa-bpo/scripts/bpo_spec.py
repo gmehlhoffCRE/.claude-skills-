@@ -79,9 +79,20 @@ SF_TXT = "{:,}".format(D["building_sf"]) if D.get("building_sf") else "TBD"
 AC_TXT = "{:.2f}".format(D["land_ac"]) if D.get("land_ac") else "TBD"
 
 
+def photo_note(key, right, bottom):
+    """Small caption in the photo's bottom-right corner, e.g. to label a rendering."""
+    spec = D.get(key)
+    note = spec.get("note") if isinstance(spec, dict) else None
+    if not note: return []
+    w = min(330, 22 + 3.9 * len(note)); h = 16
+    return [rect(right - w - 8, bottom - h - 8, w, h, opacity=85, name="Photo note box"),
+            text(right - w - 8, bottom - h - 8, w, h, [P("Callout Text", note)], valign="CenterAlign", inset=(2, 6, 2, 6), name="Photo note")]
+
+
 def p_cover():
     it = placeholder(335, 65, 457, 392, "faded backdrop", opacity=40, note_box=False) + placeholder(0, 385, 457, 227, "faded backdrop", opacity=40, note_box=False)
-    if D.get("cover_photo_file"): it.append(image(36.6, 102, 718.8, 473.5, D["cover_photo_file"], name="Cover photo"))
+    if D.get("cover_photo_file"):
+        it.append(image(36.6, 102, 718.8, 473.5, D["cover_photo_file"], name="Cover photo")); it += photo_note("cover_photo", 36.6 + 718.8, 102 + 473.5)
     else: it += placeholder(36.6, 102, 718.8, 473.5, "PLACE PHOTO: Cover image of property")
     it.append(image(36, 36, 114.5, 114.5 / LOGO_AR, LOGO, layer="Content", name="Cresa logo"))
     it += [rect(0, 140, 307, 106.6, opacity=92, name="Cover title box"), rect(0, 246.6, 307, 43.1, name="Cover label bar")]
@@ -97,7 +108,7 @@ def p_cover():
 
 
 def p_intro():
-    if D.get("intro_photo_file"): it = [image(0, 0, W, 327, D["intro_photo_file"], name="Intro photo")] + tag()
+    if D.get("intro_photo_file"): it = [image(0, 0, W, 327, D["intro_photo_file"], name="Intro photo")] + photo_note("intro_photo", W, 327) + tag()
     else: it = placeholder(0, 0, W, 327, D.get("intro_photo_note", "PLACE PHOTO: Street-level view of property")) + tag()
     it.append(rect(0, 307, 207.5, 305, name="Stat panel"))
     labels = D.get("stat_labels", {})

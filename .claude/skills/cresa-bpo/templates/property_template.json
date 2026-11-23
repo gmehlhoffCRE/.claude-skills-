@@ -17,7 +17,7 @@
   "lease": "Written by scripts/lease_to_json.py from the lease workbook: as_of, summary_rows, notes, opinion, pf_rows, pf_total, pf_note. Adds Lease Summary and Cash Flow Pro Forma pages.",
   "comps_title": "Optional page title for the comps pages (default 'Recent Sales Comps').",
   "disclaimer": "Optional replacement for the fee simple disclaimer on the Market Value page.",
-  "cover_photo": "Optional: image file (or {src, focus: [x, y]} as 0-1 fractions) for the cover. Cropped to the frame around the focus point and saved at 300 dpi; replaces the cover placeholder.",
+  "cover_photo": "Optional: image file (or {src, focus: [x, y]} as 0-1 fractions) for the cover. Cropped to the frame around the focus point and saved at 300 dpi; replaces the cover placeholder. Optional 'note' adds a small caption in the photo's bottom-right corner (e.g. 'Approximate rendering; current photography not readily available.').",
   "intro_photo": "Optional: same format, for the full-width photo band on the intro page (792 x 327 pt). Replaces the intro_photo_note placeholder.",
   "skip_value": "Optional true: drop the Market Value page (leased sites). The Lease Summary page then carries the lease opinion and the disclaimer.",
   "traffic_counts": "Optional list for the Overhead Aerial: {road, vpd, year, lat, lon, side: right|left|up|down, width}. Place lat/lon on the road itself; points outside the frame pin to the edge with an arrow. geom.json 'map' holds the transform to convert aerial page points back to lat/lon."
