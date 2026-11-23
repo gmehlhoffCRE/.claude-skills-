@@ -77,6 +77,8 @@ unless the user says otherwise for a specific report.
 ## Bank branch and retail-use sites
 - Location write-ups focus on visibility and on access for clients and employees (frontage, signalized corners, turn
   lanes, freeway exits, parking at the door, surrounding household and business base), not freight or distribution.
+- Don't mention airports (IAH, Hobby, Ellington, regional) in bank branch location write-ups. Reference freeways, nearby
+  retail and employment anchors, and downtown instead.
 - Measure distances with Google (Distance Matrix or straight-line to verified interchange coordinates). Google's geocodes
   for freeway "A & B" intersections are often wrong; sanity-check them before quoting.
 - Demographic rows for these sites: Population (2025), Projected Population (2030), Population Growth (2025-2030, total %
