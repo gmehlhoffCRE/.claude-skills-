@@ -4650,15 +4650,20 @@ function rptContactsBand(k,d,by,bh,contacts){
   const n=list.length;
   rptCaps(k,'YOUR CRESA ADVISOR'+(n>1?'S':''),M+21,by+19,8.5,RPT.gold,1.6);
   const pad=21,gap=16,colW=(CW-2*pad-gap*(n-1))/n,ty=by+38;
+  const big=n>=3,fs=big?8.5:9;
   list.forEach((c,i)=>{
     const cx=M+pad+i*(colW+gap);
-    k.font('normal',n>=3?12:14,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
-    k.font('normal',n>=3?8.5:9,'#CDD6E8');k.text(k.fit(c.title||'[ Title ]',colW),cx,ty+15);
-    k.font('normal',n>=3?8.5:9,'#AEB9D2');k.text(k.fit([c.phone||'[ phone ]',c.email||'[ email ]'].join(' · '),colW),cx,ty+29);
+    // Name (slightly larger), title, then a clear gap to the contact lines —
+    // phone and email on their own lines, plain and legible.
+    k.font('normal',big?12.5:15,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
+    k.font('normal',fs,'#C2CCE0');k.text(k.fit(c.title||'[ Title ]',colW),cx,ty+16);
+    k.font('normal',fs,'#E3E9F4');
+    k.text(k.fit(c.phone||'[ phone ]',colW),cx,ty+36);
+    k.text(k.fit(c.email||'[ email ]',colW),cx,ty+49);
   });
   k.font('normal',8.5,'#8EA0C0');
   k.text('The world’s largest occupier-only commercial real estate firm. We represent you, never the landlord.',M+pad,by+bh-14);
-  rptCaps(k,'PAGE 4 OF 4',W-M-pad,by+bh-14,8,'#8EA0C0',1.0,'right');
+  rptCaps(k,'4',W-M-pad,by+bh-14,8,'#8EA0C0',1.0,'right');
 }
 
 // Three-column numbered peer legend beneath the map.
