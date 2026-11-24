@@ -25,11 +25,12 @@ BLUE = font(color="0000FF"); BLACK = font(); GREEN = font(color="008000"); BOLD 
 HDR = font(bold=True, color="FFFFFF"); TITLE = font(bold=True, size=14, color=NAVY)
 YEL = PatternFill("solid", fgColor="FFFF00"); NAVYF = PatternFill("solid", fgColor=NAVY); GRAY = PatternFill("solid", fgColor="EEF0F4")
 thin = Side(style="thin", color="BFC5D0"); BOT = Border(bottom=thin)
-CUR = '$#,##0;($#,##0);"-"'; CUR2 = '$#,##0.00;($#,##0.00);"-"'; PCT = '0.0%;(0.0%);"-"'; DATE = "mm/dd/yyyy"; NUM = '#,##0;(#,##0);"-"'
+CUR = '$#,##0;($#,##0);"-"'; MO = '#,##0.0;(#,##0.0);"-"'; CUR2 = '$#,##0.00;($#,##0.00);"-"'; PCT = '0.0%;(0.0%);"-"'; DATE = "mm/dd/yyyy"; NUM = '#,##0;(#,##0);"-"'
 MAXP = 18  # pro forma periods
 
 SITES = [(s["tab"], s["address"], s.get("premises", ""), s.get("landlord", ""), s.get("rsf"), _d(s.get("commencement")), _d(s.get("expiration")), s.get("notes", ""))
          for s in CFG["sites"]]
+TERMS = {s["tab"]: s for s in CFG["sites"]}  # optional lease terms per site (keys match the input labels' keys, plus "schedule")
 EXAMPLE = ("Example", "100 Example Ave, Anytown, TX 77000", "Suite 200", "Example Landlord LLC", 3107, dt.date(2020, 6, 1), dt.date(2030, 8, 31),
            "Example only: inputs from the Leased Property BOV template (Lease Summary dated 9/1/2026).")
 
@@ -65,6 +66,8 @@ def site_tab(name, addr, suite, ll, rsf, comm, exp, notes, example=False):
         c = ws.cell(r, 2)
         val = {"addr": addr, "suite": suite, "ll": ll, "rsf": rsf, "comm": comm, "exp": exp, "notes": notes}.get(key)
         if example and key in ex: val = ex[key]
+        terms = {} if example else TERMS.get(name, {}).get("terms", {})
+        if key in terms: val = terms[key]
         if key == "adate" and not example:
             c.value = "=Summary!$C$4"; c.font = GREEN
         else:
@@ -72,6 +75,18 @@ def site_tab(name, addr, suite, ll, rsf, comm, exp, notes, example=False):
         if fmt: c.number_format = fmt
         c.alignment = Alignment(horizontal="right" if fmt else "left", wrap_text=(key in ("notes", "ren")))
         c.border = BOT; ws.cell(r, 1).border = BOT
+    # optional fixed rent schedule (overrides the annual escalation when any start date is entered)
+    ws.cell(R0 - 1, 4, "RENT SCHEDULE (optional; overrides escalation)").font = BOLD
+    for j, h in enumerate(("Start Date", "Base Rent / RSF / Yr")):
+        c = ws.cell(R0, 4 + j, h); c.font = HDR; c.fill = NAVYF; c.alignment = Alignment(horizontal="center", wrap_text=True)
+    NS = 8
+    for i in range(NS):
+        for j, fmt in enumerate((DATE, CUR2)):
+            c = ws.cell(R0 + 1 + i, 4 + j); c.font = BLUE; c.fill = YEL; c.number_format = fmt; c.border = BOT
+    for i, (d0, rr) in enumerate(([] if example else TERMS.get(name, {}).get("schedule", []))[:NS]):
+        ws.cell(R0 + 1 + i, 4).value = _d(d0); ws.cell(R0 + 1 + i, 5).value = rr
+    SD, SR = f"$D${R0 + 1}:$D${R0 + NS}", f"$E${R0 + 1}:$E${R0 + NS}"
+    ws.cell(R0 + 1 + NS, 4, "Rent in effect from each start date until the next. Leave blank to use the escalation.").font = font(italic=True, color="555555", size=9)
     ws.cell(ref and int(ref["notes"][3:]), 2).alignment = Alignment(wrap_text=True, vertical="top")
     ws.row_dimensions[int(ref["notes"][3:])].height = 42
     ws[ref["adate"].replace("$", "")].comment = Comment("Linked to the portfolio Analysis Date on the Summary tab. Overwrite here only for a site-specific date.", "Cresa")
@@ -103,8 +118,11 @@ def site_tab(name, addr, suite, ll, rsf, comm, exp, notes, example=False):
             frm = f'=IF(B{prev}="","",IF(EDATE({B["comm"]},12*({HB}+{k - 1}))>{B["exp"]},"",EDATE({B["comm"]},12*({HB}+{k - 1}))))'
         ws.cell(r, 2, frm)
         ws.cell(r, 3, f'=IF(B{r}="","",MIN(EDATE({B["comm"]},12*({HB}+{k}))-1,{B["exp"]}))')
-        ws.cell(r, 4, f'=IF(B{r}="","",DATEDIF(B{r},C{r}+1,"m"))')
-        ws.cell(r, 5, f'=IF(B{r}="","",{B["rent"]}*(1+N({B["esc"]}))^({k}-1))')
+        m = f'DATEDIF(B{r},C{r}+1,"m")'
+        ws.cell(r, 4, f'=IF(B{r}="","",{m}+(C{r}+1-EDATE(B{r},{m}))/(EDATE(B{r},{m}+1)-EDATE(B{r},{m})))')  # whole months + partial month
+        esc_rent = f'{B["rent"]}*(1+N({B["esc"]}))^({k}-1)'
+        sched = f'INDEX({SR},MATCH(SUMPRODUCT(MAX(({SD}<>"")*({SD}<=B{r})*{SD})),{SD},0))'
+        ws.cell(r, 5, f'=IF(B{r}="","",IF(COUNT({SD})=0,{esc_rent},IFERROR({sched},{B["rent"]})))')
         cum = "0" if k == 1 else f"SUM($D${P0 + 1}:D{prev})"
         ws.cell(r, 7, f'=IF(B{r}="","",MAX(0,MIN(D{r},N({B["free"]})-{cum})))')
         ws.cell(r, 6, f'=IF(B{r}="","",E{r}*{B["rsf"]}/12*(D{r}-G{r}))')
@@ -112,21 +130,21 @@ def site_tab(name, addr, suite, ll, rsf, comm, exp, notes, example=False):
         ws.cell(r, 9, f'=IF(B{r}="","",F{r}+H{r})')
         ws.cell(r, 10, f'=IF(OR(B{r}="",N(D{r})=0),"",I{r}/D{r})')
         ws.cell(r, 11, f'=IF(OR(B{r}="",N(D{r})=0),"",I{r}/D{r}*12/{B["rsf"]})')
-        for j, fmt in zip(range(2, 12), [DATE, DATE, NUM, CUR2, CUR, NUM, CUR, CUR, CUR, CUR2]):
+        for j, fmt in zip(range(2, 12), [DATE, DATE, MO, CUR2, CUR, MO, CUR, CUR, CUR, CUR2]):
             c = ws.cell(r, j); c.number_format = fmt; c.font = BLACK; c.border = BOT
             if k % 2 == 0: c.fill = GRAY
         if k % 2 == 0: ws.cell(r, 1).fill = GRAY
     T = P0 + MAXP + 1
     ws.cell(T, 1, "TOTAL").font = BOLD
     for j, col in ((4, "D"), (6, "F"), (7, "G"), (8, "H"), (9, "I")):
-        c = ws.cell(T, j, f"=SUM({col}{P0 + 1}:{col}{P0 + MAXP})"); c.font = BOLD; c.number_format = NUM if col in "DG" else CUR
-    ws.cell(T + 1, 1, f"Pro forma covers up to {MAXP} lease-year periods. Dates assume rent periods start on the 1st and end on the last day of a month.").font = font(italic=True, color="555555", size=9)
+        c = ws.cell(T, j, f"=SUM({col}{P0 + 1}:{col}{P0 + MAXP})"); c.font = BOLD; c.number_format = MO if col in "DG" else CUR
+    ws.cell(T + 1, 1, f"Pro forma covers up to {MAXP} lease-year periods. Months include partial months (e.g. 9.9) so a mid-month analysis date prorates the first period.").font = font(italic=True, color="555555", size=9)
     # ---- lease summary
     L0 = R0 + len(INPUTS) + 1
     ws.cell(L0, 1, "LEASE SUMMARY (calculated)").font = BOLD
     rng = lambda col: f"{col}{P0 + 1}:{col}{P0 + MAXP}"
     rows = [
-     ("Remaining Lease Term (Months)", f'=IF(AND({B["adate"]}<>"",{B["exp"]}<>"",{B["exp"]}>={B["adate"]}),DATEDIF({B["adate"]},{B["exp"]}+1,"m"),"")', NUM),
+     ("Remaining Lease Term (Months)", f'=IF(AND({B["adate"]}<>"",{B["exp"]}<>"",{B["exp"]}>={B["adate"]}),DATEDIF({B["adate"]},{B["exp"]}+1,"m")+({B["exp"]}+1-EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m")))/(EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m")+1)-EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m"))),"")', MO),
      ("Year 1 Gross Rent / RSF (Base + Expenses)", f'=IF({B["rent"]}="","",{B["rent"]}+N({B["opex"]}))', CUR2),
      ("Total Base Rent (Less Free Rent)", f"=SUM({rng('F')})", CUR),
      ("Total Additional Expenses", f"=SUM({rng('H')})", CUR),
@@ -182,7 +200,7 @@ for i, t in enumerate([
     "How to use",
     "1. On each site tab, fill the yellow cells (blue text) from the lease or abstract: commencement, expiration, current base rent, escalation, expense pass-through, free rent and options.",
     "2. Enter Cresa's market rent opinion per site once lease comps are finalized; the tab compares contract rent to market.",
-    "3. Escalations are applied on each anniversary of the original commencement date. Rent periods are assumed to begin on the 1st of a month.",
+    "3. Escalations apply on each anniversary of the original commencement date; a fixed rent schedule (columns D:E) overrides them. Partial months are prorated.",
     "4. 'Example' holds the template's sample inputs to show the expected format; it is not part of the portfolio totals.",
     "Color key: blue text in yellow = input; black = formula; green = link from another tab."]):
     S.cell(leg + i, 1, t).font = BOLD if i == 0 else font(size=9)

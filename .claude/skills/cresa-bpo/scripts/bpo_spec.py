@@ -320,10 +320,11 @@ def p_lease_summary():
     it = header("Lease Summary")
     it.append(text(42.4, 109, 300, 12, [P("Source Note", "As of " + ls_.get("as_of", "TBD"))], name="As of"))
     rows = [dict(h=26, cells=[dict(paras=[P("Table Header", ls_.get("table_title", "Current Lease"))], fill="Navy", span=2)])]
-    srows = ls_["summary_rows"]; rh = min(24, 400 / len(srows))
+    srows = ls_["summary_rows"]; extra = sum(str(v).count("\n") for _, v in srows)
+    rh = min(24, (400 - 11.5 * extra) / len(srows))
     for k, v in srows:
         bold = k.isupper()
-        rows.append(dict(h=rh, cells=[dict(paras=[P("Table Label", k)], inset=(2, 10, 2, 6), bottom=("Rule", 0.75), fill="Cell Gray" if bold else None),
+        rows.append(dict(h=rh + 11.5 * str(v).count("\n"), cells=[dict(paras=[P("Table Label", k)], inset=(2, 10, 2, 6), bottom=("Rule", 0.75), fill="Cell Gray" if bold else None),
                                       dict(paras=cellp("Table Cell", (v, B) if bold else v), bottom=("Rule", 0.75), fill="Cell Gray" if bold else None)]))
     it.append(table(42.4, 128, [230, 150], rows, name="Lease summary table"))
     paras = [P("Map Key Title", "Lease Notes")] + [P("Body", "\u2022  " + n) for n in ls_.get("notes", [])]
