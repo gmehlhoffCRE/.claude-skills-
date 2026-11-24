@@ -29,6 +29,7 @@ for p, tab in MAP.items():
     ws = wb[tab]; L = read(ws); g = lambda k: L[k][1]
     D["skip_aerial"] = True
     rsf = g("Rentable SF (RSF)")
+    nox = blank(g("Operating Expense Pass-Through / RSF / Yr (Year 1)"))  # pass-through amount not provided
     sched = []  # fixed rent steps from the RENT SCHEDULE block (columns D:E)
     for r in range(1, 20):
         if ws.cell(r, 4).value and str(ws.cell(r, 4).value).startswith("RENT SCHEDULE"):
@@ -39,18 +40,20 @@ for p, tab in MAP.items():
     if sched:
         esc_txt = "\n".join(f"{m(rv, 2)} from {d(dv)}" for dv, rv in sched)
     else:
-        esc_txt = "TBD" if blank(g("Annual Rent Escalation")) else f'{pct(g("Annual Rent Escalation"))} per year'
+        e = g("Annual Rent Escalation")
+        flat = not blank(e) and e == 0 and not blank(g("Current Base Rent / RSF / Yr"))
+        esc_txt = "TBD" if blank(e) else ("None (flat rent)" if flat else f'{pct(e)} per year')
     rows = [["Analysis Date", d(g("Analysis Date"))], ["Lease Expiration", d(g("Lease Expiration"))],
             ["Remaining Lease Term", "TBD" if blank(g("Remaining Lease Term (Months)")) else f'{round(g("Remaining Lease Term (Months)")):,} Months'],
             ["Rentable Square Feet (RSF)", "TBD" if blank(rsf) else f"{rsf:,}"],
             ["Year 1 Base Rent / RSF", m(g("Current Base Rent / RSF / Yr"), 2)],
-            ["Year 1 Operating Expense Pass-Through / RSF", m(g("Operating Expense Pass-Through / RSF / Yr (Year 1)"), 2)],
-            ["Year 1 Gross Rent / RSF", m(g("Year 1 Gross Rent / RSF (Base + Expenses)"), 2)],
+            ["Year 1 Operating Expense Pass-Through / RSF", "TBD" if nox else m(g("Operating Expense Pass-Through / RSF / Yr (Year 1)"), 2)],
+            ["Year 1 Gross Rent / RSF", "TBD" if nox else m(g("Year 1 Gross Rent / RSF (Base + Expenses)"), 2)],
             ["Rent Schedule / RSF" if sched else "Annual Escalations", esc_txt],
             ["Lease Type", txt(g("Lease Type"))],
             ["Total Base Rent (Less Free Rent)", m(g("Total Base Rent (Less Free Rent)")) if g("Total Base Rent (Less Free Rent)") else "TBD"],
-            ["Total Operating Expenses", m(g("Total Additional Expenses")) if g("Total Base Rent (Less Free Rent)") else "TBD"],
-            ["TOTAL CASH LEASE COST", m(g("TOTAL REMAINING CASH LEASE COST")) if g("TOTAL REMAINING CASH LEASE COST") else "TBD"],
+            ["Total Operating Expenses", m(g("Total Additional Expenses")) if g("Total Base Rent (Less Free Rent)") and not nox else "TBD"],
+            ["TOTAL CASH LEASE COST" if not nox else "TOTAL BASE RENT OBLIGATION", m(g("TOTAL REMAINING CASH LEASE COST")) if g("TOTAL REMAINING CASH LEASE COST") else "TBD"],
             ["Average Annual Cost", m(g("Average Annual Cost"))], ["Average Monthly Cost", m(g("Average Monthly Cost"))],
             ["Average Annual Cost / RSF", m(g("Average Annual Cost / RSF"), 2)]]
     # Notes carry what the summary table does not: premises/landlord, term history, lease rights and site context.
@@ -96,16 +99,16 @@ for p, tab in MAP.items():
         a = ws.cell(r, 1).value
         if a == "TOTAL":
             v = [ws.cell(r, c).value for c in range(1, 12)]
-            if v[8]: tot = ["Total", "", "", f"{round(v[3]):,}", "", m(v[5]), m(v[7]), m(v[8]), "", ""]
+            if v[8]: tot = ["Total", "", "", f"{round(v[3]):,}", "", m(v[5]), "TBD" if nox else m(v[7]), m(v[8]), "", ""]
             break
         v = [ws.cell(r, c).value for c in range(1, 12)]
         if blank(v[1]): continue
-        pf.append([str(v[0]), d(v[1]), d(v[2]), fmt_mo(v[3]), m(v[4], 2), m(v[5]), m(v[7]), m(v[8]), m(v[9]), m(v[10], 2)])
+        pf.append([str(v[0]), d(v[1]), d(v[2]), fmt_mo(v[3]), m(v[4], 2), m(v[5]), "TBD" if nox else m(v[7]), m(v[8]), m(v[9]), m(v[10], 2)])
     total = g("TOTAL REMAINING CASH LEASE COST")
     D["lease"] = {"as_of": d(g("Analysis Date")), "table_title": "Current Lease", "summary_rows": rows, "notes": notes, "opinion": op,
                   "pf_rows": pf or None, "pf_total": tot,
-                  "pf_note": (f"Remaining lease obligation as of {d(g('Analysis Date'))} is {m(total)}. " if total else "Lease terms pending; figures populate once the lease abstract is received. ")
-                             + ("Base rent follows the lease's fixed rent schedule" if sched else "Base rent escalates on each anniversary of the original commencement date")
+                  "pf_note": (f"Remaining {'base rent ' if nox else ''}lease obligation as of {d(g('Analysis Date'))} is {m(total)}. " + ("Operating expense pass-throughs (CAM, taxes, insurance) are not stated in the lease documents and are excluded until provided. " if nox else "") if total else "Lease terms pending; figures populate once the lease abstract is received. ")
+                             + ("Base rent follows the lease's fixed rent schedule" if sched else ("Base rent is flat for the remaining term" if (not sched and g("Annual Rent Escalation") == 0) else "Base rent escalates on each anniversary of the original commencement date"))
                              + "; additional expenses include operating expense pass-throughs, taxes and insurance where applicable. A partial first period is prorated."}
     json.dump(D, open(p, "w"), indent=1, ensure_ascii=False)
     print(p, "lease pages:", "data" if pf else "TBD")
