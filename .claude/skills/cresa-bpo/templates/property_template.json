@@ -7,7 +7,7 @@
   "cover_point_size": "Optional. Defaults to 30 for short addresses, 26 for long ones.",
   "aerial_callouts": "Optional. parcel = 'all' or the 0-based index of a feature in parcels_geojson. side = left/right.",
   "buildings": "Optional Building Summary page: heads, colw (sum 708.6), rows, total, site [[label, value, label, value], ...], note.",
-  "comps": "Any order; the build sorts newest first. Needs lat/lon for the map. photo_src = image file in the work folder.",
+  "comps": "Any order; the build sorts newest first. Needs lat/lon for the map. photo_src = image file in the work folder. Optional 'name' (building name) shows under the address in the comp header when it is a real name rather than the street address.",
   "comp_fields": "Rows of the matrix as [label, key]. Keys refer to fields on each comp.",
   "pricing": "ask / trade totals in dollars (or $/RSF/yr when mode is 'lease'); sf_basis defaults to building_sf. Optional placeholder text. Omit pricing to show $TBD.",
   "brokers": "Up to 4: name, title (optional), phone, email. Empty list shows placeholders.",

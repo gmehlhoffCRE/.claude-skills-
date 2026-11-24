@@ -259,6 +259,15 @@ COMP_FIELDS = D.get("comp_fields") or [["City", "city"], ["Close Date", "date"],
                                        ["Buyer Broker", "bb"], ["Seller Broker", "sb"]]
 
 
+def comp_head(c):
+    """Street address, with the building name on a second line when it is a real name (not just the address)."""
+    import re
+    name = (c.get("name") or "").strip()
+    norm = lambda t: re.sub(r"[^a-z0-9]", "", t.lower().replace(" and ", "&"))
+    if not name or norm(c["addr"]).startswith(norm(name)) or norm(name).startswith(norm(c["addr"])): return c["addr"]
+    return c["addr"] + "\n" + name
+
+
 def comp_layout(n):
     c0 = 92.5; return 42.4, c0, (708.6 - c0) / n
 
@@ -276,7 +285,7 @@ def p_comptable(chunk, start):
             it.append(text(x0 + c0 + i * cw + 2, 153, cw - 4, 20, [P("Placeholder Note", f"Comp {start+i} photo")], layer="Notes", valign="CenterAlign"))
     rows = [dict(h=16, cells=[dict(paras=[P("Comp Head", "Comp")], fill="Navy", inset=(2, 8, 2, 4))] + [dict(paras=[P("Comp Head", str(start + i))], fill="Navy") for i in range(n)]),
             dict(h=32.7, cells=[dict(paras=[P("Comp Address", ("Address", {"Justification": "LeftAlign"}))], fill="Blue", inset=(2, 8, 2, 4))] +
-                               [dict(paras=[P("Comp Address", (chunk[i]["addr"] if chunk else "[Address]"))], fill="Blue") for i in range(n)])]
+                               [dict(paras=[P("Comp Address", (comp_head(chunk[i]) if chunk else "[Address]"))], fill="Blue") for i in range(n)])]
     for lab, key in COMP_FIELDS:
         rows.append(dict(h=322.3 / len(COMP_FIELDS), cells=[dict(paras=[P("Comp Label", lab)], inset=(2, 8, 2, 4), bottom=("Rule", 0.75))] +
                                                            [dict(paras=cellp("Comp Cell", (chunk[i].get(key) or "N/A") if chunk else ""), bottom=("Rule", 0.75)) for i in range(n)]))
