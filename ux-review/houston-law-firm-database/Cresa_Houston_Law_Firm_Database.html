@@ -4655,7 +4655,7 @@ function rptContactsBand(k,d,by,bh,contacts){
     const cx=M+pad+i*(colW+gap);
     // Name (bold white), title (gold), then phone and email in light type —
     // four tight lines.
-    k.font('bold',big?11.5:13,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
+    k.font('bold',big?10.5:11.5,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
     k.font('normal',fs,RPT.gold);k.text(k.fit(c.title||'[ Title ]',colW),cx,ty+14);
     k.font('normal',fs,'#E3E9F4');
     k.text(k.fit(c.phone||'[ phone ]',colW),cx,ty+27);
@@ -4688,7 +4688,7 @@ async function rptPageBackMap(k,d,contacts){
   const cbd=closest.filter(p=>/cbd/i.test(p.sm||'')).length;
   k.font('normal',10,RPT.ink2);
   k.text(cbd+' of '+closest.length+' peers are in the CBD. Numbers match the peer table on page 3.',M,103);
-  await rptMap(k,d,M,127,516,383);
+  await rptMap(k,d,M,127,516,355);
   rptPeerLegend(k,d,526);
   rptContactsBand(k,d,648,114,contacts);
 }
