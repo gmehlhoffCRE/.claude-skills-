@@ -76,7 +76,7 @@ for p, tab in MAP.items():
             months = (exp.year - comm.year) * 12 + exp.month - comm.month + 1
             y, mo = divmod(months, 12)
             line += f" ({y}-year term)" if not mo else (f" ({y}-year, {mo}-month term)" if y else f" ({mo}-month term)")
-        notes.append(line + ".")
+        notes.append(D.get("lease_term_note") or (line + "."))  # property.json can describe term history in its own words
     pending = [] if hasattr(comm, "year") else ["commencement date"]
     for key, label in [("Renewal Options", "renewal options"), ("Termination Option", "termination option"), ("ROFR / ROFO", "ROFR / ROFO"),
                        ("Holdover", "holdover"), ("Sublease / Assignment", "sublease / assignment")]:
