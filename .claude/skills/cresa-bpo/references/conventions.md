@@ -114,3 +114,7 @@ unless the user says otherwise for a specific report.
   gold box sitting on the road, rotated to the road's angle. No points or leader lines. Label the main roads by name
   (`road_labels`) the same way. Frame the aerial so the counted roads are in view, and keep labels clear of the site
   callout. Skip counts that are implausible for the road or that the user drops, and flag them.
+- Ground leases (tenant built and owns the building on leased land): say so in the intro, Property Summary and Lease
+  Notes; relabel the lease rows (lease_row_labels) as ground rent per building SF and Tax Rent; note whether the
+  building reverts to the landlord at lease end. Flag assignment clauses that treat a merger or change in control as
+  a transfer needing consent, since the client is the acquirer.

@@ -68,7 +68,7 @@ for p, tab in MAP.items():
     if not blank(ll): parts.append(f"leased from {ll}")
     if parts:
         line = ", ".join(parts)
-        notes.append(line[:1].upper() + line[1:] + ".")
+        notes.append(line[:1].upper() + line[1:] + ("" if line.endswith(".") else "."))
     comm, exp = g("Original Lease Commencement"), g("Lease Expiration")
     if hasattr(comm, "year"):
         line = f"Original lease commenced {d(comm)}"
