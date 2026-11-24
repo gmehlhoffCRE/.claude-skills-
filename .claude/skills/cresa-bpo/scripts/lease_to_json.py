@@ -96,7 +96,7 @@ for p, tab in MAP.items():
         a = ws.cell(r, 1).value
         if a == "TOTAL":
             v = [ws.cell(r, c).value for c in range(1, 12)]
-            if v[8]: tot = ["Total", "", "", fmt_mo(v[3]), "", m(v[5]), m(v[7]), m(v[8]), "", ""]
+            if v[8]: tot = ["Total", "", "", f"{round(v[3]):,}", "", m(v[5]), m(v[7]), m(v[8]), "", ""]
             break
         v = [ws.cell(r, c).value for c in range(1, 12)]
         if blank(v[1]): continue

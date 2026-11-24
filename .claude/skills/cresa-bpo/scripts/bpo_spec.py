@@ -345,11 +345,11 @@ def p_proforma():
     colw = [40, 70, 70, 50, 75, 85, 85, 85, 75, 73.6]
     rows = [dict(h=30, cells=[dict(paras=[P("Comp Head", h_)], fill="Navy", inset=(2, 3, 2, 3)) for h_ in heads])]
     pf = ls_.get("pf_rows") or [[str(i)] + ["TBD"] * 9 for i in range(1, 6)]
-    rh = min(22, 330 / (len(pf) + 1))
+    rh = min(48, (400 - 30 - 28) / len(pf))  # fill the page down to the footnote; long schedules shrink to fit
     for i, r in enumerate(pf):
         rows.append(dict(h=rh, cells=[dict(paras=cellp("Comp Cell", v), bottom=("Rule", 0.75), fill="Cell Gray" if i % 2 else None, inset=(2, 3, 2, 3)) for v in r]))
     tot = ls_.get("pf_total") or ["Total", "", "", "TBD", "", "TBD", "TBD", "TBD", "", ""]
-    rows.append(dict(h=24, cells=[dict(paras=cellp("Comp Cell", (v, B) if v else ""), fill="Cell Gray", inset=(2, 3, 2, 3)) for v in tot]))
+    rows.append(dict(h=28, cells=[dict(paras=cellp("Comp Cell", (v, B) if v else ""), fill="Cell Gray", inset=(2, 3, 2, 3)) for v in tot]))
     it.append(table(42.4, 128, colw, rows, name="Pro forma table"))
     ny = min(540, 128 + sum(r["h"] for r in rows) + 14)
     it.append(text(42.4, ny, 708.6, 34, [P("Source Note", ls_.get("pf_note", ""))], name="Pro forma note"))
