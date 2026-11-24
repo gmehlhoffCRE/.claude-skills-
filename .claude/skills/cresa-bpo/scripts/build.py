@@ -145,8 +145,9 @@ def prep_photos(D, work, links):
         D[key + "_file"] = name
     import bpo_spec_sort
     comps = bpo_spec_sort.sort(D.get("comps") or [])
-    for k in range(0, len(comps), 5):
-        chunk = comps[k:k + 5]; cw = (708.6 - 92.5) / len(chunk) - 4; ar = cw / 80
+    per = D.get("comps_per_page") or (5 if len(comps) <= 5 else -(-len(comps) // -(-len(comps) // 5)))
+    for k in range(0, len(comps), per):
+        chunk = comps[k:k + per]; cw = (708.6 - 92.5) / len(chunk) - 4; ar = cw / 80
         for i, c in enumerate(chunk):
             src = c.get("photo_src")
             if not src: continue

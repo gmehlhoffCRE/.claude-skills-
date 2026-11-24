@@ -362,8 +362,9 @@ def build_pages():
     if not D.get("skip_aerial"): pages.append(p_aerial())
     if D.get("buildings"): pages.append(p_buildings())
     pages.append(p_compmap())
-    chunks = [COMPS[i:i + 5] for i in range(0, len(COMPS), 5)] or [[]]
-    for k, ch in enumerate(chunks): pages.append(p_comptable(ch, 1 + 5 * k))
+    per = D.get("comps_per_page") or (5 if len(COMPS) <= 5 else -(-len(COMPS) // -(-len(COMPS) // 5)))  # balance pages, e.g. 6 comps -> 3 + 3
+    chunks = [COMPS[i:i + per] for i in range(0, len(COMPS), per)] or [[]]
+    for k, ch in enumerate(chunks): pages.append(p_comptable(ch, 1 + per * k))
     if D.get("lease"): pages += [p_lease_summary(), p_proforma()]
     if not D.get("skip_value"): pages.append(p_value())
     pages.append(p_back())

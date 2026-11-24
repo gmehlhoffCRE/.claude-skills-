@@ -24,7 +24,8 @@
   "road_labels": "Optional list for the Overhead Aerial: {name, a, b, snap}. Navy road-name label placed and rotated the same way as traffic_counts. Confirm names with Google (nearestRoads + geocode by place_id).",
   "lease_opinion": "Optional: report-specific text for the Lease Opinion of Value paragraph; lease_to_json.py keeps it instead of the generated text.",
   "lease_row_labels": "Optional: relabel Lease Summary rows, e.g. {\"Year 1 Operating Expense Pass-Through / RSF\": \"2026 Estimated Opex / RSF\"}; kept across lease_to_json.py runs.",
-  "lease_term_note": "Optional: replaces the generated 'Original lease commenced...' line in Lease Notes, e.g. when the workbook commencement is the current extension's start."
+  "lease_term_note": "Optional: replaces the generated 'Original lease commenced...' line in Lease Notes, e.g. when the workbook commencement is the current extension's start.",
+  "comps_per_page": "Optional: comps per matrix page (default 5; more than 5 comps are balanced across pages, e.g. 6 -> 3 + 3)."
  },
  "address": "13550 S Gessner Rd",
  "city_line": "Missouri City, Texas 77489",
