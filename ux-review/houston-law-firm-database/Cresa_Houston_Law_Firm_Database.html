@@ -4891,6 +4891,7 @@ async function exportFirmProfilePDF(){
     pdf.addPage();await rptPageBackMap(k,d,contacts);
 
     const safe=firm.n.replace(/[^a-zA-Z0-9]+/g,'_').replace(/^_|_$/g,'');
+    pdf.setDisplayMode('fullpage','single'); // open fit-to-page, one page at a time
     pdf.save('Cresa_Firm_Profile_'+safe+'.pdf');
   }catch(e){
     console.error('Firm profile export error:',e);
