@@ -283,7 +283,7 @@ def p_comptable(chunk, start):
         else:
             it += placeholder(x0 + c0 + i * cw + 2, 123, cw - 4, 80, f"PHOTO {start+i}", note_box=False)
             it.append(text(x0 + c0 + i * cw + 2, 153, cw - 4, 20, [P("Placeholder Note", f"Comp {start+i} photo")], layer="Notes", valign="CenterAlign"))
-    rows = [dict(h=16, cells=[dict(paras=[P("Comp Head", "Comp")], fill="Navy", inset=(2, 8, 2, 4))] + [dict(paras=[P("Comp Head", str(start + i))], fill="Navy") for i in range(n)]),
+    rows = [dict(h=16, cells=[dict(paras=[("Comp Head", EMPTY)], fill="Navy", inset=(2, 8, 2, 4))] + [dict(paras=[P("Comp Head", str(start + i))], fill="Navy") for i in range(n)]),
             dict(h=32.7, cells=[dict(paras=[P("Comp Address", ("Address", {"Justification": "LeftAlign"}))], fill="Blue", inset=(2, 8, 2, 4))] +
                                [dict(paras=[P("Comp Address", (comp_head(chunk[i]) if chunk else "[Address]"))], fill="Blue") for i in range(n)])]
     for lab, key in COMP_FIELDS:
