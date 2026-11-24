@@ -41,7 +41,7 @@ for p, tab in MAP.items():
     else:
         esc_txt = "TBD" if blank(g("Annual Rent Escalation")) else f'{pct(g("Annual Rent Escalation"))} per year'
     rows = [["Analysis Date", d(g("Analysis Date"))], ["Lease Expiration", d(g("Lease Expiration"))],
-            ["Remaining Lease Term", "TBD" if blank(g("Remaining Lease Term (Months)")) else f'{fmt_mo(g("Remaining Lease Term (Months)"))} Months'],
+            ["Remaining Lease Term", "TBD" if blank(g("Remaining Lease Term (Months)")) else f'{round(g("Remaining Lease Term (Months)")):,} Months'],
             ["Rentable Square Feet (RSF)", "TBD" if blank(rsf) else f"{rsf:,}"],
             ["Year 1 Base Rent / RSF", m(g("Current Base Rent / RSF / Yr"), 2)],
             ["Year 1 Operating Expense Pass-Through / RSF", m(g("Operating Expense Pass-Through / RSF / Yr (Year 1)"), 2)],

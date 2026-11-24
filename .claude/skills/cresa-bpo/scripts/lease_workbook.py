@@ -144,7 +144,7 @@ def site_tab(name, addr, suite, ll, rsf, comm, exp, notes, example=False):
     ws.cell(L0, 1, "LEASE SUMMARY (calculated)").font = BOLD
     rng = lambda col: f"{col}{P0 + 1}:{col}{P0 + MAXP}"
     rows = [
-     ("Remaining Lease Term (Months)", f'=IF(AND({B["adate"]}<>"",{B["exp"]}<>"",{B["exp"]}>={B["adate"]}),DATEDIF({B["adate"]},{B["exp"]}+1,"m")+({B["exp"]}+1-EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m")))/(EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m")+1)-EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m"))),"")', MO),
+     ("Remaining Lease Term (Months)", f'=IF(AND({B["adate"]}<>"",{B["exp"]}<>"",{B["exp"]}>={B["adate"]}),DATEDIF({B["adate"]},{B["exp"]}+1,"m")+({B["exp"]}+1-EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m")))/(EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m")+1)-EDATE({B["adate"]},DATEDIF({B["adate"]},{B["exp"]}+1,"m"))),"")', NUM),
      ("Year 1 Gross Rent / RSF (Base + Expenses)", f'=IF({B["rent"]}="","",{B["rent"]}+N({B["opex"]}))', CUR2),
      ("Total Base Rent (Less Free Rent)", f"=SUM({rng('F')})", CUR),
      ("Total Additional Expenses", f"=SUM({rng('H')})", CUR),
