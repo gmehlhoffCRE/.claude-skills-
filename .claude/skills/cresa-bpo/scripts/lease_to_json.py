@@ -109,6 +109,9 @@ for p, tab in MAP.items():
         if blank(v[1]): continue
         pf.append([str(v[0]), d(v[1]), d(v[2]), fmt_mo(v[3]), m(v[4], 2), m(v[5]), "TBD" if nox else m(v[7]), m(v[8]), m(v[9]), m(v[10], 2)])
     total = g("TOTAL REMAINING CASH LEASE COST")
+    if D.get("lease_opinion"): op = D["lease_opinion"]  # report-specific opinion text set in property.json wins
+    labels = D.get("lease_row_labels", {})  # report-specific relabels, e.g. {"Year 1 Operating Expense Pass-Through / RSF": "2026 Estimated Opex / RSF"}
+    rows = [[labels.get(k, k), v] for k, v in rows]
     D["lease"] = {"as_of": d(g("Analysis Date")), "table_title": "Current Lease", "summary_rows": rows, "notes": notes, "opinion": op,
                   "pf_rows": pf or None, "pf_total": tot,
                   "pf_note": (f"Remaining {'base rent ' if nox else ''}lease obligation as of {d(g('Analysis Date'))} is {m(total)}. " + ("Current operating expense pass-throughs (CAM, taxes, insurance) were not provided and are excluded until received. " if nox else "") if total else "Lease terms pending; figures populate once the lease abstract is received. ")

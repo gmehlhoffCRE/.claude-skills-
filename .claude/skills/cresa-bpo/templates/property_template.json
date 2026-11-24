@@ -21,7 +21,9 @@
   "intro_photo": "Optional: same format, for the full-width photo band on the intro page (792 x 327 pt). Replaces the intro_photo_note placeholder.",
   "skip_value": "Optional true: drop the Market Value page (leased sites). The Lease Summary page then carries the lease opinion and the disclaimer.",
   "traffic_counts": "Optional list for the Overhead Aerial: {road, vpd, year, a: [lat, lon], b: [lat, lon], snap}. a and b are two points along the road; the gold 'N VPD' box is centered between them on the road and rotated to the road's angle. Points snap to the road centerline via the Google Roads API unless snap is false (use false on freeways, where snapping can land on a frontage road). geom.json 'map' converts aerial page points back to lat/lon.",
-  "road_labels": "Optional list for the Overhead Aerial: {name, a, b, snap}. Navy road-name label placed and rotated the same way as traffic_counts. Confirm names with Google (nearestRoads + geocode by place_id)."
+  "road_labels": "Optional list for the Overhead Aerial: {name, a, b, snap}. Navy road-name label placed and rotated the same way as traffic_counts. Confirm names with Google (nearestRoads + geocode by place_id).",
+  "lease_opinion": "Optional: report-specific text for the Lease Opinion of Value paragraph; lease_to_json.py keeps it instead of the generated text.",
+  "lease_row_labels": "Optional: relabel Lease Summary rows, e.g. {\"Year 1 Operating Expense Pass-Through / RSF\": \"2026 Estimated Opex / RSF\"}; kept across lease_to_json.py runs."
  },
  "address": "13550 S Gessner Rd",
  "city_line": "Missouri City, Texas 77489",
