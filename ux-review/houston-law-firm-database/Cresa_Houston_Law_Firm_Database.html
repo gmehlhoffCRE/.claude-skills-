@@ -4298,16 +4298,24 @@ function rptCaps(k,t,x,y,size,color,cs,align){
 
 // Draw a name, shrinking the font (down to min) so a long firm name fits
 // maxW on one line instead of being truncated.
-function rptName(k,s,x,y,maxW,size,min,color,align){
+// Helvetica left side bearings (measured, em-units/1000). Used to optically
+// align flush-left text: big display type and numerals carry more bearing, so
+// shifting each line left by its first glyph's bearing lands every visual edge
+// on the same margin.
+const RPT_LSB={A:13,B:80,C:46,D:80,E:80,F:80,G:46,H:80,I:90,J:13,K:80,L:80,M:80,N:80,O:46,P:80,Q:46,R:80,S:46,T:22,U:75,V:3,W:3,X:42,Y:22,Z:32,'0':37,'1':75,'2':46,'3':37,'4':22,'5':37,'6':46,'7':51,'8':42,'9':46};
+function rptLsb(s,size){const u=RPT_LSB[String(s).charAt(0).toUpperCase()];return u?u/1000*size:0;}
+
+function rptName(k,s,x,y,maxW,size,min,color,align,optical){
   k.font('normal',size,color||RPT.navy);
   let sz=size;while(sz>min&&k.width(String(s))>maxW){sz-=0.5;k.pdf.setFontSize(sz);}
-  k.text(k.fit(String(s),maxW),x,y,align?{align:align}:{});
+  const dx=optical?-rptLsb(s,sz):0;
+  k.text(k.fit(String(s),maxW),x+dx,y,align?{align:align}:{});
   return sz;
 }
 
 // ---------- Page 1: Cover (exact template transcription) -----------------
 function rptCoverT(k,d,photo,dateStr){
-  const {pdf}=k,{f}=d,W=RPT.W,M=54,CW=W-108;
+  const {pdf}=k,{f}=d,W=RPT.W,M=48,CW=W-96; // 48pt margin matches pages 2–4
   const lh=36,lw=lh*556/189;
   pdf.addImage(PDF_LOGO_SRC,'PNG',M,42,lw,lh,'cresaLogo','FAST');
 
@@ -4321,17 +4329,21 @@ function rptCoverT(k,d,photo,dateStr){
     rptLogoChip(k,M+CW/2-46,by+bh/2-18,34);
   }
 
-  rptCaps(k,'FIRM PROFILE',M,472,9,RPT.ink3,2.2);
-  rptName(k,f.n,M,513,CW,40,15,RPT.navy); // title — auto-shrinks long names to fit one line
+  // Every flush-left line is nudged left by its first glyph's bearing so the
+  // caps, the big firm name, the address, and the sub-lines share one optical
+  // left edge (aligned to the gold rule and the hero panel at the margin).
+  rptCaps(k,'FIRM PROFILE',M-rptLsb('F',9),472,9,RPT.ink3,2.2);
+  rptName(k,f.n,M,513,CW,40,15,RPT.navy,null,true); // title — auto-shrinks long names to fit one line
   k.font('normal',13.5,RPT.body);
-  k.text(k.fit((f.addr?f.addr+', Houston, TX':'Houston, TX')+(f.sm?' · '+f.sm:''),CW),M,549);
+  const adr=k.fit((f.addr?f.addr+', Houston, TX':'Houston, TX')+(f.sm?' · '+f.sm:''),CW);
+  k.text(adr,M-rptLsb(adr,13.5),549);
   pdf.setFillColor(RPT.gold);pdf.rect(M,562,44,3,'F');
-  k.font('normal',13,RPT.body);k.text('Houston Law Firm Database',M,591);
-  k.font('normal',13,RPT.ink3);k.text('Occupancy benchmarking & peer analysis',M,609);
+  k.font('normal',13,RPT.body);k.text('Houston Law Firm Database',M-rptLsb('H',13),591);
+  k.font('normal',13,RPT.ink3);k.text('Occupancy benchmarking & peer analysis',M-rptLsb('O',13),609);
 
   // Two hero stats, bracketed by hairlines, split by a vertical rule.
   k.hr(M,638,M+CW,RPT.line,0.8);
-  const stat=(x,label,value)=>{rptCaps(k,label,x,658,8.5,RPT.ink3,1.2);k.font('normal',18,RPT.body);k.text(value,x,677);};
+  const stat=(x,label,value)=>{rptCaps(k,label,x-rptLsb(label,8.5),658,8.5,RPT.ink3,1.2);k.font('normal',18,RPT.body);k.text(value,x-rptLsb(value,18),677);};
   // Hero stats, left-packed on a 184pt rhythm with a divider between each.
   // Am Law Rank only appears when the firm is actually ranked.
   const stats=[];
@@ -4347,7 +4359,7 @@ function rptCoverT(k,d,photo,dateStr){
 
   // Footer: navy rule, confidential left, date right.
   pdf.setDrawColor(RPT.navy);pdf.setLineWidth(1.6);pdf.line(M,726,M+CW,726);
-  rptCaps(k,'CRESA · CONFIDENTIAL',M,746,8.5,RPT.ink3,1.0);
+  rptCaps(k,'CRESA · CONFIDENTIAL',M-rptLsb('C',8.5),746,8.5,RPT.ink3,1.0);
   k.font('normal',9,RPT.ink3);k.text(dateStr,M+CW,746,{align:'right'});
 }
 
