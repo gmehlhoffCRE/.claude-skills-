@@ -4667,7 +4667,7 @@ function rptContactsBand(k,d,by,bh,contacts){
     const cx=M+pad+i*(colW+gap);
     // Name (bold white), title (gold), then phone and email in light type —
     // four tight lines.
-    k.font('bold',big?9.5:10.5,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
+    k.font('bold',big?8.5:9.5,'#FFFFFF');k.text(k.fit(c.name||'[ Broker Name ]',colW),cx,ty);
     k.font('normal',fs,RPT.gold);k.text(k.fit(c.title||'[ Title ]',colW),cx,ty+14);
     k.font('normal',fs,'#E3E9F4');
     k.text(k.fit(c.phone||'[ phone ]',colW),cx,ty+27);
