@@ -11,7 +11,7 @@
   "comp_fields": "Rows of the matrix as [label, key]. Keys refer to fields on each comp.",
   "pricing": "ask / trade totals in dollars (or $/RSF/yr when mode is 'lease'); sf_basis defaults to building_sf. Optional placeholder text. Omit pricing to show $TBD.",
   "brokers": "Up to 4: name, title (optional), phone, email. Empty list shows placeholders.",
-  "map_options": "Optional: site_fill, aerial_fill, aerial_shift_pt, location_zoom, location_label_side, comps_label_side, pin_radius_m (framing when no parcels).",
+  "map_options": "Optional: site_fill, aerial_fill, aerial_shift_pt, location_zoom, location_label_side, comps_label_side, pin_radius_m (framing when no parcels). comps_hide_subject (true drops the Subject pin from the comps map, e.g. when a comp is in the subject building).",
   "skip_aerial": "Optional true: drop the Overhead Aerial page (leased sites).",
   "lease_mode": "Leased sites: pricing = {mode: 'lease', ask/trade = $/RSF/yr, ask_label: 'Suggested Asking Rent', trade_label: 'Expected Achievable Rent'}, comps_title = 'Recent Lease Comps', disclaimer = lease wording, comp_fields e.g. [City, Lease Date, SF Leased, Rent/SF/Yr, Lease Type, Term, Year Built, Notes].",
   "lease": "Written by scripts/lease_to_json.py from the lease workbook: as_of, summary_rows, notes, opinion, pf_rows, pf_total, pf_note. Adds Lease Summary and Cash Flow Pro Forma pages.",

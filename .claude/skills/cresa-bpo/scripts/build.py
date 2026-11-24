@@ -68,7 +68,8 @@ def build_maps(D, links, work, which):
         comps = [c for c in D.get("comps", []) if c.get("lat")]
         import bpo_spec_sort
         comps = bpo_spec_sort.sort(comps)
-        cpts = [(c["lat"], c["lon"]) for c in comps] + [S]
+        hide = mo.get("comps_hide_subject")  # e.g. when a comp is in the subject building
+        cpts = [(c["lat"], c["lon"]) for c in comps] + ([] if hide else [S])
         if len(cpts) > 1:
             clat, clon, z, ppt = fit(cpts, 792, 480.3, fill=0.78, min_ppt=1.25, zmax=15)
         else:
@@ -78,7 +79,8 @@ def build_maps(D, links, work, which):
         for i, c in enumerate(comps, 1):
             k = (round(c["lat"], 5), round(c["lon"], 5)); dx = 18 * seen.get(k, 0); seen[k] = seen.get(k, 0) + 1
             m.square(c["lat"], c["lon"], str(i), size=17, dx=dx)
-        m.pin(*S, size=26, label="Subject", label_side=mo.get("comps_label_side", "right")); m.save("map_comps.png")
+        if not hide: m.pin(*S, size=26, label="Subject", label_side=mo.get("comps_label_side", "right"))
+        m.save("map_comps.png")
     if "rings" in which:
         m = GMap(*S, 12, 358, 466, ppt=1.55)
         for mi, lab in ((5, "5 Miles"), (3, "3 Miles"), (1, "1 Mile")): m.ring(*S, mi, lab)
