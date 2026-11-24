@@ -37,6 +37,10 @@ for p, tab in MAP.items():
                 dv, rv = ws.cell(rr, 4).value, ws.cell(rr, 5).value
                 if hasattr(dv, "year") and rv not in (None, ""): sched.append((dv, rv))
             break
+    ad = g("Analysis Date")
+    if sched and hasattr(ad, "year"):  # show only the step in effect at the analysis date and later steps
+        cur = [i for i, (dv, _) in enumerate(sched) if dv <= ad]
+        sched = sched[cur[-1]:] if cur else sched
     if sched:
         esc_txt = "\n".join(f"{m(rv, 2)} from {d(dv)}" for dv, rv in sched)
     else:
@@ -107,7 +111,7 @@ for p, tab in MAP.items():
     total = g("TOTAL REMAINING CASH LEASE COST")
     D["lease"] = {"as_of": d(g("Analysis Date")), "table_title": "Current Lease", "summary_rows": rows, "notes": notes, "opinion": op,
                   "pf_rows": pf or None, "pf_total": tot,
-                  "pf_note": (f"Remaining {'base rent ' if nox else ''}lease obligation as of {d(g('Analysis Date'))} is {m(total)}. " + ("Operating expense pass-throughs (CAM, taxes, insurance) are not stated in the lease documents and are excluded until provided. " if nox else "") if total else "Lease terms pending; figures populate once the lease abstract is received. ")
+                  "pf_note": (f"Remaining {'base rent ' if nox else ''}lease obligation as of {d(g('Analysis Date'))} is {m(total)}. " + ("Current operating expense pass-throughs (CAM, taxes, insurance) were not provided and are excluded until received. " if nox else "") if total else "Lease terms pending; figures populate once the lease abstract is received. ")
                              + ("Base rent follows the lease's fixed rent schedule" if sched else ("Base rent is flat for the remaining term" if (not sched and g("Annual Rent Escalation") == 0) else "Base rent escalates on each anniversary of the original commencement date"))
                              + "; additional expenses include operating expense pass-throughs, taxes and insurance where applicable. A partial first period is prorated."}
     json.dump(D, open(p, "w"), indent=1, ensure_ascii=False)
